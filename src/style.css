@@ -71,3 +71,6 @@ body{background:radial-gradient(ellipse at 52% -25%,#35310b 0,transparent 48%),v
 @keyframes brand-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-2px)}}
 @keyframes orb-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @media(max-width:700px){.chat-layout{display:flex;flex-direction:column;min-height:0}.chat-list{border-left:0;border-bottom:1px solid var(--line);padding:12px}.chat-window{min-height:450px}.chat-top .back-chat{display:grid}.conversation{padding:8px}.conversation-copy small{max-width:140px}.setting-row{align-items:flex-start;flex-direction:column}.segmented{width:100%}.segmented button{flex:1;justify-content:center}.simple-panel,.settings-panel{padding:18px}.music-feature{gap:10px}.album-art{width:52px;height:52px}.chat-disclaimer{font-size:8px}}
+
+/* Toast notifications float from the top edge of the app, above every screen. */
+.notice.toast{position:fixed;top:12px;right:14px;left:14px;z-index:100;max-width:650px;margin:0 auto;box-shadow:0 14px 38px #0009;}
