@@ -51,12 +51,9 @@ export default function App(){
   try{
    if(authMode==='signup'){
     if(!inviteCode.trim()){setNotice('برای ثبت‌نام کد دعوت لازم است.');setBusy(false);return}
-    const {data:inv,error:invError}=await supabase.from('invitation_codes').select('code,used_count,max_uses,active').eq('code',inviteCode.trim()).eq('active',true).maybeSingle();
-    if(invError||!inv||inv.used_count>=inv.max_uses){setNotice('کد دعوت معتبر نیست یا ظرفیت استفاده از آن تمام شده.');setBusy(false);return}
     const {data,error}=await supabase.auth.signUp({email,password,options:{data:{invite_code:inviteCode.trim()}}});
     if(error)throw error;
-    await supabase.from('invitation_codes').update({used_count:inv.used_count+1}).eq('code',inv.code);
-    setNotice(data.session?'ثبت‌نام انجام شد.':'حساب ساخته شد؛ اگر تأیید ایمیل فعال است ایمیلت را بررسی کن.');
+    setNotice(data.session?'ثبت‌نام انجام شد.':'درخواست ثبت‌نام پذیرفته شد؛ اگر تأیید ایمیل فعال است ایمیلت را بررسی کن.');
    }else{
     const {error}=await supabase.auth.signInWithPassword({email,password});if(error)throw error;setNotice('ورود موفق بود.');
    }
@@ -88,7 +85,7 @@ export default function App(){
   <div className="welcome-symbol"><div className="welcome-orbit"></div><Sparkles size={31}/></div>
   <span className="eyebrow">فضای تو، دنیای تو</span><h1>{authMode==='welcome'?'کشف کن. متفاوت باش.':authMode==='signup'?'با دعوت وارد شو.':'خوش برگشتی.'}</h1>
   <p className="welcome-desc">{authMode==='welcome'?'به وایرو خوش اومدی؛ جایی برای آدم‌ها، ایده‌ها و ارتباط‌های تازه.':authMode==='signup'?'ثبت‌نام در وایرو فقط با کد دعوت معتبر امکان‌پذیر است.':'با حساب وایرو ادامه بده.'}</p>
-  {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام با کد دعوت <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button><button className="guest-link" onClick={()=>setAuthMode('guest')}>مشاهدهٔ پیش‌نمایش بدون حساب</button></div>:<form className="auth-form" onSubmit={authenticate}>
+  {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام با کد دعوت <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button></div>:<form className="auth-form" onSubmit={authenticate}>
    <button type="button" className="auth-back" onClick={()=>setAuthMode('welcome')}><ChevronLeft size={17}/> بازگشت</button>
    {authMode==='signup'&&<label>کد دعوت<input value={inviteCode} onChange={e=>setInviteCode(e.target.value)} placeholder="کد دعوت را وارد کن" autoCapitalize="characters" required/></label>}
    <label>ایمیل<input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com" required/></label>
