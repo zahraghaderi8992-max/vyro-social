@@ -143,3 +143,62 @@ body{background:radial-gradient(ellipse at 52% -25%,#35310b 0,transparent 48%),v
  .welcome-logo{margin-bottom:20px}
  .welcome-desc{font-size:11px}
 }
+
+
+/* VYRO v2: calmer neon snake frame, post composer, media viewer, and visible mobile settings */
+@keyframes snake-spin{to{transform:rotate(1turn)}}
+.app-shell{position:relative;isolation:isolate}
+.app-shell::before{content:"";position:fixed;inset:5px;z-index:20;pointer-events:none;border-radius:17px;padding:2px;background:conic-gradient(from 0deg,transparent 0 68%,#fff000 77%,#fff000b8 81%,transparent 91% 100%);-webkit-mask:linear-gradient(#000 0 0) content-box,linear-gradient(#000 0 0);-webkit-mask-composite:xor;mask-composite:exclude;animation:snake-spin 5s linear infinite;opacity:.72}
+.motion-off.app-shell::before{animation:none;opacity:.25}
+@media(max-width:700px){.app-shell::before{inset:3px;border-radius:12px;animation-duration:4.5s}}
+.welcome-card,.composer:not(.composer-modal),.right-panel .join-card{display:none!important}
+.explore-heading{margin:10px 0 20px;align-items:center}
+.new-post-btn{display:flex;align-items:center;gap:8px;border:1px solid #fff00065;background:#fff000;color:#111;border-radius:11px;padding:10px 14px;font-size:11px;font-weight:800}
+.chat-kind-shortcuts{display:grid;grid-template-columns:1fr;gap:5px;margin-bottom:10px}
+.chat-kind-shortcuts button{display:flex;align-items:center;gap:8px;text-align:right;background:#fff0000a;color:#d7dcce;border:1px solid #fff00024;border-radius:9px;padding:9px;font-size:10px}
+.chat-kind-shortcuts button:hover{background:#fff00018;color:#fff000}
+.composer-backdrop{z-index:30}
+.composer-modal{width:min(560px,100%);max-height:90dvh;overflow:auto;position:relative;background:#111311;border:1px solid #fff0004d;border-radius:22px;padding:22px;box-shadow:0 20px 90px #000b}
+.composer-modal-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:22px}
+.composer-modal-head h2{font-size:23px;margin:4px 0}
+.composer-modal-head .close-modal{position:static}
+.composer-modal-user{display:flex;align-items:center;gap:10px;font-size:12px;margin-bottom:12px}
+.post-caption{width:100%;min-height:125px;resize:vertical;background:#0b0d0b;border:1px solid #2a2d24;border-radius:12px;color:#f5f5ee;padding:14px;outline:none;font-size:13px;line-height:2}
+.post-caption:focus{border-color:#fff00075}
+.composer-modal-bottom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0}
+.attach-media{display:inline-flex;align-items:center;gap:8px;border:1px solid #fff00045;color:#fff000;border-radius:10px;padding:10px 12px;font-size:11px;cursor:pointer}
+.attach-media input{display:none}
+.publish-btn{width:100%;padding:13px}
+.media-preview{position:relative;margin-top:12px;border-radius:13px;overflow:hidden;background:#080908;max-height:310px}
+.media-preview img,.media-preview video{display:block;width:100%;max-height:310px;object-fit:contain}
+.remove-media{display:flex;align-items:center;gap:5px;position:absolute;left:10px;top:10px;background:#000b;color:white;border:1px solid #ffffff50;border-radius:8px;padding:7px 9px;font-size:10px}
+.post-media{position:relative;margin:12px 0 15px;background:#080908;border-radius:13px;overflow:hidden;max-height:520px;cursor:pointer;display:grid;place-items:center}
+.post-media img,.post-media video{display:block;width:100%;max-height:520px;object-fit:contain}
+.media-play{position:absolute;width:58px;height:58px;display:grid;place-items:center;border:1px solid #ffffff9a;background:#0007;color:#fff;border-radius:50%;font-size:24px;padding-right:3px;backdrop-filter:blur(8px)}
+.video-viewer{position:fixed;inset:0;z-index:50;background:#030403f5;display:grid;place-items:center;padding:22px;backdrop-filter:blur(14px)}
+.video-close{position:absolute;top:20px;right:20px;background:#191b18;color:#fff;border:1px solid #ffffff30;border-radius:50%;width:44px;height:44px;display:grid;place-items:center;z-index:2}
+.video-viewer-content{width:min(580px,100%);max-height:92dvh;display:flex;flex-direction:column;align-items:center;gap:12px}
+.video-viewer-content>video,.video-viewer-content>img{width:100%;max-height:76dvh;object-fit:contain;background:#000;border-radius:12px}
+.video-caption{width:100%;display:flex;align-items:flex-start;gap:12px;flex-wrap:wrap;font-size:12px;color:#fff;padding:4px}
+.video-caption p{flex-basis:100%;margin:0;color:#d4d7cf;line-height:1.8}
+.video-caption span{margin-right:auto;display:flex;align-items:center;gap:5px;color:#fff000}
+.settings-panel{padding:22px;margin-top:10px}
+.settings-panel h2{font-size:22px;margin:7px 0 20px}
+.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0;border-bottom:1px solid #292c25}
+.setting-row:last-child{border-bottom:0}
+.setting-row>div{min-width:0}
+.setting-row b{font-size:12px}
+.setting-row p{font-size:10px;color:#858b80;margin:5px 0 0;overflow-wrap:anywhere}
+.toggle{border:1px solid #373a30;background:#20221d;color:#c5c8ba;border-radius:9px;padding:8px 12px;font-size:10px;white-space:nowrap}
+.toggle.on{background:#fff000;color:#111;border-color:#fff000}
+.logout-btn{display:flex;align-items:center;gap:6px;background:#291715;color:#ffb7a7;border:1px solid #5c2c25;border-radius:9px;padding:9px 11px;white-space:nowrap;font-size:10px}
+.create-type{display:flex;gap:7px;margin-bottom:16px}
+.create-type button{display:flex;align-items:center;gap:6px;background:#20221d;color:#ccc;border:1px solid #383b30;border-radius:9px;padding:9px 11px;font-size:10px}
+.create-type button.chosen{background:#fff00018;border-color:#fff000;color:#fff000}
+.mobile-nav button.mobile-active{color:#fff000}
+.auth-first .auth-form label{display:grid;gap:7px;font-size:11px;color:#c7ccc5;margin-bottom:15px}
+.auth-first .auth-form input{width:100%;background:#0e100f;border:1px solid #303532;border-radius:10px;padding:12px;color:#f5f5ef;outline:none;direction:ltr;text-align:left;font-size:12px}
+.auth-first .auth-form input:focus{border-color:#fff000}
+.auth-first .welcome-desc{max-width:350px}
+.auth-first .auth-help{display:block;color:#9da38f;font-size:10px;line-height:1.8;margin-top:12px}
+@media(max-width:700px){.composer-modal{padding:17px;border-radius:18px}.composer-modal-bottom{align-items:flex-start;flex-direction:column}.post-media,.post-media img,.post-media video{max-height:430px}.setting-row{gap:8px}.setting-row b{font-size:11px}.setting-row p{max-width:210px}.logout-btn{padding:8px}.app-shell::before{pointer-events:none}}
