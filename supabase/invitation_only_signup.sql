@@ -31,7 +31,10 @@ begin
   where code = submitted_code and active = true
   for update;
 
-  if not found or invitation.used_count >= invitation.max_uses then
+  if not found then
+    raise exception 'کد دعوت معتبر نیست یا ظرفیت استفاده از آن تمام شده است.';
+  end if;
+  if invitation.used_count >= invitation.max_uses then
     raise exception 'کد دعوت معتبر نیست یا ظرفیت استفاده از آن تمام شده است.';
   end if;
 
