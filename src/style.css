@@ -273,3 +273,16 @@ body{background:radial-gradient(ellipse at 52% -25%,#35310b 0,transparent 48%),v
 .sticker-link-card p{margin:0;font-weight:700}
 .sticker-link-card a{font-size:11px;color:var(--accent,#9c8bff);text-decoration:underline}
 .sticker-link-card button{border:1px solid var(--line,#303142);background:var(--panel,#191a26);color:inherit;border-radius:9px;padding:7px;cursor:pointer}
+
+
+/* Vyro refinement pack */
+.chat-kind-shortcuts{display:none!important}.emoji-toggle{border-radius:12px!important;color:#b9f35b!important}
+.emoji-drawer{background:#151622;border-top:1px solid #2c2d3a;padding:12px 14px;max-height:260px;overflow:auto}
+.emoji-tabs{display:flex;gap:8px;align-items:center;margin-bottom:12px}.emoji-tabs button{flex:1;border:1px solid #343544;background:#20212d;color:#ddd;border-radius:12px;padding:10px;font-weight:700}.emoji-tabs button.selected{background:#b9f35b;color:#151515;border-color:#b9f35b}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:5px}.emoji-grid button{font-size:23px;border:0;background:transparent;padding:5px;border-radius:9px}
+.sticker-pack-card{display:flex;align-items:center;gap:12px;padding:12px;border-radius:14px;background:#20212d}.sticker-pack-card>span{font-size:28px}.sticker-pack-card small{display:block;color:#aaa;margin-top:4px}.pack-add-btn{margin-top:10px;border:0;background:#b9f35b;color:#111;border-radius:12px;padding:9px 13px;display:flex;gap:7px;align-items:center}
+.profile-tabs{display:grid!important;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px!important}.profile-tabs button{padding:11px 5px!important;font-size:13px}
+.chat-theme-preview{margin-top:15px;background:var(--preview-bg);border:1px solid var(--preview-accent);border-radius:16px;padding:12px;color:#f8f8fa}
+.preview-top{display:flex;align-items:center;gap:10px;border-bottom:1px solid #ffffff22;padding-bottom:10px}.preview-top div{display:flex;flex-direction:column;flex:1;text-align:right}.preview-top small{color:#aaa}.preview-top button{border:0;background:transparent;color:inherit}
+.preview-bubble{padding:10px 12px;border-radius:14px;margin-top:12px;max-width:85%;font-size:13px}.preview-bubble.theirs{background:#ffffff18;margin-left:auto}.preview-bubble.mine{background:var(--preview-accent);color:#141414;margin-right:auto}.preview-compose{margin-top:14px;padding:11px;background:#ffffff12;border-radius:12px;display:flex;justify-content:space-between;color:#bbb;font-size:12px}
+@media(max-width:640px){.emoji-grid{grid-template-columns:repeat(6,minmax(0,1fr))}.profile-tabs button{font-size:12px!important}}
