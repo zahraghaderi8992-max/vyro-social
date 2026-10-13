@@ -91,7 +91,9 @@ export default function App(){
   if(!supabaseReady){setNotice('اتصال آنلاین آماده نیست. مدیر پروژه باید Secrets مربوط به Supabase را در GitHub تنظیم کند.');setBusy(false);return}
   try{
    if(authMode==='signup'){
-    if(!inviteCode.trim()){setNotice('برای ثبت‌نام کد دعوت لازم است.');setBusy(false);return}\n    if(!notRobot){setNotice('لطفاً تأیید کن که ربات نیستی.');setBusy(false);return}\n    if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
+    if(!inviteCode.trim()){setNotice('برای ثبت‌نام کد دعوت لازم است.');setBusy(false);return}
+    if(!notRobot){setNotice('لطفاً تأیید کن که ربات نیستی.');setBusy(false);return}
+    if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
     const username=email.trim().replace(/^@/,'').toLowerCase();
     if(!/^[a-z0-9_.]{3,24}$/.test(username))throw new Error('نام کاربری باید ۳ تا ۲۴ حرف انگلیسی، عدد، نقطه یا زیرخط باشد.');
     const {data,error}=await supabase.auth.signUp({email:`${username}@vyro.local`,password,options:{data:{username,invite_code:inviteCode.trim()}}});
