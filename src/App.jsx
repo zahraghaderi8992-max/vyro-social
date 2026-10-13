@@ -41,7 +41,7 @@ export default function App(){
  const [settingsPage,setSettingsPage]=useState('home');
  const [profileSection,setProfileSection]=useState('variou');
  const [aiDraft,setAiDraft]=useState('');
- const [aiMessages,setAiMessages]=useState([{role:'assistant',text:'سلام! من دستیار وایرو هستم. می‌تونم برای نوشتن، ایده‌پردازی و برنامه‌ریزی کمکت کنم. فعلاً پاسخ‌ها درون‌برنامه‌ای و آزمایشی‌اند.'}]);
+ const [aiMessages,setAiMessages]=useState([{role:'assistant',text:'سلام! من دستیار وایرو هستم. برای پاسخ‌های هوشمند، از سرویس امن OpenAI متصل به وایرو استفاده می‌کنم.'}]);
  const [musicUrl,setMusicUrl]=useState('');
  const [musicName,setMusicName]=useState('');
  const [chatExtraOpen,setChatExtraOpen]=useState(false);
@@ -162,6 +162,7 @@ export default function App(){
    {notice&&<div className="auth-notice">{notice}</div>}
    <button type="button" className="switch-auth" onClick={()=>{setAuthMode(authMode==='signup'?'login':'signup');setNotice('')}}>{authMode==='signup'?'حساب داری؟ وارد شو':'حساب نداری؟ ثبت‌نام با کد دعوت'}</button>
   </form>}
+  {showRules&&<div className="rules-overlay" role="dialog" aria-modal="true"><div className="rules-modal"><button className="rules-close" onClick={()=>setShowRules(false)} aria-label="بستن"><X size={20}/></button><span className="eyebrow">قوانین جامعه</span><h2>قوانین و مقررات وایرو</h2><ol>{RULES_TEXT.map((rule,i)=><li key={i}>{rule}</li>)}</ol><button className="primary-btn" onClick={()=>{setTermsAccepted(true);setShowRules(false)}}>خواندم و می‌پذیرم</button></div></div>}
  </div>;
  return <div className={'app-shell '+(settings.motion?'motion-on':'motion-off')} dir="rtl">
   <aside className="sidebar"><a className="brand" href="#top" onClick={e=>{e.preventDefault();setTab('explore')}}><span className="brand-mark">V</span><span>VYRO<span className="brand-dot">.</span></span></a><div className="side-caption">فضای تو، دنیای تو</div>
