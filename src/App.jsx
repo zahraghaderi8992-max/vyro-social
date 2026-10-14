@@ -16,7 +16,7 @@ const demoPosts = [
 export default function App(){
  const [session,setSession]=useState(null);
  const [authChecked,setAuthChecked]=useState(false);
- const [posts,setPosts]=useState(demoPosts);
+ const [posts,setPosts]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-posts')||'null')||demoPosts}catch{return demoPosts}});
  const [tab,setTab]=useState('explore');
  const [composer,setComposer]=useState('');
  const [authMode,setAuthMode]=useState('welcome');
@@ -33,7 +33,7 @@ export default function App(){
  const [inviteCode,setInviteCode]=useState('');
  const [notice,setNotice]=useState('');
  const [busy,setBusy]=useState(false);
- const [conversations,setConversations]=useState(seedConversations);
+ const [conversations,setConversations]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-conversations')||'null')||seedConversations}catch{return seedConversations}});
  const [chatId,setChatId]=useState(null);
  const [chatDraft,setChatDraft]=useState('');
  const [chatKind,setChatKind]=useState('group');
@@ -85,6 +85,8 @@ export default function App(){
  const RULES_TEXT=['هر فعالیتی که در این اپلیکیشن انجام می‌شود مسئولیتش با خود کاربر است.','به عقاید و شخصیت یکدیگر احترام بگذارید؛ فرقی ندارد چه مذهبی دارید، احترام برای رفاه همه است.','ادب و رعایت نکات اخلاقی الزامی است؛ حتی برای ادمین‌های اپلیکیشن.','در صورت مشاهدهٔ باگ، مشکل یا داشتن اعتراض، از بخش پشتیبانی داخل وایرو با ادمین مطرح کنید.','در صورت رعایت نکردن قوانین فوق، با کاربر برخورد می‌شود.'];
 
  useEffect(()=>{if(!notice||!settings.toast)return;const t=setTimeout(()=>setNotice(''),3000);return()=>clearTimeout(t)},[notice,settings.toast]);
+ useEffect(()=>{try{localStorage.setItem('vyro-conversations',JSON.stringify(conversations))}catch{}},[conversations]);
+ useEffect(()=>{try{localStorage.setItem('vyro-posts',JSON.stringify(posts))}catch{}},[posts]);
  useEffect(()=>{try{const saved=JSON.parse(localStorage.getItem('vyro-settings')||'{}');if(saved.settings)setSettings(v=>({...v,...saved.settings}));if(saved.themeChoice)setThemeChoice(saved.themeChoice);if(saved.customBg)setCustomBg(saved.customBg);if(saved.customAccent)setCustomAccent(saved.customAccent);if(saved.appLanguage)setAppLanguage(saved.appLanguage);if(saved.privacyChoices)setPrivacyChoices(saved.privacyChoices);if(saved.notificationChoices)setNotificationChoices(saved.notificationChoices);if(saved.aiTier)setAiTier(saved.aiTier)}catch{}finally{setSettingsLoaded(true)}},[]);
  useEffect(()=>{if(!settingsLoaded)return;try{localStorage.setItem('vyro-settings',JSON.stringify({settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier}))}catch{}},[settingsLoaded,settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier]);
  useEffect(()=>{if(session){setProfileAvatar(session.user?.user_metadata?.avatar_url||'');setProfileAvatarHistory([...new Set([...(Array.isArray(session.user?.user_metadata?.avatar_history)?session.user.user_metadata.avatar_history:[]),session.user?.user_metadata?.avatar_url].filter(Boolean))].slice(-2));setProfileBanner(session.user?.user_metadata?.banner_url||'');setProfileBio(session.user?.user_metadata?.bio||'به دنیای وایرو خوش اومدی ✨')}},[session]);
