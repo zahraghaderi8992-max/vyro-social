@@ -13,6 +13,10 @@ on:
       - 'capacitor.config.json'
       - '.github/workflows/build-apk.yml'
 
+concurrency:
+  group: vyro-android-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 permissions:
   contents: read
 
