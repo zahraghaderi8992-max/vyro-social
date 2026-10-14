@@ -2,18 +2,6 @@ name: Build VYRO Android APK
 
 on:
   workflow_dispatch:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'index.html'
-      - '.github/workflows/deploy-web.yml'
-      - 'vite.config.js'
-      - 'capacitor.config.json'
-      - '.github/workflows/build-apk.yml'
 
 concurrency:
   group: vyro-android-apk-${{ github.ref }}
