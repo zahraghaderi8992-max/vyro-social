@@ -1,0 +1,16 @@
+{
+  "id": "./",
+  "name": "VYRO — وایرو",
+  "short_name": "VYRO",
+  "description": "وایرو؛ شبکه اجتماعی نسل تازه",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0b0c0d",
+  "theme_color": "#0b0c0d",
+  "icons": [
+    { "src": "./vyro-icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}
