@@ -13,6 +13,27 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) return new Response(JSON.stringify({ error: "OPENAI_API_KEY secret is missing" }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     const body = await req.json();
+    if (typeof body?.imagePrompt === "string" && body.imagePrompt.trim()) {
+      const imageResponse = await fetch("https://api.openai.com/v1/images/generations", {
+        method: "POST",
+        headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: Deno.env.get("OPENAI_IMAGE_MODEL") || "gpt-image-1",
+          prompt: body.imagePrompt.trim().slice(0, 1800),
+          size: "1024x1024",
+          n: 1
+        })
+      });
+      const imageResult = await imageResponse.json();
+      if (!imageResponse.ok) {
+        console.error("OpenAI image error", imageResponse.status, imageResult?.error?.code || "unknown");
+        return new Response(JSON.stringify({ error: "Image generation failed" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const image = imageResult?.data?.[0];
+      if (image?.b64_json) return new Response(JSON.stringify({ imageUrl: `data:image/png;base64,${image.b64_json}` }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (image?.url) return new Response(JSON.stringify({ imageUrl: image.url }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return new Response(JSON.stringify({ error: "Image provider returned no image" }), { status: 502, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
     const messages = Array.isArray(body?.messages) ? body.messages : [];
     const safeMessages = messages
       .filter((m: any) => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string")
