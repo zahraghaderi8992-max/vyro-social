@@ -51,3 +51,21 @@
 @media(min-width:701px) and (max-width:1100px){.app-shell{grid-template-columns:190px minmax(0,650px);gap:18px;padding:0 18px}.right-panel{display:none}}
 
 .connection-status.is-checking{color:#e8c878}.connection-status.is-checking i{background:#e8c878;box-shadow:none}
+
+/* Requested cleanup: compact chat-create sheet, Telegram-style verification, single bio edit icon, referrals */
+.verified-check{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;flex:0 0 17px;margin-right:5px;border-radius:50%;background:#229ed9;color:#fff;vertical-align:middle;box-shadow:0 0 0 2px var(--panel,#121415)}
+.chat-create-types{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:10px 0 15px}
+.chat-create-types button{display:flex;align-items:center;justify-content:center;gap:8px;min-width:0;padding:12px 8px;border:1px solid var(--line,#303142);border-radius:12px;background:var(--panel,#191a26);color:inherit;font:inherit;cursor:pointer}
+.chat-create-types button.selected{border-color:var(--lime,#b9f35b);background:color-mix(in srgb,var(--lime,#b9f35b) 12%,var(--panel,#191a26))}
+.create-chat-modal{gap:12px}
+.create-chat-modal label{margin:0}
+.create-chat-modal .publish-btn{margin-top:4px}
+.bio-edit{display:inline-grid;place-items:center;width:26px;height:26px;margin-right:4px;border-radius:8px;background:var(--panel,#191a26);color:var(--lime,#b9f35b);font-size:15px}
+.referral-card{display:grid;gap:12px;padding:18px;margin-top:14px;border:1px solid var(--line,#303142);border-radius:16px;background:var(--panel,#191a26)}
+.referral-card>span{font-size:13px;color:var(--muted,#a8a9bb)}
+.referral-card>strong{font-size:25px;letter-spacing:3px;direction:ltr;text-align:center;padding:12px;border:1px dashed var(--line,#303142);border-radius:12px}
+.referral-card .secondary-btn{display:flex;align-items:center;justify-content:center;gap:8px}
+.referral-count{display:flex;align-items:center;justify-content:space-between;padding-top:14px;border-top:1px solid var(--line,#303142)}
+.referral-count strong{font-size:24px;color:var(--lime,#b9f35b)}
+.referral-count span{font-size:13px;color:var(--muted,#a8a9bb)}
+.ai-plan small{display:none!important}
