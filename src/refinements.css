@@ -76,3 +76,39 @@
 .admin-user-count{padding:8px 0;color:var(--muted);font-size:12px}.reaction-active{color:var(--lime)!important}.post-comments{display:grid;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.post-comments-list{display:grid;gap:8px;max-height:240px;overflow:auto}.post-comment{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;background:color-mix(in srgb,var(--panel) 70%,#000);border-radius:10px;font-size:12px}.post-comment b{color:var(--lime);white-space:nowrap}.post-comment span{overflow-wrap:anywhere}.post-comments form{display:flex;gap:8px;min-width:0}.post-comments input{min-width:0;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;color:inherit;font:inherit}.post-comments form button{flex:0 0 auto;padding:8px 12px}.chat-create-types{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:420px){.chat-create-types{grid-template-columns:1fr}.feed-post-actions{gap:10px;flex-wrap:wrap}.post-comments form{flex-wrap:wrap}}
 
 /* Final APK validation build */
+
+
+/* Glass-neon visual direction adapted from the user's supplied chat mockup */
+:root{
+  --vyro-neon:#ffd700;
+  --vyro-neon-soft:rgba(255,215,0,.28);
+  --vyro-glass:rgba(12,13,20,.72);
+  --vyro-glass-border:rgba(255,215,0,.22);
+}
+@keyframes vyroGlowPulse{0%,100%{box-shadow:0 0 0 rgba(255,215,0,0)}50%{box-shadow:0 0 24px rgba(255,215,0,.09)}}
+@keyframes vyroSoftIn{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:translateY(0)}}
+body{background-image:radial-gradient(ellipse at 10% 0%,rgba(255,215,0,.075),transparent 38%),radial-gradient(ellipse at 95% 100%,rgba(255,153,0,.055),transparent 34%)}
+.card,.modal-card,.settings-card,.profile-card,.chat-layout,.feed-post,.post-add-card,.story-add-card,.referral-card,.create-chat-modal{
+  background:linear-gradient(145deg,rgba(25,26,36,.88),rgba(10,11,17,.78));
+  border-color:var(--vyro-glass-border);
+  box-shadow:0 10px 32px rgba(0,0,0,.18),inset 0 1px 0 rgba(255,255,255,.025);
+  backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)
+}
+.card,.feed-post,.chat-layout,.referral-card{animation:vyroSoftIn .28s ease both}
+.icon-btn,.secondary-btn,.chat-create-types button,.chat-folders button,.feed-post-actions button{
+  transition:transform .2s ease,border-color .2s ease,background .2s ease,box-shadow .2s ease
+}
+.icon-btn:hover,.secondary-btn:hover,.chat-create-types button:hover,.chat-folders button:hover,.feed-post-actions button:hover{
+  border-color:rgba(255,215,0,.55);box-shadow:0 0 16px rgba(255,215,0,.09);transform:translateY(-1px)
+}
+.primary-btn,.publish-btn,.send-chat{
+  box-shadow:0 4px 18px rgba(255,215,0,.14)
+}
+.avatar,.chat-avatar,.story-avatar span,.admin-avatar{
+  box-shadow:0 0 14px rgba(255,215,0,.09)
+}
+.feed-post-actions button.reaction-active{background:rgba(255,215,0,.1);border-radius:10px}
+.chat-body{scroll-behavior:smooth}
+.message-bubble{animation:vyroSoftIn .18s ease both}
+.post-comments{animation:vyroSoftIn .2s ease both}
+@media(prefers-reduced-motion:reduce){.card,.feed-post,.chat-layout,.referral-card,.message-bubble,.post-comments{animation:none!important;transition:none!important}}
