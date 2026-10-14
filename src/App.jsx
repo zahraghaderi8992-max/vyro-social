@@ -4,9 +4,7 @@ import { Bell, Compass, Heart, ImagePlus, LogIn, MessageCircle, Plus, Send, Shie
 import { supabase, supabaseReady } from './lib/supabase';
 import EmojiPicker from 'emoji-picker-react';
 
-const seedConversations = [
- { id:'sticker-review', type:'direct', name:'گفت‌وگوی تست استیکر', handle:'@sticker.test', avatar:'V', last:'آماده برای بررسی ایموجی', time:'', unread:0, messages:[] }
-];
+const seedConversations = [];
 const demoPosts = [];
 export default function App(){
  const [session,setSession]=useState(null);
@@ -34,7 +32,8 @@ export default function App(){
  const [conversations,setConversations]=useState(seedConversations);
  const [chatId,setChatId]=useState(null);
  const [chatDraft,setChatDraft]=useState('');
- const [chatKind,setChatKind]=useState('group');
+ const [chatKind,setChatKind]=useState('direct');
+ const [chatSearch,setChatSearch]=useState('');
  const [chatName,setChatName]=useState('');
  const [createChatOpen,setCreateChatOpen]=useState(false);
  const [liked,setLiked]=useState([]);
@@ -114,9 +113,19 @@ export default function App(){
  },[]);
  useEffect(()=>{
   if(!supabaseReady||!session)return;
-  supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url)').order('created_at',{ascending:false}).limit(50).then(({data,error})=>{
-   if(data&&!error)setPosts(data.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})).concat(JSON.parse(localStorage.getItem('vyro-posts')||'[]').filter(p=>String(p.id).startsWith('local-'))));
-  });
+  let active=true;
+  const loadSocial=async()=>{
+   const {data:postRows}=await supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url)').order('created_at',{ascending:false}).limit(50);
+   if(active&&postRows)setPosts(postRows.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));
+   const {data:storyRows}=await supabase.from('stories').select('id,user_id,text_content,media_url,expires_at,created_at,profiles(username)').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(50);
+   if(active&&storyRows)setStories(storyRows.map(s=>({id:s.id,username:s.profiles?.username||'vyro_user',text:s.text_content||'',media_url:s.media_url||'',createdAt:new Date(s.created_at).getTime(),expiresAt:s.expires_at,online:true})));
+   const {data:memberRows}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);
+   const ids=(memberRows||[]).map(m=>m.conversation_id);
+   if(!ids.length){if(active)setConversations(v=>v.filter(x=>String(x.id).startsWith('local-')));return;}
+   const [{data:convRows},{data:messageRows}]=await Promise.all([supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),supabase.from('messages').select('id,conversation_id,sender_id,content,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:true}).limit(500)]);
+   if(active&&convRows){const mapped=convRows.map(v=>{const ms=(messageRows||[]).filter(m=>m.conversation_id===v.id).map(m=>({id:m.id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}));const last=ms[ms.length-1];return{id:v.id,type:v.type==='private'?'direct':v.type,name:v.title||'گفت‌وگو',handle:'',avatar:(v.title||'V').slice(0,1).toUpperCase(),last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms}});setConversations([...mapped,...conversations.filter(x=>String(x.id).startsWith('local-'))]);}
+  };
+  loadSocial();return()=>{active=false};
  },[session]);
  async function authenticate(e){
   e.preventDefault();setBusy(true);setNotice('');
@@ -157,7 +166,7 @@ export default function App(){
    }catch(err){setNotice('بارگذاری فایل انجام نشد: '+(err.message||'دسترسی مخزن را بررسی کن.'));return}
   }
   if(session&&supabaseReady){
-   const {error}=await supabase.from('posts').insert({user_id:session.user.id,content:content||' ',media_url:mediaUrl||null,media_type:mediaFile?.type||null});
+   const storedType=mediaFile?.type?.startsWith('video/')?'video':mediaFile?.type?.startsWith('image/')?'image':'none';const {error}=await supabase.from('posts').insert({user_id:session.user.id,content:content||' ',media_url:mediaUrl||null,media_type:storedType});
    if(error){setNotice('پست ذخیره نشد: '+error.message);return}
   }
   const item={id:'local-'+Date.now(),username:session?.user?.user_metadata?.username||session?.user?.email?.split('@')[0]||'you',display_name:session?'شما':'پیش‌نمایش شما',time:'همین حالا',content,likes:0,media_url:mediaUrl,media_type:mediaFile?.type||''};
@@ -170,15 +179,20 @@ export default function App(){
   setMediaFile(file);setMediaPreview(URL.createObjectURL(file));
  }
  async function sendChat(e){
-  e?.preventDefault();playDefaultSound();const value=chatDraft.trim();if(!value||!chatId)return;
-  const updated=conversations.map(c=>c.id===chatId?{...c,last:value,time:'همین حالا',messages:[...c.messages,{from:'me',text:value,time:new Date().toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}]}:c);
-  setConversations(updated);setChatDraft('');
-  setNotice(session?'پیام فعلاً در این نمونه روی همین دستگاه نگه داشته می‌شود؛ پیام‌رسانی زنده هنوز وصل نیست.':'پیام آزمایشی اضافه شد. برای گفت‌وگوی آنلاین وارد حساب شو.');
+  e?.preventDefault();const value=chatDraft.trim();if(!value||!chatId)return;
+  if(!session||!supabaseReady||String(chatId).startsWith('local-')){setNotice('برای ارسال پیام واقعی، وارد حساب آنلاین شو و یک گفت‌وگوی آنلاین باز کن.');return}
+  setBusy(true);const {data,error}=await supabase.from('messages').insert({conversation_id:chatId,sender_id:session.user.id,content:value,message_type:'text'}).select('id,created_at').single();
+  if(error){setNotice('پیام ارسال نشد؛ دسترسی اعضای گفتگو را بررسی کن.');setBusy(false);return}
+  playDefaultSound();const time=new Date(data.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});setConversations(v=>v.map(c=>c.id===chatId?{...c,last:value,time,messages:[...c.messages,{id:data.id,from:'me',text:value,time}]}:c));setChatDraft('');setBusy(false);
  }
- function createConversation(e){
-  e.preventDefault();const name=(chatKind==='direct'?chatUsername.trim().replace(/^@/,''):chatName.trim());if(!name)return;
-  const id='local-'+Date.now();const c={id,type:chatKind,name,handle:chatKind==='direct'?'@'+chatUsername.replace(/^@/,''):chatKind==='group'?'گروه آزمایشی':'کانال آزمایشی',avatar:chatKind==='direct'?name.slice(0,1):chatKind==='group'?'گ':'ک',last:chatKind==='direct'?'گفت‌وگوی خصوصی ایجاد شد':chatKind==='group'?'گروه ساخته شد':'کانال ساخته شد',time:'همین حالا',unread:0,messages:[{from:'them',text:chatKind==='direct'?'گفت‌وگوی خصوصی با @'+chatUsername.replace(/^@/,'')+' آماده است. پیام‌رسانی زنده هنوز فعال نیست.':chatKind==='group'?'گروه آزمایشی ساخته شد. اعضا را بعداً می‌توان اضافه کرد.':'کانال آزمایشی ساخته شد. انتشار آنلاین بعداً فعال می‌شود.',time:'الان'}]};
-  setConversations([c,...conversations]);setChatId(id);setChatName('');setChatUsername('');setCreateChatOpen(false);setNotice('این '+(chatKind==='group'?'گروه':'کانال')+' فعلاً فقط در پیش‌نمایش ساخته شد.');
+ async function createConversation(e){
+  e.preventDefault();if(!session||!supabaseReady){setNotice('برای ساخت گفت‌وگوی واقعی، ابتدا وارد حساب آنلاین شو.');return}
+  const name=(chatKind==='direct'?chatUsername.trim().replace(/^@/,'').toLowerCase():chatName.trim());if(!name){setNotice('نام کاربری یا نام گروه را وارد کن.');return}
+  setBusy(true);try{let title=name,otherUserId=null;if(chatKind==='direct'){const {data:target,error:targetError}=await supabase.from('profiles').select('id,username').eq('username',name).maybeSingle();if(targetError)throw targetError;if(!target){setNotice('این نام کاربری هنوز در وایرو ثبت نشده است.');setBusy(false);return}if(target.id===session.user.id){setNotice('نمی‌توانی با خودت گفت‌وگو بسازی.');setBusy(false);return}otherUserId=target.id;title=target.username;const {data:existing}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);const ids=(existing||[]).map(x=>x.conversation_id);if(ids.length){const {data:matches}=await supabase.from('conversations').select('id,title,type').in('id',ids).eq('type','private').eq('title',title);if(matches?.length){setChatId(matches[0].id);setCreateChatOpen(false);setBusy(false);return}}}
+   const {data:created,error:createError}=await supabase.from('conversations').insert({type:chatKind==='direct'?'private':'group',title,created_by:session.user.id}).select('id,type,title,created_at').single();if(createError)throw createError;
+   const members=[{conversation_id:created.id,user_id:session.user.id},...(otherUserId?[{conversation_id:created.id,user_id:otherUserId}]:[])];const {error:memberError}=await supabase.from('conversation_members').insert(members);if(memberError)throw memberError;
+   const item={id:created.id,type:created.type==='private'?'direct':'group',name:created.title,handle:otherUserId?'@'+title:'',avatar:title.slice(0,1).toUpperCase(),last:'گفت‌وگوی تازه',time:'',unread:0,messages:[]};setConversations(v=>[item,...v]);setChatId(created.id);setChatName('');setChatUsername('');setCreateChatOpen(false);setNotice('گفت‌وگوی آنلاین ساخته شد.');
+  }catch(err){setNotice(err.message||'ساخت گفت‌وگو انجام نشد.')}finally{setBusy(false)}
  }
  const currentUsername=(session?.user?.user_metadata?.username|| (session?.user?.email==='hadi.geym1234@gmail.com'?'mohammad0900':session?.user?.email==='najeh9808@gmail.com'?'najehyouz':session?.user?.email?.split('@')[0])||'').toLowerCase();
  const isOwner=currentUsername==='mohammad0900'||session?.user?.email==='hadi.geym1234@gmail.com';
@@ -203,7 +217,7 @@ export default function App(){
   </form>}
   {showRules&&<div className="rules-overlay" role="dialog" aria-modal="true"><div className="rules-modal"><button className="rules-close" onClick={()=>setShowRules(false)} aria-label="بستن"><X size={20}/></button><span className="eyebrow">قوانین جامعه</span><h2>قوانین و مقررات وایرو</h2><ol>{RULES_TEXT.map((rule,i)=><li key={i}>{rule}</li>)}</ol><button className="primary-btn" onClick={()=>{setTermsAccepted(true);setShowRules(false)}}>خواندم و می‌پذیرم</button></div></div>}
  </div>;
- return <div className={'app-shell '+(settings.motion?'motion-on':'motion-off')+' theme-'+themeChoice} dir="rtl" style={{'--app-zoom':(Number(settings.fontScale)||100)/100,'--lime':themeChoice==='ocean'?'#63b3ff':themeChoice==='mono'?'#d7d7df':themeChoice==='rose'?'#ff83b7':themeChoice==='forest'?'#78ddb0':'#d9ff4f','--bg':themeChoice==='ocean'?'#081321':themeChoice==='mono'?'#101012':themeChoice==='rose'?'#190e16':themeChoice==='forest'?'#091610':'#0b0c0d','--panel':themeChoice==='ocean'?'#101d30':themeChoice==='mono'?'#171719':themeChoice==='rose'?'#21131d':themeChoice==='forest'?'#102019':'#121415','--line':themeChoice==='ocean'?'#253a55':themeChoice==='mono'?'#36363a':themeChoice==='rose'?'#452438':themeChoice==='forest'?'#234435':'#242728','--font-family':settings.fontFamily==='simple'?'Arial,Tahoma,sans-serif':settings.fontFamily==='rounded'?'Trebuchet MS,Vazirmatn,sans-serif':'Vazirmatn,Tahoma,sans-serif','--chat-font-scale':(Number(settings.chatFontScale)||100)/100}}>
+ return <div className={'app-shell '+(settings.motion?'motion-on':'motion-off')+' theme-'+themeChoice} dir="rtl" style={{'--app-zoom':(Number(settings.fontScale)||100)/100,'--lime':themeChoice==='custom'?customAccent:themeChoice==='ocean'?'#63b3ff':themeChoice==='mono'?'#d7d7df':themeChoice==='rose'?'#ff83b7':themeChoice==='forest'?'#78ddb0':'#d9ff4f','--bg':themeChoice==='custom'?customBg:themeChoice==='ocean'?'#081321':themeChoice==='mono'?'#101012':themeChoice==='rose'?'#190e16':themeChoice==='forest'?'#091610':'#0b0c0d','--panel':themeChoice==='ocean'?'#101d30':themeChoice==='mono'?'#171719':themeChoice==='rose'?'#21131d':themeChoice==='forest'?'#102019':themeChoice==='custom'?customBg:'#121415','--line':themeChoice==='ocean'?'#253a55':themeChoice==='mono'?'#36363a':themeChoice==='rose'?'#452438':themeChoice==='forest'?'#234435':'#242728','--font-family':settings.fontFamily==='simple'?'Arial,Tahoma,sans-serif':settings.fontFamily==='rounded'?'Trebuchet MS,Vazirmatn,sans-serif':'Vazirmatn,Tahoma,sans-serif','--chat-font-scale':(Number(settings.chatFontScale)||100)/100,'backgroundColor':themeChoice==='custom'?customBg:undefined}}>
   <aside className="sidebar"><a className="brand" href="#top" onClick={e=>{e.preventDefault();setTab('explore')}}><span className="brand-mark">V</span><span>VYRO<span className="brand-dot">.</span></span></a><div className="side-caption">فضای تو، دنیای تو</div>
    <nav><button className={tab==='explore'?'nav-item active':'nav-item'} onClick={()=>setTab('explore')}><Compass size={19}/> اکسپلور</button><button className={tab==='messages'?'nav-item active':'nav-item'} onClick={()=>{setTab('messages');setChatId(null)}}><MessageCircle size={19}/> چت</button><button className={tab==='music'?'nav-item active':'nav-item'} onClick={()=>setTab('music')}><Headphones size={19}/> موزیو</button><button className={tab==='ai'?'nav-item active':'nav-item'} onClick={()=>setTab('ai')}><Bot size={19}/> هوش مصنوعی</button><button className={tab==='profile'?'nav-item active':'nav-item'} onClick={()=>setTab('profile')}><UserRound size={19}/> پروفایل</button>{isAdmin&&<button className={tab==='support'?'nav-item active':'nav-item'} onClick={()=>setTab('support')}><ShieldCheck size={19}/> مدیریت</button>}</nav>
    <div className="sidebar-bottom"><div className="online-dot"/> وایرو در حال رشد است</div>
