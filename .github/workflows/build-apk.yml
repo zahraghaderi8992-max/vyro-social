@@ -1,6 +1,10 @@
 name: Build VYRO Android APK
 
 on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/build-apk.yml'
   workflow_dispatch:
 
 concurrency:
