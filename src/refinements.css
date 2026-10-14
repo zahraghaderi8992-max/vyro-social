@@ -71,3 +71,6 @@
 .ai-plan small{display:none!important}
 
 /* APK build requested for the latest reviewed VYRO interface. */
+
+/* User list, post engagement and responsive chat creation */
+.admin-user-count{padding:8px 0;color:var(--muted);font-size:12px}.reaction-active{color:var(--lime)!important}.post-comments{display:grid;gap:10px;margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}.post-comments-list{display:grid;gap:8px;max-height:240px;overflow:auto}.post-comment{display:flex;gap:8px;align-items:flex-start;padding:8px 10px;background:color-mix(in srgb,var(--panel) 70%,#000);border-radius:10px;font-size:12px}.post-comment b{color:var(--lime);white-space:nowrap}.post-comment span{overflow-wrap:anywhere}.post-comments form{display:flex;gap:8px;min-width:0}.post-comments input{min-width:0;flex:1;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:10px;color:inherit;font:inherit}.post-comments form button{flex:0 0 auto;padding:8px 12px}.chat-create-types{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:420px){.chat-create-types{grid-template-columns:1fr}.feed-post-actions{gap:10px;flex-wrap:wrap}.post-comments form{flex-wrap:wrap}}
