@@ -161,7 +161,7 @@ export default function App(){
     const loginEmail=isEmail?loginId:loginId==='mohammad0900'?'hadi.geym1234@gmail.com':loginId==='najehyouz'?'najeh9808@gmail.com':`${loginId}@vyro.local`;
     const {error}=await supabase.auth.signInWithPassword({email:loginEmail,password});if(error)throw error;setNotice('ورود موفق بود.');
    }
-  }catch(err){setNotice(err.message||'خطا در اتصال به حساب آنلاین.')}
+  }catch(err){const message=String(err?.message||'');if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین.')}}
   setBusy(false);
  }
  async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut();if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
