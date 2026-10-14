@@ -336,3 +336,13 @@ body{background:radial-gradient(ellipse at 52% -25%,#35310b 0,transparent 48%),v
 .profile-legal-note{margin-top:28px;padding-top:12px;text-align:center;color:#a2a2b4;font-size:11px;opacity:.85}
 footer{display:flex;flex-direction:column;align-items:center;gap:4px;color:#a2a2b4;opacity:.88}
 @media(max-width:520px){.ai-plans{grid-template-columns:1fr}.ai-plan{display:grid;grid-template-columns:auto 1fr;align-items:center}.ai-plan small{grid-column:2}.ai-image-tools{flex-direction:column}.emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
+
+.settings-menu-item{display:flex;align-items:center}
+.settings-menu-icon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:10px;background:#8b7cff18;font-size:17px;margin-left:10px}
+.sample-track-list{margin:16px 0;padding:12px;border:1px solid var(--line,#303142);border-radius:14px}
+.sample-track-list h3{font-size:13px;margin:0 0 10px}
+.sample-track-list .music-track{margin:8px 0}
+.admin-back{flex:0 0 auto;margin-left:10px}
+.admin-head{align-items:flex-start}
+.profile-avatar-control{padding:0;border:0;background:transparent;color:inherit;font:inherit}
+@media(max-width:520px){.settings-menu-icon{flex-basis:30px;width:30px;height:30px;margin-left:7px}.admin-head{flex-wrap:wrap}}
