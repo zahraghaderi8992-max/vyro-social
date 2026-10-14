@@ -362,3 +362,6 @@ footer{display:flex;flex-direction:column;align-items:center;gap:4px;color:#a2a2
 .avatar-history img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .public-profile-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .delete-account-entry{margin-top:22px;padding-top:18px;border-top:1px solid #a44}
+
+.ai-plan-note{font-size:10px;line-height:1.7;color:var(--muted,#a8a9bb);margin:0 0 14px}
+.public-profile-cover{height:120px;margin:-22px -22px 18px;background-size:cover;background-position:center;border-radius:22px 22px 0 0}
