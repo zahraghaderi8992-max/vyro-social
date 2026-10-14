@@ -41,6 +41,7 @@ export default function App(){
  const [createChatOpen,setCreateChatOpen]=useState(false);
  const [liked,setLiked]=useState([]);
  const [settings,setSettings]=useState({motion:true,toast:true,privateProfile:false});
+ const [settingsLoaded,setSettingsLoaded]=useState(false);
  const [disabledFeature,setDisabledFeature]=useState('موسیقی');
  const [settingsPage,setSettingsPage]=useState('home');
  const [profileSection,setProfileSection]=useState('variou');
@@ -84,7 +85,8 @@ export default function App(){
  const RULES_TEXT=['هر فعالیتی که در این اپلیکیشن انجام می‌شود مسئولیتش با خود کاربر است.','به عقاید و شخصیت یکدیگر احترام بگذارید؛ فرقی ندارد چه مذهبی دارید، احترام برای رفاه همه است.','ادب و رعایت نکات اخلاقی الزامی است؛ حتی برای ادمین‌های اپلیکیشن.','در صورت مشاهدهٔ باگ، مشکل یا داشتن اعتراض، از بخش پشتیبانی داخل وایرو با ادمین مطرح کنید.','در صورت رعایت نکردن قوانین فوق، با کاربر برخورد می‌شود.'];
 
  useEffect(()=>{if(!notice||!settings.toast)return;const t=setTimeout(()=>setNotice(''),3000);return()=>clearTimeout(t)},[notice,settings.toast]);
- useEffect(()=>{try{const saved=JSON.parse(localStorage.getItem('vyro-settings')||'{}');if(saved.settings)setSettings(v=>({...v,...saved.settings}));if(saved.themeChoice)setThemeChoice(saved.themeChoice);if(saved.customBg)setCustomBg(saved.customBg);if(saved.customAccent)setCustomAccent(saved.customAccent);if(saved.appLanguage)setAppLanguage(saved.appLanguage);if(saved.privacyChoices)setPrivacyChoices(saved.privacyChoices);if(saved.notificationChoices)setNotificationChoices(saved.notificationChoices);if(saved.aiTier)setAiTier(saved.aiTier)}catch{}},[]);
+ useEffect(()=>{try{const saved=JSON.parse(localStorage.getItem('vyro-settings')||'{}');if(saved.settings)setSettings(v=>({...v,...saved.settings}));if(saved.themeChoice)setThemeChoice(saved.themeChoice);if(saved.customBg)setCustomBg(saved.customBg);if(saved.customAccent)setCustomAccent(saved.customAccent);if(saved.appLanguage)setAppLanguage(saved.appLanguage);if(saved.privacyChoices)setPrivacyChoices(saved.privacyChoices);if(saved.notificationChoices)setNotificationChoices(saved.notificationChoices);if(saved.aiTier)setAiTier(saved.aiTier)}catch{}finally{setSettingsLoaded(true)}},[]);
+ useEffect(()=>{if(!settingsLoaded)return;try{localStorage.setItem('vyro-settings',JSON.stringify({settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier}))}catch{}},[settingsLoaded,settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier]);
  useEffect(()=>{if(session){setProfileAvatar(session.user?.user_metadata?.avatar_url||'');setProfileAvatarHistory([...new Set([...(Array.isArray(session.user?.user_metadata?.avatar_history)?session.user.user_metadata.avatar_history:[]),session.user?.user_metadata?.avatar_url].filter(Boolean))].slice(-2));setProfileBanner(session.user?.user_metadata?.banner_url||'');setProfileBio(session.user?.user_metadata?.bio||'به دنیای وایرو خوش اومدی ✨')}},[session]);
  useEffect(()=>{if(session){setProfileAvatar(session.user?.user_metadata?.avatar_url||'');setProfileBanner(session.user?.user_metadata?.banner_url||'');setProfileBio(session.user?.user_metadata?.bio||'به دنیای وایرو خوش اومدی ✨')}},[session]);
  useEffect(()=>{if(!session)return;Filesystem.requestPermissions().catch(()=>{});Filesystem.mkdir({path:'VYRO/Downloads',directory:Directory.Documents,recursive:true}).catch(()=>{});},[session]);
