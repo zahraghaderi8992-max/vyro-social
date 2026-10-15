@@ -223,3 +223,30 @@ button{touch-action:manipulation}
 .file-preview{display:flex;align-items:center;gap:10px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--lime);overflow-wrap:anywhere}
 .file-preview span{min-width:0;overflow-wrap:anywhere}
 .media-preview audio{display:block;width:100%;max-width:100%}
+
+
+/* VYRO visual cleanup: fewer ornamental outlines, clearer chat media */
+.story-avatar{box-shadow:none!important;border:0!important;outline:0!important}
+.story-avatar::before,.story-avatar::after{box-shadow:none!important;border:0!important;outline:0!important}
+.story-avatar span{box-shadow:none!important;border:0!important}
+.profile-page,.admin-panel,.public-profile-card,.profile-cover,.profile-main,.profile-stats,.profile-shortcuts,.public-profile-post,.admin-user-row,.admin-search,.story-strip,.story-list,.feed-post,.chat-layout,.chat-window,.chat-top,.chat-body,.chat-compose{outline:0!important}
+.profile-page,.admin-panel,.public-profile-card{border-color:rgba(255,255,255,.07)!important;box-shadow:0 8px 28px rgba(0,0,0,.16)!important}
+.profile-cover{border:0!important;box-shadow:none!important}
+.profile-stats>div,.profile-shortcuts,.public-profile-post,.admin-user-row{border-color:rgba(255,255,255,.07)!important}
+.profile-legal-note{display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.footer-terms-link{border:0;background:transparent;color:var(--vyro-gold,#ffd700);padding:2px 4px;text-decoration:underline;text-underline-offset:3px;cursor:pointer;font:inherit}
+.footer-terms-link:hover{color:#fff}
+.chat-compose{gap:6px;flex-wrap:nowrap}
+.chat-compose>button{flex:0 0 auto;min-width:36px;min-height:38px}
+.chat-compose input:not([type=file]){min-width:0;flex:1}
+.chat-compose .recording-active{color:#ff6565!important;background:rgba(255,65,65,.12)!important;animation:vyro-record-pulse 1.3s ease-in-out infinite}
+@keyframes vyro-record-pulse{50%{opacity:.55}}
+.chat-attachment-image,.chat-attachment-video{display:block;max-width:min(100%,320px);max-height:360px;border-radius:12px;object-fit:contain}
+.chat-attachment-audio{display:block;width:min(280px,70vw);max-width:100%}
+.chat-file-link{display:flex;align-items:center;gap:8px;color:var(--vyro-gold,#ffd700);overflow-wrap:anywhere;text-decoration:none;padding:8px 0}
+.chat-sticker{font-size:2.6rem;line-height:1.25;padding:4px 8px}
+.sticker-message{min-width:72px;text-align:center}
+.chat-sticker-picker{display:flex;flex-wrap:wrap;gap:4px;padding:10px;border:1px solid rgba(255,255,255,.09);border-radius:12px;background:var(--panel,#151515)}
+.chat-sticker-picker button{font-size:1.55rem;border:0;background:transparent;border-radius:8px;padding:5px;cursor:pointer}
+.chat-sticker-picker button:hover{background:rgba(255,215,0,.1)}
+@media(max-width:520px){.chat-compose{gap:3px}.chat-compose>button{min-width:32px;padding:6px}.chat-attachment-video{max-width:78vw}}
