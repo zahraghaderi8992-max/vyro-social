@@ -210,7 +210,7 @@ export default function App(){
    if(error){setNotice('پست ذخیره نشد: '+error.message);return}
    publishedPostId=createdPost?.id||null;
   }
-  const item={id:publishedPostId||'local-'+Date.now(),user_id:session?.user?.id,username:session?.user?.user_metadata?.username||session?.user?.email?.split('@')[0]||'you',display_name:session?'شما':'پیش‌نمایش شما',avatar_url:session?.user?.user_metadata?.avatar_url||'',banner_url:session?.user?.user_metadata?.banner_url||'',time:'همین حالا',content,likes:0,media_url:mediaUrl,media_type:mediaFile?.type||''};
+  const item={id:publishedPostId||'local-'+Date.now(),user_id:session?.user?.id,username:session?.user?.user_metadata?.username||session?.user?.email?.split('@')[0]||'you',display_name:session?'شما':'پیش‌نمایش شما',avatar_url:session?.user?.user_metadata?.avatar_url||'',banner_url:session?.user?.user_metadata?.banner_url||'',time:'همین حالا',content,likes:0,media_url:mediaUrl,media_type:mediaFile?.type||'none'};
   setPosts([item,...posts]);setComposer('');setMediaFile(null);setMediaPreview('');setComposerOpen(false);
   setNotice(session&&supabaseReady?'پست منتشر شد.':'پست در پیش‌نمایش این دستگاه اضافه شد.');
  }
