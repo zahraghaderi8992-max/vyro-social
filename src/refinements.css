@@ -147,3 +147,72 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(255,215,0,.075),tra
 .admin-server-actions button{font-size:11px;padding:7px 9px}
 .admin-server-actions .danger-btn{background:#5c2028;color:#ffe5e8;border:1px solid #9d3944}
 @media(max-width:600px){.admin-server-actions{width:100%;justify-content:flex-start}.admin-user-row{flex-wrap:wrap}}
+
+
+/* Combined visual layer: glass + black/gold palette from the supplied mockup,
+   applied on top of Vyro's existing React components (not a static replacement). */
+:root{
+  --vyro-gold:#FFD700;
+  --vyro-amber:#FFA500;
+  --vyro-glass:rgba(7,8,10,.68);
+  --vyro-glass-border:rgba(255,215,0,.22);
+  --vyro-glass-shadow:rgba(255,215,0,.12);
+}
+html{background:#050607}
+body{
+  background:
+    radial-gradient(ellipse at 15% -8%,rgba(255,215,0,.085),transparent 38%),
+    radial-gradient(ellipse at 90% 26%,rgba(255,165,0,.055),transparent 34%),
+    linear-gradient(135deg,#050607 0%,#111214 52%,#08090a 100%);
+  color:#fff;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+}
+body::before{content:none!important;animation:none!important}
+.card,.feed-post,.chat-layout,.profile-page,.music-hub,.simple-panel,.right-panel,
+.story-modal,.composer-modal,.public-profile-card,.conversation,.chat-user-search-card{
+  border-color:var(--vyro-glass-border);
+}
+.card,.feed-post,.chat-layout,.profile-page,.music-hub,.simple-panel,.right-panel,
+.story-modal,.composer-modal,.public-profile-card{
+  background:linear-gradient(145deg,rgba(17,18,20,.92),rgba(5,6,7,.86));
+  box-shadow:0 10px 28px rgba(0,0,0,.2),inset 0 1px 0 rgba(255,215,0,.025);
+}
+.topbar,.nav,.chat-list-head,.composer-modal-head{
+  background:rgba(5,6,7,.84);
+  border-color:var(--vyro-glass-border);
+}
+h1,h2,.section-title,.eyebrow,.music-brand-row h2{ text-wrap:balance }
+.primary-btn,.send-chat,.nav-item.active,.chat-kind-shortcuts button.selected,
+.profile-shortcuts button.selected{
+  background:linear-gradient(135deg,var(--vyro-gold),var(--vyro-amber));
+  color:#090909;
+  border-color:transparent;
+}
+.icon-btn,.secondary-btn,.chat-create-types button,.chat-kind-shortcuts button,
+.search-box,.search-box input,.composer-modal textarea,.story-modal textarea,
+.profile-page input:not([type=file]),.story-modal input:not([type=file]){
+  border-color:var(--vyro-glass-border);
+}
+.icon-btn:hover,.secondary-btn:hover{box-shadow:0 0 0 1px rgba(255,215,0,.15),0 5px 16px var(--vyro-glass-shadow)}
+.story-avatar,.avatar,.chat-avatar,.admin-avatar{
+  background:linear-gradient(135deg,var(--vyro-gold),var(--vyro-amber));
+}
+.story-avatar{box-shadow:0 0 0 2px rgba(255,215,0,.12)}
+.feed-post-actions{border-color:var(--vyro-glass-border)}
+.feed-post-actions button{transition:background-color .12s ease,color .12s ease}
+.feed-post-actions button:hover{background:rgba(255,215,0,.08)}
+.feed-post-actions button svg{flex-shrink:0}
+.feed-post,.conversation,.public-profile-post{content-visibility:auto;contain-intrinsic-size:auto 280px}
+.feed-post-media,.public-profile-post img,.public-profile-post video{display:block;max-width:100%;height:auto;max-height:70vh;object-fit:contain}
+.feed-post-media[loading="lazy"]{content-visibility:auto}
+.chat-body{overscroll-behavior:contain;scrollbar-gutter:stable}
+input,textarea,button{font-family:inherit}
+button{touch-action:manipulation}
+@media(max-width:700px){
+  .card,.feed-post,.chat-layout,.profile-page,.music-hub,.simple-panel,.right-panel{backdrop-filter:none!important}
+  .feed-post,.conversation,.public-profile-post{contain-intrinsic-size:auto 230px}
+}
+@media(prefers-reduced-motion:reduce){
+  *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
+}
