@@ -26,7 +26,7 @@ export default function App(){
  const [deleteUsername,setDeleteUsername]=useState('');
  const [deletePassword,setDeletePassword]=useState('');
  const [deletePasswordAgain,setDeletePasswordAgain]=useState('');
- const [inviteCode,setInviteCode]=useState('VYRO-START-2026');
+ const [referralCode,setReferralCode]=useState('');
  const [myInviteCode,setMyInviteCode]=useState('');
  const [inviteCount,setInviteCount]=useState(0);
  const [notice,setNotice]=useState('');
@@ -146,12 +146,11 @@ export default function App(){
   if(!supabaseReady){setNotice('اتصال آنلاین آماده نیست. مدیر پروژه باید Secrets مربوط به Supabase را در GitHub تنظیم کند.');setBusy(false);return}
   try{
    if(authMode==='signup'){
-    if(!inviteCode.trim()){setNotice('برای ثبت‌نام کد دعوت لازم است.');setBusy(false);return}
     if(!notRobot){setNotice('لطفاً تأیید کن که ربات نیستی.');setBusy(false);return}
     if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
     const username=email.trim().replace(/^@/,'').toLowerCase();
     if(!/^[a-z0-9_.]{3,24}$/.test(username))throw new Error('نام کاربری باید ۳ تا ۲۴ حرف انگلیسی، عدد، نقطه یا زیرخط باشد.');
-    const normalizedInviteCode=inviteCode.trim().toUpperCase();const signupEmail=username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{data:{username,display_name:username,invite_code:normalizedInviteCode}}});
+    const normalizedReferralCode=referralCode.trim().toUpperCase();const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
     if(error)throw error;
     setNotice(data.session?'ثبت‌نام انجام شد.':'حساب ساخته شد. حالا با نام کاربری و رمزت وارد شو.');
    }else{
@@ -161,7 +160,7 @@ export default function App(){
     const loginEmail=isEmail?loginId:loginId==='mohammad0900'?'hadi.geym1234@gmail.com':loginId==='najehyouz'?'najeh9808@gmail.com':`${loginId}@vyro.local`;
     const {error}=await supabase.auth.signInWithPassword({email:loginEmail,password});if(error)throw error;setNotice('ورود موفق بود.');
    }
-  }catch(err){const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد دعوت معتبر نیست|کد دعوت لازم است|invitation code|invalid invitation|capacity of this invitation|database error saving new user/i.test(message)){setNotice('ثبت‌نام انجام نشد؛ کد دعوت VYRO-START-2026 را بررسی کن. اگر همین کد وارد شده، ممکن است trigger ثبت‌نام در سرور خطا داده باشد.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
+  }catch(err){const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد معرف واردشده معتبر نیست. آن را اصلاح کن یا کادر کد معرف را خالی بگذار تا بدون معرف ثبت‌نام کنی.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
   setBusy(false);
  }
  async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut();if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
@@ -220,17 +219,17 @@ export default function App(){
  if(!session&&authMode!=='guest')return <div className="auth-first" dir="rtl">
   <div className="auth-glow"></div><div className="welcome-logo"><div className="brand-mark big-mark">V</div><span className="wordmark">VYRO<span>.</span></span></div>
   <div className="welcome-symbol"><div className="welcome-orbit"></div><Sparkles size={31}/></div>
-  <span className="eyebrow">فضای تو، دنیای تو</span><h1>{authMode==='welcome'?'وایرو؛ ارتباط به سبک تو':authMode==='signup'?'با دعوت وارد شو.':'خوش برگشتی.'}</h1>
-  <p className="welcome-desc">{authMode==='welcome'?'به وایرو خوش اومدی؛ جایی برای آدم‌ها، ایده‌ها و ارتباط‌های تازه.':authMode==='signup'?'فقط نام کاربری، رمز عبور و کد دعوت لازم داری.':'با حساب وایرو ادامه بده.'}</p>
-  {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام با کد دعوت <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button></div>:<form className="auth-form" onSubmit={authenticate}>
+  <span className="eyebrow">فضای تو، دنیای تو</span><h1>{authMode==='welcome'?'وایرو؛ ارتباط به سبک تو':authMode==='signup'?'حساب خودت را بساز.':'خوش برگشتی.'}</h1>
+  <p className="welcome-desc">{authMode==='welcome'?'به وایرو خوش اومدی؛ جایی برای آدم‌ها، ایده‌ها و ارتباط‌های تازه.':authMode==='signup'?'نام کاربری و رمز عبور بس است؛ کد معرف اختیاری است.':'با حساب وایرو ادامه بده.'}</p>
+  {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام رایگان <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button></div>:<form className="auth-form" onSubmit={authenticate}>
    <button type="button" className="auth-back" onClick={()=>setAuthMode('welcome')}><ChevronLeft size={17}/> بازگشت</button>
-   {authMode==='signup'&&<><label>کد دعوت<input value={inviteCode} onChange={e=>setInviteCode(e.target.value)} placeholder="کد دعوت را وارد کن" autoCapitalize="characters" required/></label><div className="signup-checks"><label className="check-row"><input type="checkbox" checked={notRobot} onChange={e=>setNotRobot(e.target.checked)}/><span><b>من ربات نیستم</b><small>تأیید ساده؛ برای محافظت واقعی باید CAPTCHA سمت سرور فعال شود.</small></span></label><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
+   {authMode==='signup'&&<><label>کد معرف (اختیاری)<input value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد معرف دوستت، اگر داری" autoCapitalize="characters"/></label><div className="signup-checks"><label className="check-row"><input type="checkbox" checked={notRobot} onChange={e=>setNotRobot(e.target.checked)}/><span><b>من ربات نیستم</b><small>تأیید ساده؛ برای محافظت واقعی باید CAPTCHA سمت سرور فعال شود.</small></span></label><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
    <label>نام کاربری<input type="text" value={email} onChange={e=>setEmail(e.target.value)} placeholder="مثلاً mohammad0900" autoCapitalize="none" autoComplete="username" minLength={3} maxLength={24} required/></label>
    <label>رمز عبور<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="حداقل ۶ کاراکتر" autoComplete={authMode==='signup'?'new-password':'current-password'} minLength={6} required/></label>
-   <button className="primary-btn submit-auth" disabled={busy}>{busy?'لطفاً صبر کن…':authMode==='signup'?'ساخت حساب با دعوت':'ورود به وایرو'} <LogIn size={16}/></button>
+   <button className="primary-btn submit-auth" disabled={busy}>{busy?'لطفاً صبر کن…':authMode==='signup'?'ساخت حساب':'ورود به وایرو'} <LogIn size={16}/></button>
    {!supabaseReady&&<small className="auth-help"></small>}
    {notice&&<div className="auth-notice">{notice}</div>}
-   <button type="button" className="switch-auth" onClick={()=>{setAuthMode(authMode==='signup'?'login':'signup');setNotice('')}}>{authMode==='signup'?'حساب داری؟ وارد شو':'حساب نداری؟ ثبت‌نام با کد دعوت'}</button>
+   <button type="button" className="switch-auth" onClick={()=>{setAuthMode(authMode==='signup'?'login':'signup');setNotice('')}}>{authMode==='signup'?'حساب داری؟ وارد شو':'حساب نداری؟ ثبت‌نام کن'}</button>
   </form>}
   {showRules&&<div className="rules-overlay" role="dialog" aria-modal="true"><div className="rules-modal"><button className="rules-close" onClick={()=>setShowRules(false)} aria-label="بستن"><X size={20}/></button><span className="eyebrow">قوانین جامعه</span><h2>قوانین و مقررات وایرو</h2><ol>{RULES_TEXT.map((rule,i)=><li key={i}>{rule}</li>)}</ol><button className="primary-btn" onClick={()=>{setTermsAccepted(true);setShowRules(false)}}>خواندم و می‌پذیرم</button></div></div>}
  </div>;
