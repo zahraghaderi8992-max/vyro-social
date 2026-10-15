@@ -114,7 +114,7 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(255,215,0,.075),tra
 @media(prefers-reduced-motion:reduce){.card,.feed-post,.chat-layout,.referral-card,.message-bubble,.post-comments{animation:none!important;transition:none!important}}
 
 /* Web test fixes: optional referral, right-aligned settings icons, icon-only reactions and no sticker UI */
-.settings-menu-item{display:flex;flex-direction:row-reverse;align-items:center;justify-content:flex-start;gap:12px;text-align:right}
+.settings-menu-item{display:flex;flex-direction:row;align-items:center;justify-content:space-between;gap:12px;text-align:right}
 .settings-menu-item>.settings-menu-icon{flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;margin-right:0;margin-left:0}
 .settings-menu-item>span:nth-child(2){flex:1;min-width:0;text-align:right}
 .optional-field-note{display:block;color:var(--muted,#a8a9bb);font-size:11px;line-height:1.8;margin:4px 0 6px}
