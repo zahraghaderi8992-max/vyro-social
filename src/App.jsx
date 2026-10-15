@@ -85,6 +85,8 @@ export default function App(){
  const [adminView,setAdminView]=useState('home');
  const [adminSearch,setAdminSearch]=useState('');
  const [serverUsers,setServerUsers]=useState([]);
+ const [currentServerRole,setCurrentServerRole]=useState('');
+ const [currentAdminPermissions,setCurrentAdminPermissions]=useState(['users_view','users_suspend']);
  const [postReactions,setPostReactions]=useState([]);
  const [postComments,setPostComments]=useState([]);
  const [commentDrafts,setCommentDrafts]=useState({});
