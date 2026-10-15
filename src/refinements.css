@@ -121,3 +121,24 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(255,215,0,.075),tra
 .feed-post-actions .reaction-symbol{font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
 .feed-post-actions button{justify-content:center;min-height:32px}
 .emoji-drawer,.quick-stickers,.sticker-link-card{display:none!important}
+
+
+/* Web test refinements: media publishing, profile links, search cards and admin controls */
+.story-media-picker{display:flex;align-items:center;gap:8px;padding:11px 12px;border:1px solid var(--line);border-radius:12px;cursor:pointer}
+.story-media-picker input{max-width:100%;font-size:12px}
+.chat-user-search-results{display:grid;gap:6px;margin:8px 0 12px}
+.chat-user-search-card{display:flex;align-items:center;gap:10px;width:100%;padding:9px 11px;text-align:right;border:1px solid var(--line);border-radius:12px;background:var(--panel);color:inherit;cursor:pointer}
+.chat-user-search-card>span:last-child{display:grid;gap:3px;min-width:0}
+.chat-user-search-card small{color:var(--muted,#9b9db0);direction:ltr;text-align:right}
+.chat-user-search-card .chat-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.profile-open-avatar,.profile-open-name{cursor:pointer}
+.profile-open-name{padding:0;border:0;background:transparent;color:inherit;text-align:right}
+.profile-open-name b{font:inherit}
+.public-profile-actions{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:14px 0 18px}
+.public-profile-actions button{display:inline-flex;align-items:center;gap:6px}
+.admin-permissions-panel{display:grid;gap:8px;padding:14px;margin:12px 0;border:1px solid var(--line);border-radius:14px;background:var(--panel)}
+.admin-permissions-panel h3{margin:0 0 4px}
+.reaction-symbol{flex-shrink:0;vertical-align:middle}
+.feed-post-head .avatar{padding:0;overflow:hidden}
+.feed-post-head .avatar img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+@media(max-width:600px){.public-profile-actions{gap:6px}.public-profile-actions button{font-size:12px;padding:9px}.chat-user-search-card{padding:8px}}
