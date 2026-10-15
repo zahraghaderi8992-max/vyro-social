@@ -47,7 +47,7 @@ jobs:
           path: dist
   deploy:
     environment:
-      name: github-pages
+      name: vyro-web-test
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
