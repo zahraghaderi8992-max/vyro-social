@@ -216,3 +216,10 @@ button{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{scroll-behavior:auto!important;animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important}
 }
+
+
+.feed-file-link{display:flex;align-items:center;gap:10px;max-width:100%;padding:14px 16px;margin:8px 0;border:1px solid var(--vyro-glass-border,rgba(255,215,0,.22));border-radius:12px;background:rgba(255,215,0,.055);color:var(--vyro-gold,#ffd700);text-decoration:none;overflow-wrap:anywhere}
+.feed-file-link:hover{background:rgba(255,215,0,.1)}
+.file-preview{display:flex;align-items:center;gap:10px;min-width:0;padding:14px;border:1px solid var(--line);border-radius:12px;color:var(--lime);overflow-wrap:anywhere}
+.file-preview span{min-width:0;overflow-wrap:anywhere}
+.media-preview audio{display:block;width:100%;max-width:100%}
