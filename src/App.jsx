@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { Filesystem, Directory } from '@capacitor/filesystem';
-import { Bell, Compass, ImagePlus, LogIn, MessageCircle, Plus, Send, ShieldCheck, Sparkles, UserRound, Settings, X, Search, Paperclip, Mic, Bot, Headphones, ChevronLeft, Users, Radio, LockKeyhole, ArrowRight, LogOut, Crown, RotateCcw, Check, Copy, Share2 } from 'lucide-react';
+import { Bell, Compass, Heart, ImagePlus, LogIn, MessageCircle, Plus, Send, ShieldCheck, Sparkles, UserRound, Settings, X, Search, Paperclip, Mic, Bot, Headphones, ChevronLeft, Users, Radio, LockKeyhole, ArrowRight, LogOut, Crown, RotateCcw, Check, Copy, Share2 } from 'lucide-react';
 import { supabase, supabaseReady } from './lib/supabase';
 
 const seedConversations = [];
