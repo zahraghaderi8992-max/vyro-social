@@ -180,7 +180,7 @@ export default function App(){
   return new Promise(resolve=>{
    const url=URL.createObjectURL(file);const img=new Image();
    const finish=value=>{URL.revokeObjectURL(url);resolve(value||file)};
-   img.onload=()=>{try{const maxSide=1600;const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));if(scale===1&&file.size<2000000){finish(file);return}const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx){finish(file);return}ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{if(!blob){finish(file);return}const base=(file.name||'vyro-image').replace(/\\.[^.]+$/,'')||'vyro-image';finish(new File([blob],base+'.jpg',{type:'image/jpeg',lastModified:Date.now()}))},'image/jpeg',0.82)}catch{finish(file)}};
+   img.onload=()=>{try{const maxSide=1600;const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));if(scale===1&&file.size<2000000){finish(file);return}const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');if(!ctx){finish(file);return}ctx.drawImage(img,0,0,canvas.width,canvas.height);canvas.toBlob(blob=>{if(!blob){finish(file);return}const base=(file.name||'vyro-image').replace(/\.[^.]+$/,'')||'vyro-image';finish(new File([blob],base+'.jpg',{type:'image/jpeg',lastModified:Date.now()}))},'image/jpeg',0.82)}catch{finish(file)}};
    img.onerror=()=>finish(file);img.src=url;
   });
  }
