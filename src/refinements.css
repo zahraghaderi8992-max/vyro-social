@@ -112,3 +112,12 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(255,215,0,.075),tra
 .message-bubble{animation:vyroSoftIn .18s ease both}
 .post-comments{animation:vyroSoftIn .2s ease both}
 @media(prefers-reduced-motion:reduce){.card,.feed-post,.chat-layout,.referral-card,.message-bubble,.post-comments{animation:none!important;transition:none!important}}
+
+/* Web test fixes: optional referral, right-aligned settings icons, icon-only reactions and no sticker UI */
+.settings-menu-item{display:flex;flex-direction:row-reverse;align-items:center;justify-content:flex-start;gap:12px;text-align:right}
+.settings-menu-item>.settings-menu-icon{flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;margin-right:0;margin-left:0}
+.settings-menu-item>span:nth-child(2){flex:1;min-width:0;text-align:right}
+.optional-field-note{display:block;color:var(--muted,#a8a9bb);font-size:11px;line-height:1.8;margin:4px 0 6px}
+.feed-post-actions .reaction-symbol{font-size:18px;line-height:1;display:inline-flex;align-items:center;justify-content:center}
+.feed-post-actions button{justify-content:center;min-height:32px}
+.emoji-drawer,.quick-stickers,.sticker-link-card{display:none!important}
