@@ -1,4 +1,4 @@
-name: Deploy VYRO Web Test (web-only)
+name: Deploy VYRO Web Test (web-only, isolated branch)
 
 on:
   push:
