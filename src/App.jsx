@@ -190,11 +190,12 @@ export default function App(){
    }catch(err){setNotice('بارگذاری فایل انجام نشد: '+(err.message||'دسترسی مخزن را بررسی کن.'));return}
   }
   if(session&&supabaseReady){
-   const storedType=mediaFile?.type||'none';const {error}=await supabase.from('posts').insert({user_id:session.user.id,content:content||' ',media_url:mediaUrl||null,media_type:storedType});
+   const storedType=mediaFile?.type||'none';const {data:createdPost,error}=await supabase.from('posts').insert({user_id:session.user.id,content:content||' ',media_url:mediaUrl||null,media_type:storedType}).select('id,created_at').single();
    if(error){setNotice('پست ذخیره نشد: '+error.message);return}
+   window.__vyroLastPostId=createdPost?.id||null;
   }
-  const item={id:'local-'+Date.now(),user_id:session?.user?.id,username:session?.user?.user_metadata?.username||session?.user?.email?.split('@')[0]||'you',display_name:session?'شما':'پیش‌نمایش شما',avatar_url:session?.user?.user_metadata?.avatar_url||'',banner_url:session?.user?.user_metadata?.banner_url||'',time:'همین حالا',content,likes:0,media_url:mediaUrl,media_type:mediaFile?.type||''};
-  setPosts([item,...posts]);setComposer('');setMediaFile(null);setMediaPreview('');setComposerOpen(false);
+  const item={id:window.__vyroLastPostId||'local-'+Date.now(),user_id:session?.user?.id,username:session?.user?.user_metadata?.username||session?.user?.email?.split('@')[0]||'you',display_name:session?'شما':'پیش‌نمایش شما',avatar_url:session?.user?.user_metadata?.avatar_url||'',banner_url:session?.user?.user_metadata?.banner_url||'',time:'همین حالا',content,likes:0,media_url:mediaUrl,media_type:mediaFile?.type||''};
+  setPosts([item,...posts]);window.__vyroLastPostId=null;setComposer('');setMediaFile(null);setMediaPreview('');setComposerOpen(false);
   setNotice(session&&supabaseReady?'پست منتشر شد.':'پست در پیش‌نمایش این دستگاه اضافه شد.');
  }
  function chooseMedia(file){
