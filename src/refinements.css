@@ -250,3 +250,18 @@ button{touch-action:manipulation}
 .chat-sticker-picker button{font-size:1.55rem;border:0;background:transparent;border-radius:8px;padding:5px;cursor:pointer}
 .chat-sticker-picker button:hover{background:rgba(255,215,0,.1)}
 @media(max-width:520px){.chat-compose{gap:3px}.chat-compose>button{min-width:32px;padding:6px}.chat-attachment-video{max-width:78vw}}
+
+
+/* Speed pass: remove costly blur/entrance effects on low-power devices */
+.story-avatar>span{outline:none!important;box-shadow:none!important;border:2px solid var(--panel)!important}
+.story-avatar.story-create>span{outline:none!important;border:2px solid var(--panel)!important;box-shadow:none!important}
+.story-list{padding:4px 3px 6px;overflow-y:hidden;overscroll-behavior-x:contain}
+.story-avatar{overflow:visible}
+@media(max-width:900px){
+  *,*::before,*::after{scroll-behavior:auto!important}
+  .card,.feed-post,.chat-layout,.referral-card,.profile-page,.music-hub,.simple-panel,.right-panel,.story-modal,.composer-modal,.public-profile-card,.conversation,.chat-user-search-card,.mobile-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+  .card,.feed-post,.chat-layout,.referral-card,.message-bubble,.post-comments{animation:none!important}
+  .orb,.orbit,.orb-wrap{filter:none!important;animation:none!important}
+  .feed-post,.conversation,.public-profile-post{content-visibility:auto}
+}
+@media(prefers-reduced-motion:reduce){.story-avatar>span,.story-add-card,.post-add-card{transition:none!important}}
