@@ -143,7 +143,7 @@ export default function App(){
     supabase.from('message_reads').select('message_id,user_id').in('message_id',ids)
    ]);
    if(!active)return;
-   if(!reactionResult.error){const next={...localMessageReactions};ids.forEach(id=>delete next[id]);(reactionResult.data||[]).forEach(r=>{next[r.message_id]={...(next[r.message_id]||{}),[r.user_id]:r.emoji}});setLocalMessageReactions(next)}
+   if(!reactionResult.error){setLocalMessageReactions(v=>{const next={...v};ids.forEach(id=>delete next[id]);(reactionResult.data||[]).forEach(r=>{next[r.message_id]={...(next[r.message_id]||{}),[r.user_id]:r.emoji}});return next})}
    if(!pinResult.error)setPinnedMessageIds(v=>({...v,[chatId]:(pinResult.data||[]).map(p=>p.message_id)}));
    if(!readResult.error){const sentIds=new Set(data.filter(m=>m.sender_id===session.user.id).map(m=>m.id));setReadMessageIds((readResult.data||[]).filter(r=>r.user_id!==session.user.id&&sentIds.has(r.message_id)).map(r=>r.message_id))}
    const last=messages[messages.length-1];setConversations(v=>v.map(x=>x.id===chatId?{...x,messages,last:last?.text||x.last,time:last?.time||x.time}:x));
