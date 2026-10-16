@@ -294,3 +294,7 @@ button{touch-action:manipulation}
 .chat-forward-panel .secondary-btn{margin-top:12px}
 .chat-compose button:disabled{opacity:.45}
 @media(max-width:520px){.chat-message-tools{opacity:1}.chat-message-tools button{min-width:27px;min-height:27px}.chat-message-footer{gap:4px}.chat-pinned-strip{font-size:.75rem}}
+
+.chat-load-older{display:block;margin:8px auto 12px;padding:7px 13px;border:1px solid var(--line,#292b2b);border-radius:999px;background:rgba(255,215,0,.07);color:var(--accent,#ffd700);font:inherit;font-size:.82rem;cursor:pointer}
+.chat-load-older:disabled{opacity:.55;cursor:wait}
+.chat-message-reaction{display:inline-flex;gap:4px;flex-wrap:wrap;max-width:100%;margin-top:4px;padding:3px 7px;border:1px solid rgba(255,215,0,.18);border-radius:12px;background:rgba(255,215,0,.06)}
