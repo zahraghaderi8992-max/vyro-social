@@ -138,9 +138,9 @@ export default function App(){
    const unread=data.filter(m=>m.sender_id!==session.user.id).map(m=>({message_id:m.id,user_id:session.user.id}));
    if(unread.length)await supabase.from('message_reads').upsert(unread,{onConflict:'message_id,user_id',ignoreDuplicates:true});
    const [reactionResult,pinResult,readResult]=await Promise.all([
-    supabase.from('message_reactions').select('message_id,user_id,emoji').in('message_id',ids),
+    ids.length?supabase.from('message_reactions').select('message_id,user_id,emoji').in('message_id',ids):Promise.resolve({data:[],error:null}),
     supabase.from('conversation_pins').select('message_id').eq('conversation_id',chatId),
-    supabase.from('message_reads').select('message_id,user_id').in('message_id',ids)
+    ids.length?supabase.from('message_reads').select('message_id,user_id').in('message_id',ids):Promise.resolve({data:[],error:null})
    ]);
    if(!active)return;
    if(!reactionResult.error){setLocalMessageReactions(v=>{const next={...v};ids.forEach(id=>delete next[id]);(reactionResult.data||[]).forEach(r=>{next[r.message_id]={...(next[r.message_id]||{}),[r.user_id]:r.emoji}});return next})}
