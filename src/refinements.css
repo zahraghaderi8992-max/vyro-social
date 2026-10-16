@@ -145,7 +145,7 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(212,177,63,.075),tr
 
 .admin-server-actions{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:flex-end}
 .admin-server-actions button{font-size:11px;padding:7px 9px}
-.admin-server-actions .danger-btn{background:#5c5c20;color:#ffffe5;border:1px solid #9d9d39}
+.admin-server-actions .danger-btn{background:#5c5c20;color:#e3c56a;border:1px solid #9d9d39}
 @media(max-width:600px){.admin-server-actions{width:100%;justify-content:flex-start}.admin-user-row{flex-wrap:wrap}}
 
 
@@ -153,7 +153,7 @@ body{background-image:radial-gradient(ellipse at 10% 0%,rgba(212,177,63,.075),tr
    applied on top of Vyro's existing React components (not a static replacement). */
 :root{
   --vyro-gold:#d4b13f;
-  --vyro-amber:#ffff00;
+  --vyro-amber:#d4b13f;
   --vyro-glass:rgba(7,8,10,.68);
   --vyro-glass-border:rgba(212,177,63,.22);
   --vyro-glass-shadow:rgba(212,177,63,.12);
@@ -239,7 +239,7 @@ button{touch-action:manipulation}
 .chat-compose{gap:6px;flex-wrap:nowrap}
 .chat-compose>button{flex:0 0 auto;min-width:36px;min-height:38px}
 .chat-compose input:not([type=file]){min-width:0;flex:1}
-.chat-compose .recording-active{color:#ffff65!important;background:rgba(255,65,65,.12)!important;animation:vyro-record-pulse 1.3s ease-in-out infinite}
+.chat-compose .recording-active{color:#d4b13f!important;background:rgba(255,65,65,.12)!important;animation:vyro-record-pulse 1.3s ease-in-out infinite}
 @keyframes vyro-record-pulse{50%{opacity:.55}}
 .chat-attachment-image,.chat-attachment-video{display:block;max-width:min(100%,320px);max-height:360px;border-radius:12px;object-fit:contain}
 .chat-attachment-audio{display:block;width:min(280px,70vw);max-width:100%}
