@@ -324,3 +324,10 @@ button{touch-action:manipulation}
 .ai-more-plan.selected{border-color:rgba(212,177,63,.38);background:rgba(212,177,63,.12);color:#e3c56a}
 .ai-image-tools,.ai-plans,.service-setup-card{display:none!important}
 @media(max-width:600px){.message-row .message-bubble{max-width:calc(100% - 30px)}.message-menu-trigger{width:23px;flex-basis:23px}.message-action-popover{top:calc(100% - 2px)}}
+
+.message-row{direction:ltr}
+.message-row .message-bubble{direction:rtl}
+.message-action-popover{direction:rtl}
+.message-menu-trigger{opacity:.48;transition:opacity .15s ease,background .15s ease}
+.message-row:hover .message-menu-trigger,.message-menu-trigger:focus-visible{opacity:1}
+@media(hover:none){.message-menu-trigger{opacity:.7}}
