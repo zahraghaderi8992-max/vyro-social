@@ -300,14 +300,13 @@ button{touch-action:manipulation}
 .chat-message-reaction{display:inline-flex;gap:4px;flex-wrap:wrap;max-width:100%;margin-top:4px;padding:3px 7px;border:1px solid rgba(212,177,63,.18);border-radius:12px;background:rgba(212,177,63,.06)}
 
 /* Compact message actions: no icon toolbar under each message */
-.message-row{position:relative;display:flex;align-items:center;gap:3px;width:100%;margin:8px 0;touch-action:pan-y}
+.message-row{position:relative;display:flex;align-items:center;gap:3px;width:100%;margin:8px 0;touch-action:pan-y;cursor:pointer}
 .message-row.me{justify-content:flex-end}
 .message-row.them{justify-content:flex-start}
-.message-row .message-bubble{position:relative;max-width:min(82%,560px);margin:0!important;padding-bottom:25px}
+.message-row .message-bubble{position:relative;max-width:min(82%,560px);margin:0!important;padding-bottom:20px;cursor:pointer}
 .message-time{position:absolute;bottom:6px;inset-inline-end:10px;font-size:10px;line-height:1;color:rgba(230,225,210,.62)!important;background:transparent!important}
-.message-inline-reaction{position:absolute;bottom:2px;inset-inline-start:8px;color:#d4b13f!important;font-size:12px}
-.message-action-popover{position:absolute;z-index:80;top:calc(100% - 4px);inset-inline-end:28px;min-width:142px;display:flex;flex-direction:column;gap:2px;padding:6px;border:1px solid rgba(212,177,63,.28);border-radius:12px;background:rgba(16,16,14,.98);box-shadow:0 8px 28px rgba(0,0,0,.48);backdrop-filter:blur(12px)}
-.message-row.them .message-action-popover{inset-inline-start:28px;inset-inline-end:auto}
+.message-action-popover{position:absolute;z-index:80;top:calc(100% - 4px);inset-inline-end:8px;min-width:142px;display:flex;flex-direction:column;gap:2px;padding:6px;border:1px solid rgba(212,177,63,.28);border-radius:12px;background:rgba(16,16,14,.98);box-shadow:0 8px 28px rgba(0,0,0,.48);backdrop-filter:blur(12px)}
+.message-row.them .message-action-popover{inset-inline-start:8px;inset-inline-end:auto}
 .message-action-popover button{display:flex;align-items:center;gap:10px;width:100%;min-height:34px;padding:7px 9px;border:0;border-radius:8px;background:transparent;color:#eee6d2;text-align:right;font:inherit;font-size:12px;white-space:nowrap}
 .message-action-popover button:hover{background:rgba(212,177,63,.12);color:#e3c56a}
 .message-action-popover button span{width:18px;text-align:center;color:#e0bd4f;font-size:16px}
@@ -321,7 +320,7 @@ button{touch-action:manipulation}
 .ai-more-plan span{flex:1}
 .ai-more-plan.selected{border-color:rgba(212,177,63,.38);background:rgba(212,177,63,.12);color:#e3c56a}
 .ai-image-tools,.ai-plans,.service-setup-card{display:none!important}
-@media(max-width:600px){.message-row .message-bubble{max-width:calc(100% - 30px)}.message-action-popover{top:calc(100% - 2px)}}
+@media(max-width:600px){.message-row .message-bubble{max-width:calc(100% - 12px)}.message-action-popover{top:calc(100% - 2px);max-width:min(190px,70vw)}}
 
 .message-row{direction:ltr}
 .message-row .message-bubble{direction:rtl}
