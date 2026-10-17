@@ -364,3 +364,8 @@ button{touch-action:manipulation}
 .explore-page .feed-post-actions .reaction-symbol{color:var(--lime)}
 .explore-page .explore-empty{margin-top:0;border:1px solid var(--line);background:var(--panel);box-shadow:none}
 @media(max-width:600px){.explore-page{gap:10px}.explore-page .story-avatar{flex-basis:62px;min-width:62px;width:62px}.explore-page .story-avatar>span{width:54px;height:54px}.explore-page .story-add-card,.explore-page .post-add-card{padding:8px;gap:6px}.explore-page .story-add-card b,.explore-page .post-add-card b{font-size:11px}.explore-page .feed-post{border-radius:0;border-inline:0;margin-inline:-10px}.explore-page .feed-post-media{max-height:68vh}}
+
+
+/* Bind glass accents to the active palette instead of a fixed gold */
+.app-shell{--vyro-gold:var(--lime,#e6c52f);--vyro-amber:var(--lime,#e6c52f);--vyro-neon:var(--lime,#e6c52f);--vyro-neon-soft:color-mix(in srgb,var(--lime,#e6c52f) 28%,transparent);--vyro-glass-border:color-mix(in srgb,var(--lime,#e6c52f) 22%,transparent);--vyro-glass-shadow:color-mix(in srgb,var(--lime,#e6c52f) 12%,transparent)}
+.message-action-popover button span{display:inline-flex;align-items:center;justify-content:center}
