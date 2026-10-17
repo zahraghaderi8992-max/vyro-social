@@ -353,6 +353,7 @@ button{touch-action:manipulation}
 .explore-page .story-add-card small,.explore-page .post-add-card small{display:none}
 .explore-page .story-plus,.explore-page .post-plus{display:grid;place-items:center;width:28px;height:28px;min-width:28px;border-radius:50%;background:color-mix(in srgb,var(--lime) 14%,transparent);color:var(--lime)}
 .explore-page .explore-feed-head{order:2;margin:0;padding:3px 0 9px;border-bottom:1px solid var(--line)}
+.explore-page>.feed-post,.explore-page>.explore-empty{order:3}
 .explore-page .feed-post{animation:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:var(--panel);border:1px solid var(--line);border-radius:14px;box-shadow:none;margin:0 0 12px;overflow:hidden}
 .explore-page .feed-post-head{padding:12px 13px 8px}
 .explore-page .feed-post-content{padding:0 13px;margin:5px 0 12px;line-height:1.8}
