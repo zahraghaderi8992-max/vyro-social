@@ -433,3 +433,24 @@ footer{display:flex;flex-direction:column;align-items:center;gap:4px;color:#a2a2
 
 /* Spotify account linking and personal library */
 .spotify-client-setup{display:grid;gap:8px;padding:13px;margin:12px 0 16px;border:1px solid var(--line);border-radius:13px;background:#11120f}.spotify-client-setup label{font-size:12px;color:var(--lime);font-weight:700}.spotify-client-setup>div{display:flex;gap:8px}.spotify-client-setup input{min-width:0;flex:1;background:#080908;color:#f5f5f0;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:12px}.spotify-client-setup button,.spotify-personal-heading button{background:var(--lime);color:#111;border:0;border-radius:9px;padding:8px 12px;font-size:11px;font-weight:800}.spotify-client-setup small{font-size:10px;color:var(--muted);line-height:1.8;overflow-wrap:anywhere}.music-brand-row>div{display:grid;gap:4px}.music-brand-row>div small{font-size:10px;color:var(--muted)}.spotify-personal-panel{padding:10px 0}.spotify-personal-panel h3{font-size:14px;margin:20px 0 10px;color:var(--lime)}.spotify-personal-heading{display:flex;justify-content:space-between;align-items:center;gap:10px}.spotify-personal-heading b{font-size:13px}.spotify-playlist-row{width:100%;display:flex;align-items:center;gap:12px;text-align:right;padding:10px;background:transparent;border:1px solid var(--line);border-radius:12px;color:inherit;margin:6px 0}.spotify-playlist-row img,.spotify-playlist-row>span:first-child{width:46px;height:46px;object-fit:cover;border-radius:8px;background:#242418;display:grid;place-items:center}.spotify-playlist-row>span:nth-child(2){display:grid;gap:4px;flex:1;min-width:0}.spotify-playlist-row b{font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.spotify-playlist-row small{font-size:10px;color:var(--muted)}
+
+/* VYRO polish + internal helper surfaces (experimental web branch) */
+:root{--vyro-gold:#FFD700;--vyro-orange:#FFA500;--vyro-glass:rgba(20,19,14,.82)}
+.card,.music-hub,.ai-panel,.settings-panel,.profile-page,.admin-panel{border:1px solid color-mix(in srgb,var(--lime,#FFD700) 20%,#28251b);background:linear-gradient(145deg,rgba(255,215,0,.035),transparent 42%),var(--panel,#12120f);box-shadow:0 14px 40px rgba(0,0,0,.22)}
+.primary-btn,.send-chat,.spotify-connect{background:linear-gradient(135deg,var(--lime,#FFD700),#FFA500)!important;color:#111!important;font-weight:800;box-shadow:0 5px 22px color-mix(in srgb,var(--lime,#FFD700) 14%,transparent);transition:transform .18s ease,filter .18s ease}
+.primary-btn:hover,.send-chat:hover,.spotify-connect:hover{filter:brightness(1.07);transform:translateY(-1px)}
+.music-brand-row,.ai-heading{padding-bottom:16px;border-bottom:1px solid var(--line,#302b18)}
+.music-hub,.ai-panel{overflow:visible;position:relative}
+.music-search,.ai-compose{border:1px solid color-mix(in srgb,var(--lime,#FFD700) 24%,#29261b);border-radius:16px;background:rgba(0,0,0,.22);padding:7px}
+.music-search input,.ai-compose input{min-width:0;background:transparent}
+.music-tabs button,.ai-tier-card,.settings-menu-item,.support-choice button{transition:border-color .18s ease,background .18s ease,transform .18s ease}
+.music-tabs button.selected,.ai-tier-card.active{border-color:var(--lime,#FFD700);background:color-mix(in srgb,var(--lime,#FFD700) 9%,transparent)}
+.music-track{border:1px solid rgba(255,215,0,.07);border-radius:15px;padding:10px;margin:7px 0;background:rgba(255,255,255,.018)}
+.track-art{overflow:hidden;border-radius:12px;background:linear-gradient(145deg,#332b0b,#16140d);color:var(--lime,#FFD700)}
+.support-bot-intro{color:var(--muted,#858b89);font-size:13px;line-height:1.9}
+.support-bot-thread{display:flex;flex-direction:column;gap:10px;max-height:48vh;overflow:auto;padding:12px 0}
+.support-bot-message{max-width:92%;padding:12px 14px;border:1px solid var(--line,#302b18);border-radius:16px;background:rgba(255,255,255,.025);line-height:1.85}
+.support-bot-message.assistant{align-self:flex-start;border-color:color-mix(in srgb,var(--lime,#FFD700) 23%,var(--line,#302b18));border-top-right-radius:5px}
+.support-bot-message.user{align-self:flex-end;background:color-mix(in srgb,var(--lime,#FFD700) 9%,transparent);border-top-left-radius:5px}
+.support-bot-message b{font-size:11px;color:var(--lime,#FFD700)}.support-bot-message p{margin:5px 0 0;white-space:pre-wrap;font-size:13px}
+@media(max-width:700px){.music-hub,.ai-panel,.settings-panel,.profile-page{border-radius:18px}.music-brand-row{gap:10px;flex-wrap:wrap}.music-search{gap:6px}.support-bot-thread{max-height:44vh}.ai-tier-strip{gap:8px}.ai-tier-card{min-width:0}}
