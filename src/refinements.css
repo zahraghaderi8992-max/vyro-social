@@ -369,3 +369,71 @@ button{touch-action:manipulation}
 /* Bind glass accents to the active palette instead of a fixed gold */
 .app-shell{--vyro-gold:var(--lime,#e6c52f);--vyro-amber:var(--lime,#e6c52f);--vyro-neon:var(--lime,#e6c52f);--vyro-neon-soft:color-mix(in srgb,var(--lime,#e6c52f) 28%,transparent);--vyro-glass-border:color-mix(in srgb,var(--lime,#e6c52f) 22%,transparent);--vyro-glass-shadow:color-mix(in srgb,var(--lime,#e6c52f) 12%,transparent)}
 .message-action-popover button span{display:inline-flex;align-items:center;justify-content:center}
+
+
+/* VYRO responsive polish: gold-on-black identity, stable RTL navigation and Muzio layout */
+:root{--lime:#FFD700;--lime-dark:#FFA500;--vyro-gold:#FFD700;--vyro-amber:#FFA500}
+.music-hub{
+  border:1px solid rgba(255,215,0,.16)!important;
+  background:radial-gradient(ellipse at 92% 0%,rgba(255,215,0,.075),transparent 42%),linear-gradient(155deg,rgba(22,21,15,.98),rgba(12,13,12,.98))!important;
+  box-shadow:0 12px 34px rgba(0,0,0,.18),inset 0 1px rgba(255,215,0,.035);
+  min-width:0;
+}
+.music-brand-row{flex-wrap:wrap;min-width:0}
+.music-brand-row>div{min-width:0;flex:1}
+.music-brand-row small{display:block;color:#a7a18b;font-size:11px;line-height:1.6;margin-top:4px}
+.spotify-connect{flex-shrink:0;border-color:rgba(255,215,0,.4)!important;color:#FFD700!important;background:rgba(255,215,0,.055)!important}
+.spotify-client-setup{border-color:rgba(255,215,0,.14)!important;background:rgba(8,8,7,.45)!important}
+.spotify-client-setup>div{min-width:0}
+.spotify-client-setup input{min-width:0;flex:1}
+.music-search{min-width:0;border-color:rgba(255,215,0,.22)!important;background:rgba(7,8,7,.72)!important}
+.music-search input{min-width:0}
+.music-search>button{background:#FFD700!important;color:#14130b!important;white-space:nowrap}
+.music-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px}
+.music-tabs button{min-width:0;padding:10px 6px;font-size:12px;border-color:rgba(255,215,0,.13)!important;background:rgba(255,255,255,.025)!important}
+.music-tabs button.selected{background:#FFD700!important;color:#15130a!important}
+.music-track{min-width:0;gap:9px;border-color:rgba(255,215,0,.09)!important}
+.track-info b,.track-info small{max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.track-info small{color:#aaa58f!important;font-size:11px}
+.track-art{background:linear-gradient(140deg,#FFD700,#8f6c12)!important;color:#17140a!important;overflow:hidden}
+.track-art img{width:100%;height:100%;object-fit:cover}
+.playlist-card{background:linear-gradient(115deg,rgba(255,215,0,.12),rgba(18,18,15,.85))!important;border-color:rgba(255,215,0,.15)!important}
+.playlist-art{background:linear-gradient(140deg,#FFD700,#FFA500)!important}
+.muzio-mini-player{
+  bottom:calc(76px + env(safe-area-inset-bottom));
+  border-color:rgba(255,215,0,.34);
+  padding:9px 12px;
+}
+.muzio-mini-info{direction:rtl;text-align:right}
+.muzio-mini-controls button{border-radius:50%;background:#FFD700;color:#17140a;width:36px;height:36px;font-weight:800}
+.muzio-fullscreen{padding-bottom:calc(26px + env(safe-area-inset-bottom))}
+.mobile-nav{
+  direction:rtl;
+  justify-content:space-between!important;
+  padding-left:14px!important;
+  padding-right:14px!important;
+  padding-bottom:calc(8px + env(safe-area-inset-bottom))!important;
+  min-height:62px;
+}
+.mobile-nav button{flex:1;min-width:0!important;max-width:86px}
+.mobile-nav small{white-space:nowrap}
+@media(min-width:701px){
+  .muzio-mini-player{bottom:18px;left:auto;right:22px;width:min(620px,calc(100vw - 300px))}
+  .music-hub{margin-bottom:24px}
+}
+@media(max-width:700px){
+  .music-hub{padding:14px!important;border-radius:17px!important}
+  .music-brand-row{gap:9px}
+  .music-brand-row .feature-icon{flex:0 0 42px}
+  .music-brand-row h2{font-size:21px}
+  .spotify-connect{font-size:11px;padding:8px 10px}
+  .spotify-client-setup>div{flex-wrap:wrap}
+  .spotify-client-setup input{width:100%;flex-basis:100%}
+  .music-search{gap:7px;margin:15px 0;padding:9px}
+  .music-search>button{padding:8px;font-size:11px}
+  .music-tabs button{font-size:11px;padding:9px 4px}
+  .muzio-mini-player{left:8px;right:8px;bottom:calc(70px + env(safe-area-inset-bottom));}
+}
+@media(prefers-reduced-motion:reduce){
+  .muzio-vinyl.spinning{animation:none}
+}
