@@ -1,17 +1,7 @@
 name: Deploy VYRO Web App
 
 on:
-  push:
-    branches: [main]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'index.html'
-      - 'vite.config.js'
-      - 'docs/**'
-      - '.github/workflows/deploy-web.yml'
+  # Manual fallback only. deploy-web-test.yml is the single automatic Pages deploy workflow.
   workflow_dispatch:
 
 permissions:
