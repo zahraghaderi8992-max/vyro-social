@@ -31,15 +31,35 @@ Deno.serve(async (req: Request) => {
     });
     const searchData = await searchResponse.json();
     if (!searchResponse.ok) throw new Error("Spotify search request failed");
-    const tracks = (searchData?.tracks?.items || []).map((track: any) => ({
-      id: track.id,
-      title: track.name,
-      artist: (track.artists || []).map((artist: any) => artist.name).join(", "),
-      image: track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || "",
-      url: track.external_urls?.spotify || "",
-      duration_ms: track.duration_ms,
-      preview_url: track.preview_url || null
-    }));
+    const normalize = (value: string) => value.toLocaleLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^\\p{L}\\p{N}]+/gu, ' ').trim();
+    const needle = normalize(query);
+    const similarity = (value: string) => {
+      const candidate = normalize(value);
+      if (!candidate || !needle) return 0;
+      if (candidate === needle) return 100;
+      if (candidate.includes(needle)) return 85 + Math.min(10, needle.length / Math.max(candidate.length, 1) * 10);
+      const qTokens = new Set(needle.split(/\\s+/).filter(Boolean));
+      const cTokens = new Set(candidate.split(/\\s+/).filter(Boolean));
+      const overlap = [...qTokens].filter(token => cTokens.has(token)).length;
+      const tokenScore = overlap / Math.max(qTokens.size, cTokens.size, 1) * 70;
+      const prefixScore = candidate.split(' ').some(token => token.startsWith(needle)) ? 12 : 0;
+      return tokenScore + prefixScore;
+    };
+    const tracks = (searchData?.tracks?.items || []).map((track: any) => {
+      const artist = (track.artists || []).map((artist: any) => artist.name).join(', ');
+      const titleScore = similarity(track.name || '');
+      const artistScore = similarity(artist);
+      return {
+        id: track.id,
+        title: track.name,
+        artist,
+        image: track.album?.images?.[1]?.url || track.album?.images?.[0]?.url || '',
+        url: track.external_urls?.spotify || '',
+        duration_ms: track.duration_ms,
+        preview_url: track.preview_url || null,
+        _matchScore: Math.max(titleScore, artistScore) + (titleScore && artistScore ? 8 : 0)
+      };
+    }).sort((a: any, b: any) => b._matchScore - a._matchScore).map(({_matchScore, ...track}: any) => track);
     return new Response(JSON.stringify({ tracks }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (error) {
     console.error("spotify-search error", error);
