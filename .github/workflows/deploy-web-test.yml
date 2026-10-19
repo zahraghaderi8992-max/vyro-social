@@ -1,8 +1,8 @@
-name: Deploy VYRO Web Test (web-only)
+name: Deploy VYRO Web Test (web-only, isolated branch)
 
 on:
   push:
-    branches: [web-signup-fix]
+    branches: [main, web-signup-fix, vasl-inspired-ai-muzio]
     paths:
       - 'src/**'
       - 'public/**'
