@@ -13,6 +13,29 @@ Deno.serve(async (req: Request) => {
     const apiKey = Deno.env.get("OPENAI_API_KEY");
     if (!apiKey) return new Response(JSON.stringify({ error: "OPENAI_API_KEY secret is missing" }), { status: 503, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     const body = await req.json();
+    const requestedTier = typeof body?.tier === "string" ? body.tier : "free";
+    const allowedTiers = ["free", "plus", "proplus"];
+    if (!allowedTiers.includes(requestedTier)) {
+      return new Response(JSON.stringify({ error: "Invalid AI tier" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    // Paid tiers are enabled only for a verified account whose app_metadata is updated by a trusted billing/admin workflow.
+    if (requestedTier !== "free") {
+      const authHeader = req.headers.get("Authorization") || "";
+      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+      const supabaseUrl = Deno.env.get("SUPABASE_URL");
+      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+      if (!token || !supabaseUrl || !anonKey) {
+        return new Response(JSON.stringify({ error: "Paid subscription is not active" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+      const userResponse = await fetch(`${supabaseUrl}/auth/v1/user`, {
+        headers: { "Authorization": `Bearer ${token}`, "apikey": anonKey }
+      });
+      const user = userResponse.ok ? await userResponse.json() : null;
+      const verifiedTier = user?.app_metadata?.vyro_tier;
+      if (verifiedTier !== requestedTier) {
+        return new Response(JSON.stringify({ error: "This paid AI tier is not active for your account", code: "TIER_NOT_ACTIVE" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+    }
     if (typeof body?.imagePrompt === "string" && body.imagePrompt.trim()) {
       const imageResponse = await fetch("https://api.openai.com/v1/images/generations", {
         method: "POST",
@@ -42,7 +65,8 @@ Deno.serve(async (req: Request) => {
     if (!safeMessages.length || safeMessages[safeMessages.length - 1].role !== "user") {
       return new Response(JSON.stringify({ error: "A user message is required" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const model = Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
+    const modelEnv = requestedTier === "proplus" ? "VYRO_PROPLUS_MODEL" : requestedTier === "plus" ? "VYRO_PLUS_MODEL" : "VYRO_FREE_MODEL";
+    const model = Deno.env.get(modelEnv) || Deno.env.get("OPENAI_MODEL") || "gpt-4o-mini";
     const response = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: { "Authorization": `Bearer ${apiKey}`, "Content-Type": "application/json" },
