@@ -437,3 +437,55 @@ button{touch-action:manipulation}
 @media(prefers-reduced-motion:reduce){
   .muzio-vinyl.spinning{animation:none}
 }
+
+
+/* Requested glass-first inputs and visible AI overflow menu */
+.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
+.app-shell textarea,
+.app-shell select{
+  background:rgba(255,255,255,.045)!important;
+  border:1px solid color-mix(in srgb,var(--lime,#FFD700) 27%,transparent)!important;
+  border-radius:12px!important;
+  color:var(--text,#f5f5ee)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.035),0 5px 18px rgba(0,0,0,.12)!important;
+  backdrop-filter:blur(14px);
+  -webkit-backdrop-filter:blur(14px);
+}
+.app-shell input::placeholder,.app-shell textarea::placeholder{color:rgba(230,225,210,.54)!important}
+.create-chat-modal input,.create-chat-modal textarea,.create-chat-modal select{
+  background:rgba(255,255,255,.055)!important;
+  border-color:color-mix(in srgb,var(--lime,#FFD700) 34%,transparent)!important;
+}
+.ai-panel{position:relative;overflow:visible!important;isolation:isolate}
+.ai-heading,.ai-more-wrap{position:relative;z-index:30}
+.ai-more-menu{
+  position:fixed!important;
+  top:calc(env(safe-area-inset-top,0px) + 86px)!important;
+  inset-inline-end:12px!important;
+  z-index:99999!important;
+  max-height:calc(100dvh - 110px);
+  overflow:auto;
+  background:rgba(12,12,10,.985)!important;
+  border:1px solid color-mix(in srgb,var(--lime,#FFD700) 45%,transparent)!important;
+  box-shadow:0 18px 48px rgba(0,0,0,.7),0 0 28px color-mix(in srgb,var(--lime,#FFD700) 12%,transparent)!important;
+}
+.ai-more-plan{white-space:normal!important}
+.ai-more-plan .ai-plan-copy{display:flex;flex:1;flex-direction:column;gap:3px;min-width:0}
+.ai-more-plan .ai-plan-copy small{white-space:normal;line-height:1.5}
+.music-hub{
+  border-color:color-mix(in srgb,var(--lime,#FFD700) 24%,transparent)!important;
+  background:radial-gradient(ellipse at 92% 0%,color-mix(in srgb,var(--lime,#FFD700) 9%,transparent),transparent 42%),linear-gradient(155deg,color-mix(in srgb,var(--panel,#12120f) 90%,#fff 2%),var(--bg,#0b0b0a))!important;
+}
+.music-tabs button.selected{background:var(--lime,#FFD700)!important;color:var(--bg,#0b0b0a)!important}
+.track-art,.playlist-art{background:linear-gradient(140deg,var(--lime,#FFD700),color-mix(in srgb,var(--lime,#FFD700) 60%,#111))!important;color:var(--bg,#0b0b0a)!important}
+.muzio-mini-controls button{background:var(--lime,#FFD700)!important;color:var(--bg,#0b0b0a)!important}
+.music-favorites-list{margin:14px 0;padding:12px;border:1px solid color-mix(in srgb,var(--lime,#FFD700) 20%,transparent);border-radius:15px;background:rgba(255,255,255,.025);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+.music-favorites-list h3{margin:0 0 10px;font-size:14px}
+.music-empty-note{margin:0;padding:12px 4px;color:var(--muted,#aaa);font-size:12px}
+.music-favorites-list .music-track{background:rgba(255,255,255,.025);border-radius:12px;padding:7px}
+.muzio-persistent-youtube{position:fixed!important;left:-2px!important;bottom:-2px!important;width:1px!important;height:1px!important;opacity:.01!important;pointer-events:none!important;border:0!important;z-index:-1!important}
+.spotify-connect,.spotify-client-setup{display:none!important}
+@media(max-width:600px){
+  .ai-more-menu{inset-inline-end:10px!important;width:min(300px,calc(100vw - 20px))!important}
+  .music-favorites-list{padding:9px}
+}
