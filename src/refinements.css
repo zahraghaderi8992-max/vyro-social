@@ -440,9 +440,9 @@ button{touch-action:manipulation}
 
 
 /* Requested glass-first inputs and visible AI overflow menu */
-.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
-.app-shell textarea,
-.app-shell select{
+input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="color"]),
+textarea,
+select{
   background:rgba(255,255,255,.045)!important;
   border:1px solid color-mix(in srgb,var(--lime,#FFD700) 27%,transparent)!important;
   border-radius:12px!important;
@@ -451,7 +451,7 @@ button{touch-action:manipulation}
   backdrop-filter:blur(14px);
   -webkit-backdrop-filter:blur(14px);
 }
-.app-shell input::placeholder,.app-shell textarea::placeholder{color:rgba(230,225,210,.54)!important}
+.app-shell input::placeholder,.app-shell textarea::placeholder,input::placeholder,textarea::placeholder{color:rgba(230,225,210,.54)!important}
 .create-chat-modal input,.create-chat-modal textarea,.create-chat-modal select{
   background:rgba(255,255,255,.055)!important;
   border-color:color-mix(in srgb,var(--lime,#FFD700) 34%,transparent)!important;
