@@ -5,6 +5,12 @@ import { supabase, supabaseReady } from './lib/supabase';
 
 const seedConversations = [];
 const demoPosts = [];
+const animatedEmojiFiles = {
+ '😀':'U+1F600_1','😃':'U+1F603_1','😄':'U+1F604_1','😁':'U+1F601_1','😂':'U+1F602_1','🤣':'U+1F923_1',
+ '😍':'U+1F60D_1','🥰':'U+1F970_1','😘':'U+1F618_1','😎':'U+1F60E_1','🥳':'U+1F973_1','😭':'U+1F62D_1',
+ '😡':'U+1F621_1','👍':'U+1F44D_1','👎':'U+1F44E_1','🔥':'U+1F525_1','🎉':'U+1F389_1','💯':'U+1F4AF_1',
+ '💀':'U+1F480_1','🙄':'U+1F644_1','😢':'U+1F622_1','🤔':'U+1F914_1','💋':'U+1F48B_1','💎':'U+1F48E_1'
+};
 const themePalettes = {
  gold:{bg:'#0b0b0a',lime:'#e6c52f',panel:'#12120f',line:'#302b18'},
  ocean:{bg:'#080d14',lime:'#55a8ff',panel:'#101a27',line:'#22384f'},
