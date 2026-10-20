@@ -230,7 +230,7 @@ export default function App(){
    if(data?.error&&!data?.results?.length)setYoutubeFallbackUrl(data?.fallbackUrl||youtubeFallback);
   }catch{
    setYoutubeResults([]);setYoutubeFallbackUrl(youtubeFallback);
-  }finally{setSpotifyLoading(false)}
+  }finally{setMusicLoading(false)}
  }
 
  async function uploadProfileAsset(e,kind){const file=e.target.files?.[0];if(!file)return;const local=URL.createObjectURL(file);if(kind==='avatar')setProfileAvatar(local);else setProfileBanner(local);if(!supabaseReady||!session){setNotice('تصویر انتخاب شد؛ برای ذخیره بین دستگاه‌ها باید وارد حساب شوی.');return}try{const ext=(file.name.split('.').pop()||'jpg').replace(/[^a-zA-Z0-9]/g,'');const path=`${session.user.id}/${kind}-${Date.now()}.${ext}`;const {error}=await supabase.storage.from('avatars').upload(path,file,{upsert:true});if(error)throw error;const {data}=supabase.storage.from('avatars').getPublicUrl(path);const url=data.publicUrl;if(kind==='avatar')setProfileAvatar(url);else setProfileBanner(url);let metadata;if(kind==='avatar'){const next=[...profileAvatarHistory.filter(x=>x!==url),url].slice(-2);setProfileAvatarHistory(next);metadata={avatar_url:url,avatar_history:next}}else metadata={banner_url:url};const {error:profileError}=await supabase.from('profiles').update(kind==='avatar'?{avatar_url:url}:{banner_url:url}).eq('id',session.user.id);if(profileError)throw profileError;const {error:metaError}=await supabase.auth.updateUser({data:metadata});if(metaError)throw metaError;setNotice('تصویر پروفایل ذخیره شد.')}catch(err){setNotice('تصویر فعلاً فقط در همین دستگاه نمایش داده می‌شود؛ دسترسی ذخیره‌سازی آواتار باید فعال شود.')}}
