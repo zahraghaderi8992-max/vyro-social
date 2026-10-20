@@ -489,3 +489,19 @@ select{
   .ai-more-menu{inset-inline-end:10px!important;width:min(300px,calc(100vw - 20px))!important}
   .music-favorites-list{padding:9px}
 }
+
+
+/* Telegram-style emoji picker: search, recent, categories and animated WebP */
+.chat-sticker-picker{display:flex;flex-direction:column;gap:8px;max-height:min(360px,48dvh);overflow:hidden}
+.chat-emoji-search{display:flex;align-items:center;gap:8px;padding:7px 10px;border:1px solid color-mix(in srgb,var(--lime,#FFD700) 24%,transparent);border-radius:12px;background:rgba(255,255,255,.04)}
+.chat-emoji-search input{flex:1;min-width:0;border:0!important;background:transparent!important;box-shadow:none!important;backdrop-filter:none!important;padding:5px!important;outline:none}
+.chat-emoji-search button{display:inline-flex;align-items:center;justify-content:center;font-size:12px!important;padding:4px!important}
+.chat-emoji-tabs{display:flex;gap:4px;overflow-x:auto;overscroll-behavior-x:contain;padding:2px 0 5px;flex-wrap:nowrap}
+.chat-emoji-tabs button{flex:0 0 36px;min-width:36px;height:36px;padding:4px!important;font-size:20px!important;border:1px solid transparent!important}
+.chat-emoji-tabs button.active{background:color-mix(in srgb,var(--lime,#FFD700) 14%,transparent)!important;border-color:color-mix(in srgb,var(--lime,#FFD700) 45%,transparent)!important}
+.chat-emoji-grid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:3px;overflow-y:auto;overscroll-behavior:contain;min-height:80px;padding:2px}
+.chat-emoji-grid button{display:flex;align-items:center;justify-content:center;min-width:0;aspect-ratio:1;padding:3px!important;font-size:24px!important;line-height:1.1}
+.chat-emoji-grid button img{width:30px;height:30px;object-fit:contain}
+.chat-emoji-grid button:hover{background:color-mix(in srgb,var(--lime,#FFD700) 12%,transparent)!important}
+.chat-emoji-footer{font-size:11px;color:var(--muted,#aaa);padding-top:3px}
+@media(max-width:520px){.chat-sticker-picker{max-height:42dvh}.chat-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}.chat-emoji-grid button{font-size:23px!important}.chat-emoji-grid button img{width:28px;height:28px}}
