@@ -62,6 +62,8 @@ export default function App(){
  const [recordingKind,setRecordingKind]=useState(null);
  const [stickerOpen,setStickerOpen]=useState(false);
  const [stickerCategory,setStickerCategory]=useState('faces');
+ const [stickerSearch,setStickerSearch]=useState('');
+ const [recentEmojis,setRecentEmojis]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-recent-emojis')||'[]')}catch{return []}});
  const [chatKind,setChatKind]=useState('direct');
  const [chatSearch,setChatSearch]=useState('');
  const [userSearchResults,setUserSearchResults]=useState([]);
