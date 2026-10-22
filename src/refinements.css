@@ -505,3 +505,65 @@ select{
 .chat-emoji-grid button:hover{background:color-mix(in srgb,var(--lime,#FFD700) 12%,transparent)!important}
 .chat-emoji-footer{font-size:11px;color:var(--muted,#aaa);padding-top:3px}
 @media(max-width:520px){.chat-sticker-picker{max-height:42dvh}.chat-emoji-grid{grid-template-columns:repeat(7,minmax(0,1fr))}.chat-emoji-grid button{font-size:23px!important}.chat-emoji-grid button img{width:28px;height:28px}}
+
+
+/* Keep the same primary navigation and section order on phone and desktop.
+   Desktop uses the same bottom navigation, with a wider content column. */
+@media (min-width: 701px) {
+  .app-shell {
+    display: block !important;
+    width: min(100%, 1080px) !important;
+    max-width: 1080px !important;
+    min-height: 100dvh;
+    margin-inline: auto;
+    padding: 0 28px 112px !important;
+  }
+  .app-shell > .sidebar,
+  .app-shell > .right-panel {
+    display: none !important;
+  }
+  .app-shell > .feed {
+    width: 100%;
+    max-width: 900px;
+    margin-inline: auto;
+    padding-top: 34px;
+  }
+  .mobile-nav {
+    display: flex !important;
+    position: fixed !important;
+    left: 50% !important;
+    right: auto !important;
+    bottom: 18px !important;
+    transform: translateX(-50%);
+    width: min(720px, calc(100vw - 48px)) !important;
+    max-width: calc(100vw - 48px) !important;
+    height: 70px;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 14px !important;
+    border: 1px solid var(--vyro-glass-border, rgba(212,177,63,.22));
+    border-radius: 20px;
+    background: rgba(13,14,16,.94);
+    box-shadow: 0 12px 40px rgba(0,0,0,.42);
+    backdrop-filter: blur(18px);
+    overflow-x: auto;
+  }
+  .mobile-nav button {
+    flex: 1 1 0 !important;
+    min-width: 72px !important;
+    max-width: 140px !important;
+    height: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    white-space: nowrap;
+  }
+  .mobile-nav button svg { width: 20px; height: 20px; }
+  .mobile-nav button small { font-size: 11px; }
+}
+
+@media (max-width: 700px) {
+  .app-shell { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
+}
