@@ -9,7 +9,7 @@
     "preview": "vite preview --host 0.0.0.0",
     "cap:add:android": "cap add android",
     "cap:sync": "cap sync android",
-    "desktop:build": "npm run build && electron-builder --win nsis --x64",
+    "desktop:build": "npm run build && electron-builder --win nsis --x64 --publish never",
     "cap:add:ios": "cap add ios",
     "cap:sync:ios": "cap sync ios"
   },
@@ -61,5 +61,6 @@
       "createStartMenuShortcut": true,
       "shortcutName": "VYRO"
     }
-  }
+  },
+  "description": "VYRO — social, messaging, AI and music super app"
 }
