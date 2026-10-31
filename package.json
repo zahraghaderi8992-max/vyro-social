@@ -9,7 +9,9 @@
     "preview": "vite preview --host 0.0.0.0",
     "cap:add:android": "cap add android",
     "cap:sync": "cap sync android",
-    "desktop:build": "npm run build && electron-builder --win nsis --x64"
+    "desktop:build": "npm run build && electron-builder --win nsis --x64",
+    "cap:add:ios": "cap add ios",
+    "cap:sync:ios": "cap sync ios"
   },
   "dependencies": {
     "@capacitor/android": "^7.4.3",
@@ -20,7 +22,8 @@
     "react-dom": "^18.3.1",
     "@capacitor/filesystem": "^7.1.4",
     "emoji-picker-react": "^4.12.2",
-    "@capacitor/share": "^7.0.2"
+    "@capacitor/share": "^7.0.2",
+    "@capacitor/ios": "^7.4.3"
   },
   "devDependencies": {
     "@capacitor/cli": "^7.4.3",
