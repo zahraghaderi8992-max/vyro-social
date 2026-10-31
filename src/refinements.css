@@ -567,3 +567,20 @@ select{
 @media (max-width: 700px) {
   .app-shell { padding-bottom: calc(78px + env(safe-area-inset-bottom)); }
 }
+
+/* Focused, accessible irreversible-action dialog */
+.danger-confirm-backdrop{z-index:1000!important;background:rgba(0,0,0,.78)!important;backdrop-filter:blur(12px)!important}
+.danger-confirm-modal{position:relative;width:min(520px,100%);max-height:min(90dvh,850px);overflow:auto;padding:clamp(22px,4vw,34px);border:1px solid rgba(255,91,91,.38);border-radius:24px;background:radial-gradient(ellipse at 50% 0%,rgba(255,75,75,.10),transparent 48%),linear-gradient(145deg,#1b1b1b,#0c0d0e);color:#f5f3ed;box-shadow:0 28px 90px rgba(0,0,0,.72),0 0 35px rgba(255,65,65,.08)}
+.danger-confirm-modal .close-modal{left:16px;top:16px}
+.danger-confirm-icon{width:54px;height:54px;display:grid;place-items:center;margin:0 0 18px;border:1px solid rgba(255,90,90,.4);border-radius:17px;background:rgba(255,70,70,.12);color:#ff8585}
+.danger-confirm-modal h2{font-size:clamp(19px,3vw,25px);margin:9px 0 10px;color:#fff}
+.danger-confirm-modal>p{font-size:12px;line-height:2;color:#c2c1bb;margin:0 0 22px}
+.danger-confirm-form{display:grid;gap:14px}
+.danger-confirm-form>label:not(.danger-final-consent){display:grid;gap:7px;font-size:12px;color:#e4e1d7}
+.danger-confirm-form input:not([type=checkbox]){width:100%;min-height:44px;padding:11px 13px}
+.danger-final-consent{display:flex;align-items:flex-start;gap:10px;padding:12px;border:1px solid rgba(255,90,90,.25);border-radius:12px;background:rgba(255,80,80,.06);font-size:11px;line-height:1.8;color:#e6dada}
+.danger-final-consent input{margin-top:4px;accent-color:#ff7777;flex:0 0 auto}
+.danger-confirm-actions{display:flex;gap:10px;margin-top:4px}
+.danger-confirm-actions button{flex:1;min-height:44px;justify-content:center}
+.danger-confirm-actions .danger-btn{background:linear-gradient(135deg,#a92d2d,#6d1717)!important;color:#fff!important}
+@media(max-width:520px){.danger-confirm-modal{padding:22px 17px;border-radius:19px}.danger-confirm-actions{flex-direction:column-reverse}}
