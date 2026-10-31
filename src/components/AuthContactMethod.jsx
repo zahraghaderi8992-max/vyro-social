@@ -38,7 +38,7 @@ export default function AuthContactMethod({ value, onChange, contact, onContactC
         <input
           type="text"
           value={code}
-          onChange={event => onCodeChange(event.target.value.replace(/\\D/g, '').slice(0, 8))}
+          onChange={event => onCodeChange(event.target.value.replace(/\D/g, '').slice(0, 8))}
           placeholder="کد ارسال‌شده را وارد کن"
           inputMode="numeric"
           autoComplete="one-time-code"
