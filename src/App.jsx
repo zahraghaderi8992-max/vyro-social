@@ -2,6 +2,10 @@ import { useEffect, useState, useRef } from 'react';
 import { Filesystem, Directory } from '@capacitor/filesystem';
 import { Bell, Compass, Heart, ThumbsUp, ThumbsDown, ImagePlus, LogIn, MessageCircle, Plus, Send, ShieldCheck, Sparkles, UserRound, Settings, X, Search, Paperclip, Mic, Bot, Headphones, ChevronLeft, Users, Radio, LockKeyhole, ArrowRight, LogOut, Crown, RotateCcw, Check, Copy, Share2, Smile, Video, MoreVertical, Pencil, Trash2 } from 'lucide-react';
 import { supabase, supabaseReady } from './lib/supabase';
+import AuthContactMethod from './components/AuthContactMethod';
+
+// UI scaffold stays hidden until explicitly enabled in the deployment environment.
+const OTP_AUTH_UI_ENABLED = import.meta.env.VITE_VYRO_OTP_AUTH_UI_ENABLED === 'true';
 
 const seedConversations = [];
 const demoPosts = [];
@@ -28,6 +32,9 @@ export default function App(){
  const [composer,setComposer]=useState('');
  const [authMode,setAuthMode]=useState('welcome');
  const [email,setEmail]=useState('');
+ const [authContactMethod,setAuthContactMethod]=useState('email');
+ const [authContact,setAuthContact]=useState('');
+ const [authOtpCode,setAuthOtpCode]=useState('');
  const [composerOpen,setComposerOpen]=useState(false);
  const [storyOpen,setStoryOpen]=useState(false);
  const [storyDraft,setStoryDraft]=useState('');
@@ -460,6 +467,7 @@ export default function App(){
    <button type="button" className="auth-back" onClick={()=>setAuthMode('welcome')}><ChevronLeft size={17}/> بازگشت</button>
    {authMode==='signup'&&<><label>کد دعوت <small className="optional-field-note">وارد کردن کد دعوت معتبر الزامی است.</small><input required value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد دعوت یکی از کاربران وایرو" autoCapitalize="characters"/></label><div className="signup-checks"><label className="check-row"><input type="checkbox" checked={notRobot} onChange={e=>setNotRobot(e.target.checked)}/><span><b>من ربات نیستم</b><small>تأیید ساده؛ برای محافظت واقعی باید CAPTCHA سمت سرور فعال شود.</small></span></label><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
    <label>نام کاربری<input type="text" value={email} onChange={e=>setEmail(e.target.value)} placeholder="مثلاً mohammad0900" autoCapitalize="none" autoComplete="username" minLength={3} maxLength={24} required/></label>
+   {OTP_AUTH_UI_ENABLED&&<AuthContactMethod value={authContactMethod} onChange={setAuthContactMethod} contact={authContact} onContactChange={setAuthContact} code={authOtpCode} onCodeChange={setAuthOtpCode}/>}
    <label>رمز عبور<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="حداقل ۶ کاراکتر" autoComplete={authMode==='signup'?'new-password':'current-password'} minLength={6} required/></label>
    <button className="primary-btn submit-auth" disabled={busy}>{busy?'لطفاً صبر کن…':authMode==='signup'?'ساخت حساب':'ورود به وایرو'} <LogIn size={16}/></button>
    {!supabaseReady&&<small className="auth-help"></small>}
