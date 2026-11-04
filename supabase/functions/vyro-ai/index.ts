@@ -13,7 +13,7 @@ const json = (body: Record<string, unknown>, status = 200) =>
   });
 
 function endpoint(base: string, path: string) {
-  return base.replace(/\\/+$/, "") + path;
+  return base.replace(/\/+$/, "") + path;
 }
 
 Deno.serve(async (req: Request) => {
