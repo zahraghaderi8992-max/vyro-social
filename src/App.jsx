@@ -160,6 +160,7 @@ export default function App(){
  const [isOnline,setIsOnline]=useState(typeof navigator==='undefined'?true:navigator.onLine);
  const [backendOnline,setBackendOnline]=useState(false);
  const [deviceSessionInfo,setDeviceSessionInfo]=useState(null);
+ const [deviceSessions,setDeviceSessions]=useState([]);
  const audioContextRef=useRef(null);
  const musicAudioRef=useRef(null);
  const chatInputRef=useRef(null);
@@ -276,19 +277,48 @@ export default function App(){
   return()=>listener.subscription.unsubscribe();
  },[]);
  useEffect(()=>{
-  if(!session?.user?.id){setDeviceSessionInfo(null);return}
+  if(!session?.user?.id||!supabaseReady){setDeviceSessionInfo(null);setDeviceSessions([]);return}
+  let active=true;
+  const userId=session.user.id;
   const ua=typeof navigator!=='undefined'?navigator.userAgent:'';
   const device=/Android/i.test(ua)?'Android':/iPhone|iPad|iPod/i.test(ua)?'iPhone / iPad':/Windows/i.test(ua)?'Windows':/Macintosh|Mac OS/i.test(ua)?'macOS':/Linux/i.test(ua)?'Linux':'دستگاه ناشناس';
   const browser=/Edg\//i.test(ua)?'Microsoft Edge':/Firefox\//i.test(ua)?'Firefox':/Chrome\//i.test(ua)?'Chrome':/Safari\//i.test(ua)?'Safari':'مرورگر ناشناس';
-  let tokenClaims={};
-  try{const payload=session.access_token?.split('.')[1];if(payload){const normalized=payload.replace(/-/g,'+').replace(/_/g,'/');tokenClaims=JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length/4)*4,'=')))}}catch{}
-  const sessionId=tokenClaims.session_id||'current';
-  const key='vyro-device-session-'+session.user.id+'-'+sessionId;
-  let info=null;
-  try{info=JSON.parse(localStorage.getItem(key)||'null')}catch{}
-  if(!info){info={loginAt:tokenClaims.iat?new Date(tokenClaims.iat*1000).toISOString():(session.user.last_sign_in_at||new Date().toISOString()),device,browser,entryPath:typeof window!=='undefined'?(window.location.host+(window.location.pathname||'/')):'Vyro'};try{localStorage.setItem(key,JSON.stringify(info))}catch{}}
-  setDeviceSessionInfo(info);
- },[session?.user?.id,session?.access_token]);
+  let claims={};
+  try{const payload=session.access_token?.split('.')[1];if(payload){const normalized=payload.replace(/-/g,'+').replace(/_/g,'/');claims=JSON.parse(atob(normalized.padEnd(Math.ceil(normalized.length/4)*4,'=')))}}catch{}
+  const sessionId=claims.session_id;
+  if(!sessionId){setDeviceSessionInfo(null);setDeviceSessions([]);return}
+  const entryPath=typeof window!=='undefined'?(window.location.host+(window.location.pathname||'/')):'Vyro';
+  const loadRows=async()=>{
+   const {data,error}=await supabase.from('devices').select('id,session_id,device_name,platform,browser,entry_path,login_at,last_active,revoked_at').eq('user_id',userId).order('login_at',{ascending:false});
+   if(active&&!error)setDeviceSessions(data||[]);
+  };
+  const heartbeat=async()=>{
+   const {data:row,error}=await supabase.from('devices').select('id,session_id,device_name,platform,browser,entry_path,login_at,last_active,revoked_at').eq('user_id',userId).eq('session_id',sessionId).maybeSingle();
+   if(!active)return;
+   if(error){setDeviceSessionInfo(null);return}
+   if(row?.revoked_at){
+    await supabase.auth.signOut({scope:'local'});
+    if(active)setNotice('این نشست از دستگاه دیگری پایان داده شده است.');
+    return;
+   }
+   const now=new Date().toISOString();
+   if(!row){
+    const {error:insertError}=await supabase.from('devices').insert({user_id:userId,session_id:sessionId,device_name:device,platform:device,browser,entry_path:entryPath,last_active:now});
+    if(insertError&&insertError.code!=='23505'){setNotice('ثبت نشست دستگاه انجام نشد؛ تنظیمات دسترسی پایگاه داده را بررسی کن.');return}
+   }else{
+    const {error:updateError}=await supabase.from('devices').update({device_name:device,platform:device,browser,entry_path:entryPath,last_active:now}).eq('id',row.id).eq('user_id',userId);
+    if(updateError){setNotice('به‌روزرسانی وضعیت نشست انجام نشد.');return}
+   }
+   const {data:current}=await supabase.from('devices').select('id,session_id,device_name,platform,browser,entry_path,login_at,last_active,revoked_at').eq('user_id',userId).eq('session_id',sessionId).maybeSingle();
+   if(!active)return;
+   if(current?.revoked_at){await supabase.auth.signOut({scope:'local'});return}
+   if(current)setDeviceSessionInfo({id:current.id,sessionId:current.session_id,device:current.device_name||device,browser:current.browser||browser,entryPath:current.entry_path||entryPath,loginAt:current.login_at||current.last_active});
+   await loadRows();
+  };
+  heartbeat();
+  const timer=window.setInterval(heartbeat,20000);
+  return()=>{active=false;window.clearInterval(timer)};
+ },[session?.user?.id,session?.access_token,supabaseReady]);
  useEffect(()=>{
   if(!supabaseReady)return;
   let active=true;
@@ -334,7 +364,19 @@ export default function App(){
   }catch(err){const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد دعوت واردشده معتبر نیست؛ کد معتبر یکی از کاربران وایرو را وارد کن.');}else if(/وارد کردن کد دعوت برای ثبت‌نام الزامی است|referral code is required/i.test(message)){setNotice('برای ثبت‌نام وارد کردن کد دعوت الزامی است.');}else if(/email not confirmed/i.test(message)){setNotice('حساب قبلی هنوز تأیید نشده بود. حالا تأیید حساب‌های وایرو اصلاح شده؛ صفحه را تازه کن و دوباره وارد شو.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
   setBusy(false);
  }
- async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut();if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
+ async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
+ async function endDeviceSession(row){
+  if(!session?.user?.id||!row?.id||row.session_id===deviceSessionInfo?.sessionId)return;
+  setBusy(true);
+  try{
+   const {data,error}=await supabase.from('devices').update({revoked_at:new Date().toISOString()}).eq('id',row.id).eq('user_id',session.user.id).is('revoked_at',null).select('id').maybeSingle();
+   if(error)throw error;
+   if(!data)throw new Error('این نشست قبلاً پایان یافته یا دیگر در دسترس نیست.');
+   setDeviceSessions(rows=>rows.map(x=>x.id===row.id?{...x,revoked_at:new Date().toISOString()}:x));
+   setNotice('درخواست پایان نشست ارسال شد.');
+  }catch(err){setNotice('پایان نشست انجام نشد: '+(err.message||'خطای اتصال'));}
+  finally{setBusy(false)}
+ }
  async function deleteMyAccount(e){e.preventDefault();const username=deleteUsername.trim().replace(/^@/,'').toLowerCase();const expected=String(session?.user?.user_metadata?.username||'').toLowerCase();if(!username||username!==expected){setNotice('نام کاربری با حساب فعلی مطابقت ندارد.');return}if(!deletePassword||deletePassword!==deletePasswordAgain){setNotice('رمز عبور را در هر دو کادر یکسان وارد کن.');return}if(!supabaseReady||!session?.user?.email){setNotice('برای حذف امن حساب باید اتصال آنلاین برقرار باشد.');return}setBusy(true);try{const {error:reauthError}=await supabase.auth.signInWithPassword({email:session.user.email,password:deletePassword});if(reauthError)throw new Error('رمز عبور صحیح نیست.');const {error}=await supabase.functions.invoke('delete-account',{body:{username}});if(error)throw error;await supabase.auth.signOut();setSession(null);setAuthMode('welcome');setNotice('حساب کاربری حذف شد.')}catch(err){setNotice(err.message||'حذف حساب انجام نشد.')}finally{setBusy(false)}}
  async function optimizeImageFile(file){
   if(!file||!file.type?.startsWith('image/')||file.size<1000000)return file;
@@ -571,7 +613,7 @@ export default function App(){
 {(settingsPage==='lastSeen'||settingsPage==='calls')&&<><h2>{settingsPage==='lastSeen'?'آخرین بازدید':'تماس آنلاین'}</h2><p>یکی از این سه حالت را انتخاب کن.</p>{['همه','استثنا','هیچکس'].map(v=><label className="choice-row" key={v}><input type="radio" name={settingsPage} checked={privacyChoices[settingsPage==='lastSeen'?'lastSeen':'calls']===v} onChange={()=>setPrivacyChoices(p=>({...p,[settingsPage==='lastSeen'?'lastSeen':'calls']:v}))}/><span><b>{v}</b><small>{v==='همه'?'همهٔ کاربران می‌توانند ببینند':v==='استثنا'?'فقط افراد انتخاب‌شده مجازند':'هیچ‌کس نمی‌تواند ببیند'}</small></span></label>)}{privacyChoices[settingsPage==='lastSeen'?'lastSeen':'calls']==='استثنا'&&<div className="settings-detail"><b>انتخاب افراد مجاز</b>{conversations.filter(c=>c.type==='direct').map(c=><label className="choice-row" key={c.id}><input type="checkbox" checked={privacyChoices.exceptions.includes(c.id)} onChange={e=>setPrivacyChoices(p=>({...p,exceptions:e.target.checked?[...p.exceptions,c.id]:p.exceptions.filter(x=>x!==c.id)}))}/><span>{c.name} <small>{c.handle}</small></span></label>)}<small>فقط مخاطبان انتخاب‌شده مجاز خواهند بود. اعمال واقعی آنلاین پس از پیاده‌سازی قوانین حریم خصوصی سرور انجام می‌شود.</small></div>}</>}
 {settingsPage==='storage'&&<><h2>داده و ذخیره‌سازی</h2><p>برآورد ذخیرهٔ محلی برنامه. برای محاسبهٔ واقعی حجم فایل‌های کش و دیتابیس دستگاه، دسترسی بومی اندروید لازم است.</p><div className="storage-total"><b>۰ مگابایت</b><span>دادهٔ محلی قابل محاسبه در این نسخه</span></div>{storageItems.map((x,i)=><div className="setting-row" key={x.name}><div><b>{x.name}</b><p>{x.size}</p></div><button className="secondary-btn" onClick={()=>setNotice('پاک‌سازی '+x.name+' در این نسخه دادهٔ سروری را حذف نمی‌کند.')}>پاک‌سازی</button></div>)}<button className="secondary-btn" onClick={()=>setNotice('پاک‌سازی کامل فقط کش محلی قابل انجام است؛ فایل‌های سرور حذف نمی‌شوند.')}>پاک کردن همهٔ کش‌ها</button></>}
 {settingsPage==='chat'&&<><h2>تنظیمات گفت‌وگو</h2><b>ترکیب رنگی</b><div className="theme-options">{[['gold','طلایی'],['ocean','آبی اقیانوسی'],['violet','بنفش'],['mono','سیاه‌وسفید'],['rose','صورتی'],['forest','کهربایی']].map(([id,label])=><button key={id} className={themeChoice===id?'selected':''} onClick={()=>{setThemeChoice(id);setNotice('تم '+label+' اعمال شد.')}}>{label}</button>)}</div><div className="settings-detail"><b>شخصی‌سازی رنگ‌ها</b><label>رنگ پس‌زمینه<input type="color" value={customBg} onChange={e=>{setCustomBg(e.target.value);setThemeChoice('custom')}}/></label><label>رنگ اصلی<input type="color" value={customAccent} onChange={e=>{setCustomAccent(e.target.value);setThemeChoice('custom')}}/></label><button className="secondary-btn" onClick={()=>{setThemeChoice('custom');setNotice('رنگ‌بندی سفارشی در رابط اعمال شد.')}}>اعمال رنگ‌ها</button><button className="primary-btn" onClick={()=>setChatPreviewOpen(true)}>پیش‌نمایش شخصی‌سازی <Sparkles size={16}/></button>{chatPreviewOpen&&<div className="chat-theme-preview" style={{'--preview-bg':customBg,'--preview-accent':customAccent}}><div className="preview-top"><span className="chat-avatar">V</span><div><b>گفت‌وگوی نمونه</b><small>آنلاین</small></div><button onClick={()=>setChatPreviewOpen(false)}><X size={16}/></button></div><div className="preview-bubble theirs">سلام! این ترکیب رنگی چطوره؟</div><div className="preview-bubble mine">خیلی خوبه ✨</div><div className="preview-compose">پیامت رو بنویس… <Send size={15}/></div></div>}</div><div className="settings-detail"><b>پس‌زمینهٔ گفتگو</b><label>انتخاب تصویر پس‌زمینه<input type="file" accept="image/*" onChange={()=>setNotice('انتخاب تصویر ثبت شد؛ ذخیره و اعمال سراسری پس‌زمینه نیازمند تکمیل است.')}/></label></div><div className="settings-detail"><b>اندازهٔ متن گفتگو</b><label className="font-scale-control"><span>کوچک</span><input type="range" min="75" max="140" step="5" value={settings.chatFontScale||100} onChange={e=>setSettings(v=>({...v,chatFontScale:Number(e.target.value)}))}/><span>بزرگ</span><output>{settings.chatFontScale||100}٪</output></label><p>این درصد اندازهٔ نوشته‌های داخل گفت‌وگو را تغییر می‌دهد.</p></div><div className="settings-detail"><b>فونت برنامه</b><select value={settings.fontFamily||'default'} onChange={e=>setSettings(v=>({...v,fontFamily:e.target.value}))}><option value="default">فونت وایرو (پیش‌فرض)</option><option value="simple">ساده و خوانا</option><option value="rounded">گرد</option></select><p>فونت انتخاب‌شده در رابط برنامه اعمال می‌شود.</p></div></>}
-{settingsPage==='devices'&&<><h2>دستگاه‌های لاگین‌شده</h2>{deviceSessionInfo?<div className="settings-detail device-session-card"><div className="setting-row"><div><b>{deviceSessionInfo.device}</b><p>{deviceSessionInfo.browser} · {deviceSessionInfo.entryPath}</p></div><span className={'disabled-label '+(isOnline?'session-online':'session-offline')}>{isOnline?'آنلاین':'آفلاین'}</span></div><p>زمان ورود این نشست: {new Date(deviceSessionInfo.loginAt).toLocaleString('fa-IR')}</p><div className="setting-row"><small>نشست جاری روی همین دستگاه</small><button type="button" className="danger-btn" disabled={busy} onClick={logout} aria-label="پایان نشست این دستگاه"><X size={15}/> پایان نشست</button></div></div>:<div className="settings-detail"><p>اطلاعات نشست در دسترس نیست؛ یک‌بار دوباره وارد حساب شو.</p></div>}<div className="settings-detail"><b>مدیریت نشست‌های دیگر</b><p>در حال حاضر برنامه فقط می‌تواند نشست جاری را به‌صورت دقیق تشخیص دهد. نمایش و پایان‌دادن به نشست‌های سایر دستگاه‌ها هنوز به API امن سمت سرور و کنترل نشست‌های Supabase نیاز دارد؛ برای جلوگیری از نمایش اطلاعات ساختگی، آن نشست‌ها در این فهرست حدس زده نمی‌شوند.</p></div></>}
+{settingsPage==='devices'&&<><h2>دستگاه‌های لاگین‌شده</h2><p className="settings-hint">نشست‌های متصل به حساب تو؛ وضعیت بر اساس آخرین ارتباط ثبت‌شده به‌روزرسانی می‌شود.</p>{deviceSessions.length? <div className="device-session-list">{deviceSessions.map(row=>{const current=!!deviceSessionInfo&&row.session_id===deviceSessionInfo.sessionId;const active=!!row.last_active&&Date.now()-new Date(row.last_active).getTime()<120000&&!row.revoked_at;return <div className="settings-detail device-session-card" key={row.id}><div className="setting-row"><div><b>{row.device_name||row.platform||'دستگاه ناشناس'} {current&&<small className="current-session-tag">این دستگاه</small>}</b><p>{row.browser||'مرورگر نامشخص'} · {row.entry_path||'مسیر نامشخص'}</p></div><span className={'disabled-label '+(active?'session-online':'session-offline')}>{row.revoked_at?'پایان‌یافته':active?'آنلاین':'آفلاین'}</span></div><p>زمان ورود: {new Date(row.login_at||row.created_at||row.last_active).toLocaleString('fa-IR')}</p><p>آخرین فعالیت: {row.last_active?new Date(row.last_active).toLocaleString('fa-IR'):'نامشخص'}</p><div className="setting-row"><small>{current?'نشست جاری':'نشست دستگاه دیگر'}</small>{current?<button type="button" className="danger-btn" disabled={busy} onClick={logout}><X size={15}/> خروج از این دستگاه</button>:<button type="button" className="danger-btn" disabled={busy||!!row.revoked_at} onClick={()=>endDeviceSession(row)}><X size={15}/> پایان نشست</button>}</div></div>})}</div>:<div className="settings-detail"><p>{deviceSessionInfo?'هنوز نشست دیگری برای این حساب ثبت نشده است.':'در حال دریافت اطلاعات نشست‌ها…'}</p></div>}<div className="settings-detail"><small>با پایان‌دادن به نشست دیگر، آن دستگاه در اولین بررسی بعدی از حساب خارج می‌شود. اعتبار توکن دسترسی فعلی ممکن است تا زمان انقضایش باقی بماند.</small></div></>}
 {settingsPage==='language'&&<><h2>زبان‌ها</h2><p>زبان پیش‌فرض وایرو فارسی است. انتخاب زبان در این نسخه ذخیره می‌شود؛ ترجمهٔ کامل همهٔ صفحه‌ها هنوز تکمیل نشده است.</p><div className="settings-detail"><label>زبان برنامه<select value={appLanguage} onChange={e=>setAppLanguage(e.target.value)}>{['فارسی','English','العربية','Türkçe','Русский','Français','Deutsch','Español','اردو','中文','日本語','हिन्दी'].map(x=><option key={x}>{x}</option>)}</select></label></div></>}
 {settingsPage==='support'&&<><h2>پشتیبانی</h2><div className="support-choice"><button onClick={()=>setSettingsPage('supportBot')}>۱. چت‌بات پشتیبانی <small>پاسخ‌های راهنما؛ مستقل از هوش مصنوعی عمومی</small></button><button onClick={()=>setSettingsPage('anonymousSupport')}>۲. پیام ناشناس با ادمین <small>در رابط ادمین با نام «پیام ناشناس» نمایش داده می‌شود؛ ناشناس‌ماندن واقعی باید در سرور اعمال شود</small></button><button onClick={()=>{setTab('messages');let found=conversations.find(c=>c.handle==='@mohammad0900');if(!found){found={id:'admin-mohammad0900',type:'direct',name:'mohammad0900',handle:'@mohammad0900',avatar:'M',last:'گفت‌وگوی مستقیم با ادمین',time:'همین حالا',unread:0,messages:[]};setConversations(v=>[found,...v])}setChatId(found.id)}}>۳. پیام مستقیم با ادمین <small>بازکردن گفت‌وگو با @mohammad0900</small></button></div></>}
 {settingsPage==='supportBot'&&<><h2>چت‌بات پشتیبانی وایرو</h2><p className="support-bot-intro">این دستیار برای سؤال‌های متداول طراحی شده و از هوش مصنوعی عمومی جداست.</p><div className="support-bot-thread">{supportBotMessages.map((m,i)=><div key={i} className={'support-bot-message '+m.role}><b>{m.role==='assistant'?'پشتیبانی وایرو':'تو'}</b><p>{m.text}</p></div>)}</div><form className="ai-compose" onSubmit={e=>{e.preventDefault();const q=supportBotDraft.trim();if(!q)return;setSupportBotMessages(v=>[...v,{role:'user',text:q},{role:'assistant',text:vyroSupportReply(q)}]);setSupportBotDraft('');}}><input value={supportBotDraft} onChange={e=>setSupportBotDraft(e.target.value)} placeholder="سؤالت دربارهٔ وایرو…"/><button className="send-chat" type="submit" aria-label="ارسال پیام"><Send size={17}/></button></form></>}
