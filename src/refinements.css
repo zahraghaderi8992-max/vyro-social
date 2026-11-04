@@ -725,3 +725,21 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .settings-hint{color:var(--muted,#a4a49a);font-size:12px;line-height:1.7}
 .device-session-card .danger-btn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
 @media(max-width:480px){.device-session-card .setting-row{align-items:flex-start}.device-session-card .danger-btn{padding:8px 9px;font-size:11px}}
+
+
+/* Chat group and channel member management */
+.chat-members-panel{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(230,197,47,.16);background:rgba(12,14,14,.96)}
+.chat-members-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#f3f1e7}
+.chat-members-heading small{color:var(--lime,#e6c52f)}
+.chat-member-row{display:flex;align-items:center;gap:10px;min-width:0;padding:7px 9px;border:1px solid rgba(230,197,47,.12);border-radius:11px;background:rgba(255,255,255,.025)}
+.chat-member-avatar{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:rgba(230,197,47,.12);color:var(--lime,#e6c52f)}
+.chat-member-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-member-row>span:nth-child(2){display:flex;flex:1;flex-direction:column;min-width:0;gap:2px}
+.chat-member-row>span:nth-child(2) b,.chat-member-row>span:nth-child(2) small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-member-row>span:nth-child(2) small{color:#999d96;font-size:10px}
+.chat-member-remove{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border:1px solid rgba(255,90,90,.2);border-radius:9px;background:rgba(255,70,70,.08);color:#ff8b8b;cursor:pointer}
+.chat-member-add{display:flex;align-items:center;gap:8px;margin-top:4px}
+.chat-member-add input{flex:1;min-width:0}
+.chat-member-add button{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid rgba(230,197,47,.3);border-radius:10px;padding:9px 12px;background:rgba(230,197,47,.1);color:var(--lime,#e6c52f);cursor:pointer}
+.chat-member-add button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:480px){.chat-members-panel{padding:10px}.chat-member-add{align-items:stretch}.chat-member-add button{padding:8px}}
