@@ -714,3 +714,14 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .muzio-mini-cover{overflow:hidden}
 .muzio-mini-cover img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
 @media(max-width:520px){.music-album-create>div{align-items:stretch}.music-album-create button{flex:0 0 auto}.music-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.music-track-menu{position:fixed;inset-inline:12px;top:auto;bottom:calc(82px + env(safe-area-inset-bottom));width:auto}}
+
+
+/* Device session management */
+.device-session-list{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.device-session-list .device-session-card{margin:0;padding:14px;border:1px solid rgba(230,197,47,.18);border-radius:15px;background:linear-gradient(145deg,rgba(28,30,27,.88),rgba(13,15,15,.94))}
+.device-session-card .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.device-session-card p{overflow-wrap:anywhere}
+.current-session-tag{display:inline-flex;margin-inline-start:6px;padding:3px 7px;border-radius:999px;background:rgba(230,197,47,.12);color:#e6c52f;font-size:10px;font-weight:600}
+.settings-hint{color:var(--muted,#a4a49a);font-size:12px;line-height:1.7}
+.device-session-card .danger-btn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+@media(max-width:480px){.device-session-card .setting-row{align-items:flex-start}.device-session-card .danger-btn{padding:8px 9px;font-size:11px}}
