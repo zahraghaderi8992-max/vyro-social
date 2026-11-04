@@ -621,3 +621,55 @@ button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px s
 .ai-duration-picker button.selected{border-color:var(--lime,#e6c52f);background:rgba(230,197,47,.12);color:var(--lime,#e6c52f)}
 .ai-more-plan small{display:block}
 @media(max-width:420px){.ai-duration-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* VYRO Stage 2 — cross-browser glass form controls (desktop, Windows and mobile) */
+:root{color-scheme:dark}
+html{color-scheme:dark}
+.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+.app-shell textarea,
+.app-shell select,
+.modal-backdrop input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+.modal-backdrop textarea,
+.modal-backdrop select,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+textarea,
+select{
+  color:#f4f4ef!important;
+  color-scheme:dark;
+  background-color:#151817!important;
+  background-image:linear-gradient(145deg,rgba(38,41,37,.94),rgba(15,17,17,.97))!important;
+  border:1px solid rgba(230,197,47,.28)!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 7px 20px rgba(0,0,0,.16)!important;
+  -webkit-text-fill-color:#f4f4ef;
+  accent-color:var(--lime,#e6c52f);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+textarea:focus,select:focus{
+  background-color:#191c19!important;
+  border-color:rgba(230,197,47,.72)!important;
+  box-shadow:0 0 0 3px rgba(230,197,47,.11),inset 0 1px 0 rgba(255,255,255,.04)!important;
+  outline:none!important;
+}
+input:disabled,textarea:disabled,select:disabled{opacity:.58;cursor:not-allowed}
+input::placeholder,textarea::placeholder{color:rgba(225,225,212,.52)!important;opacity:1}
+select option,select optgroup{background:#151817!important;color:#f4f4ef!important}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#f4f4ef!important;
+  -webkit-box-shadow:0 0 0 1000px #171a17 inset,0 0 0 1px rgba(230,197,47,.32)!important;
+  caret-color:#f4f4ef;
+}
+input[type="file"]{max-width:100%;color:#d8d8ce;font:inherit;font-size:11px}
+input[type="file"]::file-selector-button{
+  margin-inline-end:10px;padding:9px 12px;border:1px solid rgba(230,197,47,.32);
+  border-radius:9px;background:rgba(230,197,47,.12);color:#f2df8b;font:inherit;cursor:pointer
+}
+input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(--lime,#e6c52f)}
+@media(max-width:700px){
+  .app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  .app-shell textarea,.app-shell select{font-size:16px}
+}
+@media(forced-colors:active){
+  input,textarea,select{forced-color-adjust:none;color:#f4f4ef!important;background:#151817!important;border:1px solid #b8a34b!important}
+}
+
