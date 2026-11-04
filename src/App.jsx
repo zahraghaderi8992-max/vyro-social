@@ -516,7 +516,7 @@ export default function App(){
  async function addChatMembers(){
   const activeConversation=conversations.find(c=>c.id===chatId);
   if(!session?.user?.id||!activeConversation||activeConversation.createdBy!==session.user.id){setNotice('فقط سازندهٔ گروه یا کانال می‌تواند عضو اضافه کند.');return}
-  const names=[...new Set(chatMemberDraft.split(/[\\s,;]+/).map(x=>x.trim().replace(/^@/,'').toLowerCase()).filter(Boolean))];
+  const names=[...new Set(chatMemberDraft.split(/[\s,;]+/).map(x=>x.trim().replace(/^@/,'').toLowerCase()).filter(Boolean))];
   if(!names.length){setNotice('نام کاربری اعضای جدید را وارد کن.');return}
   setBusy(true);
   try{
