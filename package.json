@@ -62,5 +62,8 @@
       "shortcutName": "VYRO"
     }
   },
-  "description": "VYRO — social, messaging, AI and music super app"
+  "description": "VYRO — social, messaging, AI and music super app",
+  "overrides": {
+    "@babel/helper-module-transforms": "7.29.7"
+  }
 }
