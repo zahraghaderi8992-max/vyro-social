@@ -689,3 +689,28 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
  .story-viewer .story-viewer-content>video,.story-viewer .story-viewer-content>img{max-height:76dvh;border-radius:12px}
 }
 
+
+
+/* Muzio personal library and album actions */
+.music-albums{margin-top:22px;padding-top:18px;border-top:1px solid var(--vyro-glass-border,rgba(212,177,63,.2))}
+.music-album-create>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.music-album-create input{flex:1 1 180px;min-width:0;background:rgba(255,255,255,.045)!important;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.22))!important;border-radius:12px;padding:11px 13px;color:#fff}
+.music-album-create button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(212,177,63,.35);border-radius:12px;padding:10px 13px;background:rgba(212,177,63,.12);color:var(--vyro-gold,#d4b13f);cursor:pointer}
+.music-album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin:14px 0}
+.music-album-card{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;padding:12px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.2));border-radius:14px;background:rgba(255,255,255,.035);color:inherit;text-align:start;cursor:pointer}
+.music-album-card.selected{border-color:var(--vyro-gold,#d4b13f);background:rgba(212,177,63,.1)}
+.music-album-card .playlist-art{width:42px;height:42px;display:grid;place-items:center;border-radius:10px;background:rgba(212,177,63,.12);color:var(--vyro-gold,#d4b13f)}
+.music-album-card b{max-width:100%;overflow-wrap:anywhere}
+.music-album-card small{opacity:.65}
+.music-album-detail{margin:12px 0;padding:12px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.2));border-radius:14px;background:rgba(255,255,255,.025)}
+.music-album-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.music-album-detail-head h3{margin:4px 0 10px}
+.music-track-more-wrap{position:relative;flex:0 0 auto}
+.music-track-menu{position:absolute;z-index:30;inset-inline-end:0;top:calc(100% + 5px);width:min(245px,75vw);padding:8px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.28));border-radius:13px;background:#111214;box-shadow:0 12px 35px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:4px}
+.music-track-menu>button,.music-add-album>button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:#eee;text-align:start;cursor:pointer}
+.music-track-menu>button:hover,.music-add-album>button:hover{background:rgba(212,177,63,.1)}
+.music-add-album{display:flex;flex-direction:column;gap:3px;padding-top:7px;border-top:1px solid rgba(255,255,255,.08)}
+.music-add-album small,.music-track-menu>small{padding:5px 8px;color:var(--vyro-gold,#d4b13f)}
+.muzio-mini-cover{overflow:hidden}
+.muzio-mini-cover img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+@media(max-width:520px){.music-album-create>div{align-items:stretch}.music-album-create button{flex:0 0 auto}.music-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.music-track-menu{position:fixed;inset-inline:12px;top:auto;bottom:calc(82px + env(safe-area-inset-bottom));width:auto}}
