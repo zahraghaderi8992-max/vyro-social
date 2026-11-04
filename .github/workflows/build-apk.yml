@@ -2,7 +2,7 @@ name: Build VYRO Android APK
 
 on:
   push:
-    branches: [main]
+    branches: [main, work/vyro-core-upgrade-2026-11-04]
     paths:
       - 'src/**'
       - 'public/**'
@@ -29,14 +29,14 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
           distribution: temurin
           java-version: '21'
       - name: Install dependencies
-        run: npm install
+        run: npm install --no-audit --no-fund
       - name: Build web app
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
