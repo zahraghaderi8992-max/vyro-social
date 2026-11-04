@@ -19,7 +19,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: vyro-pages
+  group: vyro-pages-preview
   cancel-in-progress: true
 
 jobs:
@@ -78,7 +78,7 @@ jobs:
 
   deploy:
     environment:
-      name: github-pages
+      name: github-pages-preview
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     needs: build
