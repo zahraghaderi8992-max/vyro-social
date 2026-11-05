@@ -843,3 +843,7 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .compact-session-empty p,.compact-session-note{font-size:10px!important;line-height:1.5;color:var(--muted,#a4a49a)}
 .compact-session-note{margin:5px 2px}
 @media(max-width:380px){.device-session-time{display:none}.device-session-extra{grid-template-columns:1fr}}
+
+
+.chat-member-transfer{width:30px;height:30px;flex:0 0 30px;display:grid;place-items:center;border:1px solid rgba(230,197,47,.25);border-radius:9px;background:rgba(230,197,47,.09);color:var(--lime,#e6c52f);cursor:pointer}
+.chat-member-transfer:disabled{opacity:.45;cursor:not-allowed}
