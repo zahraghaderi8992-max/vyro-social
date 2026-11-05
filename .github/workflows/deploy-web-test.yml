@@ -34,6 +34,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Sync shared VYRO version metadata
+        run: npm run version:sync
       - name: Build web app
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
