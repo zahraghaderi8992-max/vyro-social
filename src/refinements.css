@@ -1095,3 +1095,116 @@ input[type=file]::file-selector-button{
 @media(max-width:700px){
   .settings-menu-item,.setting-row,.conversation{background-color:rgba(20,22,25,.58)!important}
 }
+
+/* Telegram-inspired glass system — final unified surface layer */
+:root{
+  --vyro-gold:#d4b13f;
+  --vyro-glass-bg:rgba(17,19,27,.62);
+  --vyro-glass-bg-strong:rgba(12,14,20,.78);
+  --vyro-glass-border:rgba(255,255,255,.085);
+  --vyro-glass-highlight:rgba(255,255,255,.055);
+  --vyro-glass-shadow:0 12px 34px rgba(0,0,0,.22);
+  --panel:rgba(17,19,27,.68);
+  --line:rgba(255,255,255,.09);
+  --lime:#d4b13f;
+}
+html,body,#root{min-height:100%;background-color:#080a0f}
+body{
+  background-image:
+    radial-gradient(ellipse at 12% 0%,rgba(212,177,63,.075),transparent 42%),
+    radial-gradient(ellipse at 92% 92%,rgba(85,105,150,.075),transparent 38%),
+    linear-gradient(145deg,#080a0f 0%,#0d1018 52%,#080a0f 100%);
+}
+.card,.settings-card,.profile-card,.profile-page,.music-hub,.simple-panel,
+.right-panel,.admin-panel,.chat-layout,.chat-list,.chat-window,.chat-top,
+.chat-body,.chat-compose,.conversation,.message-bubble,.story-strip,.feed-post,
+.story-modal,.composer-modal,.modal-card,.create-chat-modal,.public-profile-card,
+.profile-stats,.profile-shortcuts,.admin-user-row,.referral-card,.chat-folders,
+.chat-kind-shortcuts,.chat-create-types,.settings-menu-item,.chat-user-search-card,
+.story-add-card,.post-add-card,.file-preview,.feed-file-link{
+  background:linear-gradient(145deg,var(--vyro-glass-bg),rgba(8,10,16,.58))!important;
+  border:1px solid var(--vyro-glass-border)!important;
+  box-shadow:var(--vyro-glass-shadow),inset 0 1px 0 var(--vyro-glass-highlight);
+  -webkit-backdrop-filter:blur(16px) saturate(135%);
+  backdrop-filter:blur(16px) saturate(135%);
+}
+.topbar,.nav,.mobile-nav,.chat-list-head,.composer-modal-head,.chat-top{
+  background:rgba(10,12,18,.66)!important;
+  border-color:var(--vyro-glass-border)!important;
+  -webkit-backdrop-filter:blur(18px) saturate(140%);
+  backdrop-filter:blur(18px) saturate(140%);
+}
+.card,.feed-post,.chat-layout,.profile-page,.music-hub,.simple-panel,
+.right-panel,.admin-panel,.story-strip,.referral-card{border-radius:18px}
+input:not([type=checkbox]):not([type=radio]):not([type=file]),
+textarea,select,[contenteditable=true],.search-box,.search-box input,
+.chat-compose input,.chat-compose textarea,.profile-page input,
+.profile-page textarea,.profile-page select,.settings-card input,
+.settings-card textarea,.settings-card select,.admin-search input,
+.admin-add-form input,.story-modal input,.story-modal textarea,
+.composer-modal input,.composer-modal textarea{
+  color:#f4f5f8!important;
+  background:rgba(6,8,13,.54)!important;
+  border:1px solid rgba(255,255,255,.105)!important;
+  border-radius:12px;
+  box-shadow:inset 0 1px 2px rgba(0,0,0,.18);
+  -webkit-backdrop-filter:blur(10px);
+  backdrop-filter:blur(10px);
+}
+input::placeholder,textarea::placeholder{color:rgba(205,210,224,.52)!important}
+input:focus,textarea:focus,select:focus,[contenteditable=true]:focus{
+  outline:none!important;
+  border-color:rgba(212,177,63,.58)!important;
+  box-shadow:0 0 0 3px rgba(212,177,63,.11),inset 0 1px 2px rgba(0,0,0,.18)!important;
+}
+input[type=file]{
+  max-width:100%;color:#cbd0dc!important;background:rgba(7,9,14,.48)!important;
+  border:1px solid var(--vyro-glass-border)!important;border-radius:12px;padding:8px;
+}
+.icon-btn,.secondary-btn,.chat-create-types button,.chat-folders button,
+.chat-kind-shortcuts button,.profile-shortcuts button,.chat-compose>button{
+  background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+  color:#e8eaf0;border-radius:12px;
+}
+.primary-btn,.publish-btn,.send-chat,.nav-item.active,.mobile-nav button.mobile-active{
+  background:linear-gradient(135deg,#d4b13f,#b9942e)!important;
+  color:#101116!important;border-color:rgba(212,177,63,.4)!important;
+  box-shadow:0 5px 18px rgba(212,177,63,.13);
+}
+.message-bubble{
+  background:rgba(25,29,40,.78)!important;border:1px solid rgba(255,255,255,.075)!important;
+  border-radius:16px 16px 16px 5px;
+}
+.message-bubble.own,.own .message-bubble{
+  background:rgba(91,79,42,.36)!important;border-color:rgba(212,177,63,.18)!important;
+  border-radius:16px 16px 5px 16px;
+}
+.chat-body{background:rgba(5,7,12,.22)!important}
+.chat-compose{background:rgba(10,12,18,.64)!important}
+.feed-post-actions,.profile-stats>div,.profile-shortcuts{border-color:rgba(255,255,255,.075)!important}
+.story-avatar>span,.avatar,.chat-avatar,.admin-avatar{border:1px solid rgba(255,255,255,.16)}
+.modal-backdrop,.overlay{
+  background:rgba(2,4,8,.68)!important;
+  -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+}
+@media(max-width:700px){
+  .card,.settings-card,.profile-card,.profile-page,.music-hub,.simple-panel,
+  .right-panel,.admin-panel,.chat-layout,.chat-list,.chat-window,.chat-top,
+  .chat-body,.chat-compose,.conversation,.message-bubble,.story-strip,.feed-post,
+  .story-modal,.composer-modal,.modal-card,.create-chat-modal,.public-profile-card,
+  .profile-stats,.profile-shortcuts,.admin-user-row,.referral-card,.chat-folders,
+  .chat-kind-shortcuts,.chat-create-types,.settings-menu-item,.chat-user-search-card,
+  .story-add-card,.post-add-card{
+    -webkit-backdrop-filter:blur(13px) saturate(130%)!important;
+    backdrop-filter:blur(13px) saturate(130%)!important;
+  }
+  .mobile-nav{background:rgba(8,10,15,.78)!important;border-top:1px solid rgba(255,255,255,.09)!important}
+  .feed-post,.story-strip,.card,.simple-panel{border-radius:16px}
+}
+@supports not ((backdrop-filter:blur(1px))){
+  .card,.settings-card,.profile-card,.profile-page,.music-hub,.simple-panel,
+  .right-panel,.admin-panel,.chat-layout,.chat-list,.chat-window,.chat-top,
+  .chat-body,.chat-compose,.conversation,.message-bubble,.story-strip,.feed-post{
+    background:rgba(15,17,24,.96)!important;
+  }
+}
