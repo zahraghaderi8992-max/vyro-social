@@ -682,7 +682,7 @@ export default function App(){
   try{
    const url=new URL('https://api.giphy.com/v1/gifs/search');
    url.searchParams.set('api_key',apiKey);url.searchParams.set('q',q.slice(0,50));
-   url.searchParams.set('limit','24');url.searchParams.set('rating','pg-13');url.searchParams.set('lang','en');
+   url.searchParams.set('limit','24');url.searchParams.set('rating','pg-13');url.searchParams.set('lang',/[\\u0600-\\u06FF]/.test(q)?'fa':'en');
    const response=await fetch(url.toString());
    const payload=await response.json();
    if(!response.ok)throw new Error(payload?.meta?.msg||'سرویس GIF پاسخ معتبر نداد.');
