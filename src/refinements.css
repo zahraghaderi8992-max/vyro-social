@@ -906,3 +906,5 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .chat-gif-manual small{font-size:9px;color:var(--muted,#aaa)}
 .chat-gif-external{font-size:10px;color:var(--lime,#e6c52f);text-align:center;text-decoration:none}
 @media(max-width:420px){.custom-pack-publish-row{align-items:stretch}.custom-pack-publish-row span{flex-basis:100%}.chat-gif-results{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.custom-pack-publish-row .custom-pack-delete{border-color:rgba(230,80,80,.28);background:rgba(230,80,80,.08);color:#f08b8b}
