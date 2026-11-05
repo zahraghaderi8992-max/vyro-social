@@ -33,6 +33,8 @@ jobs:
           node-version: 22
       - name: Install dependencies
         run: npm install
+      - name: Sync shared VYRO version metadata
+        run: npm run version:sync
       - name: Build web app
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
@@ -44,13 +46,17 @@ jobs:
         run: npx cap add ios
       - name: Sync Capacitor
         run: npx cap sync ios
+      - name: Synchronize iOS marketing/build versions
+        run: npm run version:sync
       - name: Build iOS Simulator app
         run: |
+          VYRO_VERSION=$(node -p "require('./package.json').version")
           xcodebuild -workspace ios/App/App.xcworkspace \
             -scheme App \
             -sdk iphonesimulator \
             -configuration Release \
             -derivedDataPath build/ios \
+            MARKETING_VERSION="$VYRO_VERSION" CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" \
             CODE_SIGNING_ALLOWED=NO build
       - name: Package simulator app
         run: |
