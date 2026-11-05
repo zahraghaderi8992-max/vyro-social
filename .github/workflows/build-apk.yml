@@ -41,6 +41,7 @@ jobs:
         env:
           VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_GIPHY_API_KEY: ${{ secrets.VITE_GIPHY_API_KEY }}
           VITE_VYRO_OTP_AUTH_UI_ENABLED: ${{ vars.VITE_VYRO_OTP_AUTH_UI_ENABLED }}
         run: npm run build
       - name: Add Android platform
