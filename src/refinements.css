@@ -819,3 +819,27 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .chat-gif-url-input{width:100%;min-width:0;box-sizing:border-box;border:1px solid #d4b13f55;border-radius:11px;background:rgba(10,10,12,.72);color:#f4f0df;padding:11px 12px;font:inherit;font-size:12px;outline:none}
 .chat-gif-url-input:focus{border-color:#d4b13f;box-shadow:0 0 0 2px #d4b13f22}
 .chat-gif-panel button:disabled{opacity:.45;cursor:not-allowed}
+
+
+/* Compact device session rows with on-demand details */
+.compact-device-session-list{gap:6px;margin:9px 0}
+.compact-device-session{padding:0!important;overflow:hidden;border-radius:11px!important}
+.compact-device-session>summary{display:flex;align-items:center;gap:8px;min-height:42px;padding:7px 9px;list-style:none;cursor:pointer}
+.compact-device-session>summary::-webkit-details-marker{display:none}
+.compact-device-session>summary:after{content:'⌄';margin-inline-start:2px;color:#cbb45a;font-size:13px}
+.compact-device-session[open]>summary:after{content:'⌃'}
+.device-session-main{display:flex;align-items:center;gap:5px;min-width:0;flex:1}
+.device-session-main b{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.device-session-status{flex:none;padding:2px 6px;border-radius:20px;font-size:9px;line-height:1.5;border:1px solid transparent}
+.device-session-status.session-online{color:#80d9a0;background:#38a16918;border-color:#38a16944}
+.device-session-status.session-offline{color:#b8b8bd;background:#88888814;border-color:#88888833}
+.device-session-status.session-ended{color:#e79a9a;background:#d9534f18;border-color:#d9534f44}
+.device-session-time{flex:none;color:var(--muted,#a4a49a);font-size:9px;white-space:nowrap}
+.device-session-extra{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px 10px;padding:7px 10px 9px;border-top:1px solid rgba(230,197,47,.12)}
+.device-session-extra>span{font-size:10px;line-height:1.6;color:var(--muted,#a4a49a);overflow-wrap:anywhere}
+.device-session-actions{grid-column:1/-1;display:flex;justify-content:flex-end;margin-top:2px}
+.compact-session-end{min-height:27px!important;padding:4px 8px!important;font-size:10px!important;gap:4px!important}
+.compact-session-empty{padding:8px 10px!important;margin:8px 0!important}
+.compact-session-empty p,.compact-session-note{font-size:10px!important;line-height:1.5;color:var(--muted,#a4a49a)}
+.compact-session-note{margin:5px 2px}
+@media(max-width:380px){.device-session-time{display:none}.device-session-extra{grid-template-columns:1fr}}
