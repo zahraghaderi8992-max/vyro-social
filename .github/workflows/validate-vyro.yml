@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - work/vyro-core-upgrade-2026-11-04
+      - work/chat-cloud-sync-and-gif-send-2026-11-05
   workflow_dispatch:
 
 permissions:

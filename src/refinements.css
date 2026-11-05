@@ -813,3 +813,9 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .chat-sticker-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;max-height:260px;overflow:auto;padding:5px}
 .chat-sticker-grid button{min-width:0;min-height:52px;border:1px solid #343544;border-radius:12px;background:#20212d;font-size:29px}
 .chat-gif-panel{display:grid;gap:10px;padding:14px 4px}.chat-gif-panel button{width:100%;text-align:center}
+
+
+/* Direct GIF link sender inside the Telegram-style picker */
+.chat-gif-url-input{width:100%;min-width:0;box-sizing:border-box;border:1px solid #d4b13f55;border-radius:11px;background:rgba(10,10,12,.72);color:#f4f0df;padding:11px 12px;font:inherit;font-size:12px;outline:none}
+.chat-gif-url-input:focus{border-color:#d4b13f;box-shadow:0 0 0 2px #d4b13f22}
+.chat-gif-panel button:disabled{opacity:.45;cursor:not-allowed}
