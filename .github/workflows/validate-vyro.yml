@@ -1,0 +1,35 @@
+name: VYRO validation
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches:
+      - work/vyro-core-upgrade-2026-11-04
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: vyro-validation-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  web-build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+      - name: Setup Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: 22
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Build web application
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
+          VITE_VYRO_OTP_AUTH_UI_ENABLED: ${{ vars.VITE_VYRO_OTP_AUTH_UI_ENABLED }}
+        run: npm run build

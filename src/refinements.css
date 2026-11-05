@@ -596,3 +596,150 @@ select{
 .auth-contact-scaffold input{width:100%;min-width:0;border:1px solid var(--line);border-radius:10px;background:#0c0f0e;color:#f5f5ef;padding:12px;font:inherit;outline:none}
 .auth-contact-scaffold input:focus{border-color:var(--lime);box-shadow:0 0 0 3px color-mix(in srgb,var(--lime) 12%,transparent)}
 .auth-contact-scaffold input:disabled{opacity:.48;cursor:not-allowed}
+
+
+/* VYRO core polish — consistent glass surfaces and accessible controls */
+:root{--vyro-glass:rgba(22,24,24,.82);--vyro-glass-strong:rgba(17,19,20,.94);--vyro-glass-line:rgba(230,197,47,.18)}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),textarea,select{
+ color:var(--text,#f4f4f0);background:linear-gradient(145deg,rgba(30,32,30,.92),rgba(15,17,17,.96));
+ border:1px solid rgba(230,197,47,.17);border-radius:12px;outline:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.025),0 8px 24px rgba(0,0,0,.12);
+ transition:border-color .18s ease,box-shadow .18s ease,background .18s ease;
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):focus,textarea:focus,select:focus{
+ border-color:rgba(230,197,47,.58);box-shadow:0 0 0 3px rgba(230,197,47,.09),0 8px 24px rgba(0,0,0,.16)
+}
+input::placeholder,textarea::placeholder{color:#858982;opacity:1}
+button:focus-visible,a:focus-visible,[role="button"]:focus-visible{outline:2px solid var(--lime,#e6c52f);outline-offset:3px}
+.topbar-actions .icon-btn{flex:0 0 auto}
+.topbar-actions .icon-btn i{width:7px;height:7px;top:7px;right:7px;box-shadow:0 0 9px rgba(230,197,47,.55)}
+@media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+
+/* Vyro AI plan duration selector */
+.ai-duration-picker{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:12px 0 14px}
+.ai-duration-picker button{min-height:38px;border:1px solid var(--vyro-glass-line,rgba(230,197,47,.18));border-radius:10px;background:rgba(255,255,255,.035);color:inherit;font:inherit;font-size:12px;cursor:pointer}
+.ai-duration-picker button.selected{border-color:var(--lime,#e6c52f);background:rgba(230,197,47,.12);color:var(--lime,#e6c52f)}
+.ai-more-plan small{display:block}
+@media(max-width:420px){.ai-duration-picker{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+/* VYRO Stage 2 — cross-browser glass form controls (desktop, Windows and mobile) */
+:root{color-scheme:dark}
+html{color-scheme:dark}
+.app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+.app-shell textarea,
+.app-shell select,
+.modal-backdrop input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+.modal-backdrop textarea,
+.modal-backdrop select,
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+textarea,
+select{
+  color:#f4f4ef!important;
+  color-scheme:dark;
+  background-color:#151817!important;
+  background-image:linear-gradient(145deg,rgba(38,41,37,.94),rgba(15,17,17,.97))!important;
+  border:1px solid rgba(230,197,47,.28)!important;
+  border-radius:12px!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.035),0 7px 20px rgba(0,0,0,.16)!important;
+  -webkit-text-fill-color:#f4f4ef;
+  accent-color:var(--lime,#e6c52f);
+}
+input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]):focus,
+textarea:focus,select:focus{
+  background-color:#191c19!important;
+  border-color:rgba(230,197,47,.72)!important;
+  box-shadow:0 0 0 3px rgba(230,197,47,.11),inset 0 1px 0 rgba(255,255,255,.04)!important;
+  outline:none!important;
+}
+input:disabled,textarea:disabled,select:disabled{opacity:.58;cursor:not-allowed}
+input::placeholder,textarea::placeholder{color:rgba(225,225,212,.52)!important;opacity:1}
+select option,select optgroup{background:#151817!important;color:#f4f4ef!important}
+input:-webkit-autofill,input:-webkit-autofill:hover,input:-webkit-autofill:focus{
+  -webkit-text-fill-color:#f4f4ef!important;
+  -webkit-box-shadow:0 0 0 1000px #171a17 inset,0 0 0 1px rgba(230,197,47,.32)!important;
+  caret-color:#f4f4ef;
+}
+input[type="file"]{max-width:100%;color:#d8d8ce;font:inherit;font-size:11px}
+input[type="file"]::file-selector-button{
+  margin-inline-end:10px;padding:9px 12px;border:1px solid rgba(230,197,47,.32);
+  border-radius:9px;background:rgba(230,197,47,.12);color:#f2df8b;font:inherit;cursor:pointer
+}
+input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(--lime,#e6c52f)}
+@media(max-width:700px){
+  .app-shell input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not([type="color"]),
+  .app-shell textarea,.app-shell select{font-size:16px}
+}
+@media(forced-colors:active){
+  input,textarea,select{forced-color-adjust:none;color:#f4f4ef!important;background:#151817!important;border:1px solid #b8a34b!important}
+}
+
+/* VYRO Stage 3 — Explore story media and immersive viewer */
+.explore-page .story-avatar>span{position:relative;overflow:hidden}
+.explore-page .story-avatar>span img{width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.explore-page .story-avatar>span svg{color:var(--lime);filter:drop-shadow(0 2px 8px #000)}
+.story-viewer .story-viewer-content{width:min(560px,100%);max-height:92dvh}
+.story-viewer .story-viewer-content>video,
+.story-viewer .story-viewer-content>img{width:auto;max-width:100%;max-height:78dvh;min-height:180px;object-fit:contain;border-radius:16px;background:#050505}
+.story-viewer .video-caption{padding:12px 14px;border:1px solid rgba(230,197,47,.2);border-radius:14px;background:rgba(17,18,16,.94)}
+.story-viewer .video-caption small{color:#a9a99b;font-size:10px}
+.feed-post-media[controls]{cursor:pointer}
+@media(max-width:600px){
+ .story-viewer{padding:12px}
+ .story-viewer .story-viewer-content{max-height:94dvh}
+ .story-viewer .story-viewer-content>video,.story-viewer .story-viewer-content>img{max-height:76dvh;border-radius:12px}
+}
+
+
+
+/* Muzio personal library and album actions */
+.music-albums{margin-top:22px;padding-top:18px;border-top:1px solid var(--vyro-glass-border,rgba(212,177,63,.2))}
+.music-album-create>div{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.music-album-create input{flex:1 1 180px;min-width:0;background:rgba(255,255,255,.045)!important;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.22))!important;border-radius:12px;padding:11px 13px;color:#fff}
+.music-album-create button{display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid rgba(212,177,63,.35);border-radius:12px;padding:10px 13px;background:rgba(212,177,63,.12);color:var(--vyro-gold,#d4b13f);cursor:pointer}
+.music-album-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:10px;margin:14px 0}
+.music-album-card{display:flex;flex-direction:column;align-items:flex-start;gap:7px;min-width:0;padding:12px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.2));border-radius:14px;background:rgba(255,255,255,.035);color:inherit;text-align:start;cursor:pointer}
+.music-album-card.selected{border-color:var(--vyro-gold,#d4b13f);background:rgba(212,177,63,.1)}
+.music-album-card .playlist-art{width:42px;height:42px;display:grid;place-items:center;border-radius:10px;background:rgba(212,177,63,.12);color:var(--vyro-gold,#d4b13f)}
+.music-album-card b{max-width:100%;overflow-wrap:anywhere}
+.music-album-card small{opacity:.65}
+.music-album-detail{margin:12px 0;padding:12px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.2));border-radius:14px;background:rgba(255,255,255,.025)}
+.music-album-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.music-album-detail-head h3{margin:4px 0 10px}
+.music-track-more-wrap{position:relative;flex:0 0 auto}
+.music-track-menu{position:absolute;z-index:30;inset-inline-end:0;top:calc(100% + 5px);width:min(245px,75vw);padding:8px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.28));border-radius:13px;background:#111214;box-shadow:0 12px 35px rgba(0,0,0,.45);display:flex;flex-direction:column;gap:4px}
+.music-track-menu>button,.music-add-album>button{display:flex;align-items:center;gap:8px;width:100%;padding:9px 10px;border:0;border-radius:9px;background:transparent;color:#eee;text-align:start;cursor:pointer}
+.music-track-menu>button:hover,.music-add-album>button:hover{background:rgba(212,177,63,.1)}
+.music-add-album{display:flex;flex-direction:column;gap:3px;padding-top:7px;border-top:1px solid rgba(255,255,255,.08)}
+.music-add-album small,.music-track-menu>small{padding:5px 8px;color:var(--vyro-gold,#d4b13f)}
+.muzio-mini-cover{overflow:hidden}
+.muzio-mini-cover img{width:100%;height:100%;display:block;object-fit:cover;border-radius:50%}
+@media(max-width:520px){.music-album-create>div{align-items:stretch}.music-album-create button{flex:0 0 auto}.music-album-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.music-track-menu{position:fixed;inset-inline:12px;top:auto;bottom:calc(82px + env(safe-area-inset-bottom));width:auto}}
+
+
+/* Device session management */
+.device-session-list{display:flex;flex-direction:column;gap:10px;margin:12px 0}
+.device-session-list .device-session-card{margin:0;padding:14px;border:1px solid rgba(230,197,47,.18);border-radius:15px;background:linear-gradient(145deg,rgba(28,30,27,.88),rgba(13,15,15,.94))}
+.device-session-card .setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.device-session-card p{overflow-wrap:anywhere}
+.current-session-tag{display:inline-flex;margin-inline-start:6px;padding:3px 7px;border-radius:999px;background:rgba(230,197,47,.12);color:#e6c52f;font-size:10px;font-weight:600}
+.settings-hint{color:var(--muted,#a4a49a);font-size:12px;line-height:1.7}
+.device-session-card .danger-btn{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+@media(max-width:480px){.device-session-card .setting-row{align-items:flex-start}.device-session-card .danger-btn{padding:8px 9px;font-size:11px}}
+
+
+/* Chat group and channel member management */
+.chat-members-panel{display:flex;flex-direction:column;gap:8px;padding:12px 14px;border-bottom:1px solid rgba(230,197,47,.16);background:rgba(12,14,14,.96)}
+.chat-members-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#f3f1e7}
+.chat-members-heading small{color:var(--lime,#e6c52f)}
+.chat-member-row{display:flex;align-items:center;gap:10px;min-width:0;padding:7px 9px;border:1px solid rgba(230,197,47,.12);border-radius:11px;background:rgba(255,255,255,.025)}
+.chat-member-avatar{width:34px;height:34px;flex:0 0 34px;display:grid;place-items:center;overflow:hidden;border-radius:50%;background:rgba(230,197,47,.12);color:var(--lime,#e6c52f)}
+.chat-member-avatar img{width:100%;height:100%;object-fit:cover}
+.chat-member-row>span:nth-child(2){display:flex;flex:1;flex-direction:column;min-width:0;gap:2px}
+.chat-member-row>span:nth-child(2) b,.chat-member-row>span:nth-child(2) small{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-member-row>span:nth-child(2) small{color:#999d96;font-size:10px}
+.chat-member-remove{width:32px;height:32px;flex:0 0 32px;display:grid;place-items:center;border:1px solid rgba(255,90,90,.2);border-radius:9px;background:rgba(255,70,70,.08);color:#ff8b8b;cursor:pointer}
+.chat-member-add{display:flex;align-items:center;gap:8px;margin-top:4px}
+.chat-member-add input{flex:1;min-width:0}
+.chat-member-add button{display:inline-flex;align-items:center;gap:5px;white-space:nowrap;border:1px solid rgba(230,197,47,.3);border-radius:10px;padding:9px 12px;background:rgba(230,197,47,.1);color:var(--lime,#e6c52f);cursor:pointer}
+.chat-member-add button:disabled{opacity:.45;cursor:not-allowed}
+@media(max-width:480px){.chat-members-panel{padding:10px}.chat-member-add{align-items:stretch}.chat-member-add button{padding:8px}}
