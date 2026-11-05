@@ -801,3 +801,15 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
 .chat-layout .chat-kind-shortcuts{padding-bottom:12px}
 .chat-layout .chat-kind-shortcuts button{font-size:10px;padding:7px 10px}
 @media(max-width:700px){.chat-layout .chat-row-more{opacity:.9}.chat-layout .chat-special-row{padding:9px}}
+
+
+/* Telegram-like emoji / sticker / GIF picker modes */
+.chat-picker-mode-tabs{display:flex;gap:6px;padding-bottom:8px;border-bottom:1px solid var(--line,#343544)}
+.chat-picker-mode-tabs button{flex:1;border:1px solid #343544;border-radius:10px;padding:9px;background:#20212d;color:#ddd;font:inherit;font-size:12px}
+.chat-picker-mode-tabs button.active{background:#d4b13f;color:#111;border-color:#d4b13f;font-weight:800}
+.chat-sticker-pack-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 0}
+.chat-sticker-pack-head span,.chat-gif-panel>div{display:grid;gap:4px}.chat-sticker-pack-head b,.chat-gif-panel b{font-size:12px}.chat-sticker-pack-head small,.chat-gif-panel small,.chat-picker-hint{font-size:10px;color:var(--muted,#a8a9bb);line-height:1.7}
+.chat-sticker-pack-head button,.chat-gif-panel button{border:1px solid #d4b13f66;border-radius:10px;background:#d4b13f18;color:#e3c56a;padding:8px 10px;font:inherit;font-size:11px}
+.chat-sticker-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px;max-height:260px;overflow:auto;padding:5px}
+.chat-sticker-grid button{min-width:0;min-height:52px;border:1px solid #343544;border-radius:12px;background:#20212d;font-size:29px}
+.chat-gif-panel{display:grid;gap:10px;padding:14px 4px}.chat-gif-panel button{width:100%;text-align:center}
