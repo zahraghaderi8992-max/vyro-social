@@ -606,12 +606,13 @@ export default function App(){
   setBusy(true);
   try{
    const ext=(file.name.split('.').pop()||'png').replace(/[^a-zA-Z0-9]/g,'').toLowerCase()||'png';
-   const path=`${session.user.id}/sticker-packs/${pack.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+   const path=`${session.user.id}/${pack.id}/${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
    const {error:uploadError}=await supabase.storage.from('chat-files').upload(path,file,{upsert:false,contentType:file.type});
    if(uploadError)throw uploadError;
-   const {data:signed}=await supabase.storage.from('chat-files').createSignedUrl(path,3600);
    const {data,error}=await supabase.from('chat_sticker_pack_items').insert({pack_id:pack.id,owner_id:session.user.id,item_type:'sticker',file_path:path}).select('id,pack_id,item_type,emoji,file_path,created_at').single();
    if(error)throw error;
+   const {data:signed,error:signedError}=await supabase.storage.from('chat-files').createSignedUrl(path,3600);
+   if(signedError)throw signedError;
    setCustomStickerPacks(v=>v.map(p=>p.id===pack.id?{...p,items:[...(p.items||[]),{...data,url:signed?.signedUrl||''}]}:p));
    setNotice('استیکر به بسته اضافه شد.');
   }catch(err){setNotice('افزودن استیکر انجام نشد: '+(err.message||'خطای ذخیره‌سازی'))}
