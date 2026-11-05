@@ -782,3 +782,22 @@ input[type="checkbox"],input[type="radio"],input[type="range"]{accent-color:var(
  .chat-list-head{top:0}.chat-layout .search-box{top:43px}
 }
 @media(min-width:701px){.chat-layout.chat-list-only{grid-template-columns:minmax(270px,340px) minmax(0,1fr)}.chat-layout.chat-open .chat-window{display:flex}}
+
+
+/* Telegram-like chat extras: archive controls and Saved Messages */
+.chat-layout .conversation-wrap{position:relative;display:flex;align-items:center;gap:2px}
+.chat-layout .conversation-wrap>.conversation{flex:1;min-width:0;padding-inline-end:36px}
+.chat-layout .chat-row-more{position:absolute;inset-inline-end:5px;top:50%;transform:translateY(-50%);width:29px;height:29px;display:grid;place-items:center;border:0;border-radius:9px;background:transparent;color:#a9a58f;opacity:.55;z-index:2}
+.chat-layout .conversation-wrap:hover .chat-row-more,.chat-layout .chat-row-more:focus-visible{opacity:1;background:rgba(212,177,63,.12);color:var(--lime,#d4b13f)}
+.chat-layout .chat-row-menu{position:absolute;z-index:8;inset-inline-end:7px;top:calc(100% - 8px);min-width:150px;padding:6px;border:1px solid rgba(212,177,63,.25);border-radius:12px;background:rgba(20,22,20,.98);box-shadow:0 12px 30px rgba(0,0,0,.42);display:grid;gap:3px}
+.chat-layout .chat-row-menu button{border:0;border-radius:8px;background:transparent;color:#eee9d7;text-align:right;padding:9px 10px;font-size:11px}
+.chat-layout .chat-row-menu button:hover{background:rgba(212,177,63,.12);color:var(--lime,#d4b13f)}
+.chat-layout .chat-special-list{display:flex;flex-direction:column;gap:7px;padding:4px 2px;overflow:auto}
+.chat-layout .chat-special-row{display:flex;align-items:center;gap:10px;width:100%;padding:11px;border:1px solid rgba(212,177,63,.12);border-radius:13px;background:rgba(255,255,255,.035);color:#eee;text-align:right}
+.chat-layout .chat-special-row>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:4px}
+.chat-layout .chat-special-row b{font-size:12px}.chat-layout .chat-special-row small{font-size:10px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.chat-layout .chat-special-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:11px;background:rgba(212,177,63,.13);color:var(--lime,#d4b13f);font-size:18px}
+.chat-layout .chat-special-empty{padding:24px 12px;text-align:center;color:#a8a392;font-size:12px;border:1px dashed rgba(212,177,63,.2);border-radius:13px}
+.chat-layout .chat-kind-shortcuts{padding-bottom:12px}
+.chat-layout .chat-kind-shortcuts button{font-size:10px;padding:7px 10px}
+@media(max-width:700px){.chat-layout .chat-row-more{opacity:.9}.chat-layout .chat-special-row{padding:9px}}
