@@ -391,25 +391,67 @@ export default function App(){
  useEffect(()=>{
   if(!supabaseReady)return;
   let active=true;
-  const loadSocial=async()=>{
+  let chatRefreshTimer=null;
+  const loadExplore=async()=>{
    const [postResult,storyResult]=await Promise.all([
     supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url,bio)').order('created_at',{ascending:false}).limit(24),
     supabase.from('stories').select('id,user_id,text_content,media_url,expires_at,created_at,profiles(username)').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(24)
    ]);
-   const postRows=postResult.data, storyRows=storyResult.data;
-   if(active&&postRows)setPosts(postRows.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));
-   if(active&&storyRows)setStories(storyRows.map(s=>({id:s.id,username:s.profiles?.username||'vyro_user',text:s.text_content||'',media_url:s.media_url||'',createdAt:new Date(s.created_at).getTime(),expiresAt:s.expires_at,online:true})));
-   if(!session)return;
-   const {data:memberRows}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);
-   const ids=(memberRows||[]).map(m=>m.conversation_id);
-   if(!ids.length){if(active)setConversations(v=>v.filter(x=>String(x.id).startsWith('local-')));return;}
-   const [{data:convRows},{data:messageRows}]=await Promise.all([supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(160)]);
-   if(active&&convRows){const mapped=await Promise.all(convRows.map(async v=>{const ms=await Promise.all((messageRows||[]).filter(m=>m.conversation_id===v.id).reverse().map(async m=>{let fileUrl=m.file_url||'';if(fileUrl&&!fileUrl.startsWith('http')){const {data:signed}=await supabase.storage.from('chat-files').createSignedUrl(fileUrl,3600);fileUrl=signed?.signedUrl||'';}return{id:m.id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}}));const last=ms[ms.length-1];const meName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();const titleParts=(v.title||'').split('|');const displayName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==meName)||titleParts[0]):(v.title||'گفت‌وگو');return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar:(displayName||'V').slice(0,1).toUpperCase(),last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms}}));setConversations([...mapped,...conversations.filter(x=>String(x.id).startsWith('local-'))]);}
+   if(!active)return;
+   if(postResult.data)setPosts(postResult.data.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));
+   if(storyResult.data)setStories(storyResult.data.map(s=>({id:s.id,username:s.profiles?.username||'vyro_user',text:s.text_content||'',media_url:s.media_url||'',createdAt:new Date(s.created_at).getTime(),expiresAt:s.expires_at,online:true})));
+   const [{data:r},{data:c}]=await Promise.all([
+    supabase.from('post_reactions').select('id,post_id,user_id,reaction_type'),
+    supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').order('created_at',{ascending:true}).limit(120)
+   ]);
+   if(active&&r)setPostReactions(r);
+   if(active&&c)setPostComments(c);
   };
-  loadSocial();
-  const live=supabase.channel('vyro-social-live').on('postgres_changes',{event:'*',schema:'public',table:'posts'},()=>loadSocial()).on('postgres_changes',{event:'*',schema:'public',table:'stories'},()=>loadSocial()).on('postgres_changes',{event:'*',schema:'public',table:'messages'},()=>loadSocial()).on('postgres_changes',{event:'*',schema:'public',table:'conversation_members'},()=>loadSocial()).on('postgres_changes',{event:'*',schema:'public',table:'post_reactions'},async()=>{const {data}=await supabase.from('post_reactions').select('id,post_id,user_id,reaction_type');if(active&&data)setPostReactions(data)}).on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},async()=>{const {data}=await supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').order('created_at',{ascending:true}).limit(300);if(active&&data)setPostComments(data)}).subscribe();
-  const loadEngagement=async()=>{const [{data:r},{data:c}]=await Promise.all([supabase.from('post_reactions').select('id,post_id,user_id,reaction_type'),supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').order('created_at',{ascending:true}).limit(300)]);if(active&&r)setPostReactions(r);if(active&&c)setPostComments(c)};loadEngagement();const refreshTimer=window.setInterval(()=>{loadSocial();loadEngagement()},90000);return()=>{active=false;window.clearInterval(refreshTimer);supabase.removeChannel(live)};
- },[session]);
+  const loadChats=async()=>{
+   if(!session?.user?.id)return;
+   const {data:memberRows}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);
+   if(!active)return;
+   const ids=(memberRows||[]).map(m=>m.conversation_id);
+   if(!ids.length){setConversations(v=>v.filter(x=>String(x.id).startsWith('local-')));return;}
+   const [{data:convRows},{data:messageRows}]=await Promise.all([
+    supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),
+    supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(120)
+   ]);
+   if(!active||!convRows)return;
+   const mediaPaths=[...new Set((messageRows||[]).map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
+   const {data:signedRows}=mediaPaths.length?await supabase.storage.from('chat-files').createSignedUrls(mediaPaths,3600):{data:[]};
+   if(!active)return;
+   const signedByPath=new Map((signedRows||[]).map(x=>[x.path,x.signedUrl]));
+   const mapped=await Promise.all(convRows.map(async v=>{
+    const ms=(messageRows||[]).filter(m=>m.conversation_id===v.id).reverse().map(m=>{
+     const rawUrl=m.file_url||'';
+     const fileUrl=rawUrl&&!rawUrl.startsWith('http')?(signedByPath.get(rawUrl)||''):rawUrl;
+     return{id:m.id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
+    });
+    const last=ms[ms.length-1];
+    const meName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
+    const titleParts=(v.title||'').split('|');
+    const displayName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==meName)||titleParts[0]):(v.title||'گفت‌وگو');
+    return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar:(displayName||'V').slice(0,1).toUpperCase(),last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
+   }));
+   if(active)setConversations(current=>[...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
+  };
+  if(tab==='explore')loadExplore();
+  if(tab==='messages')loadChats();
+  let live=supabase.channel('vyro-social-live-'+tab);
+  if(tab==='explore'){
+   live=live.on('postgres_changes',{event:'*',schema:'public',table:'posts'},loadExplore)
+    .on('postgres_changes',{event:'*',schema:'public',table:'stories'},loadExplore)
+    .on('postgres_changes',{event:'*',schema:'public',table:'post_reactions'},async()=>{const {data}=await supabase.from('post_reactions').select('id,post_id,user_id,reaction_type');if(active&&data)setPostReactions(data)})
+    .on('postgres_changes',{event:'*',schema:'public',table:'post_comments'},async()=>{const {data}=await supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').order('created_at',{ascending:true}).limit(120);if(active&&data)setPostComments(data)});
+  }else if(tab==='messages'){
+   const refreshChats=()=>{if(chatRefreshTimer)window.clearTimeout(chatRefreshTimer);chatRefreshTimer=window.setTimeout(loadChats,450)};
+   live=live.on('postgres_changes',{event:'*',schema:'public',table:'messages'},refreshChats)
+    .on('postgres_changes',{event:'*',schema:'public',table:'conversation_members'},refreshChats);
+  }
+  live.subscribe();
+  return()=>{active=false;if(chatRefreshTimer)window.clearTimeout(chatRefreshTimer);supabase.removeChannel(live)};
+ },[session?.user?.id,tab]);
  async function authenticate(e){
   e.preventDefault();setBusy(true);setNotice('');
   if(!supabaseReady){setNotice('اتصال آنلاین آماده نیست. مدیر پروژه باید Secrets مربوط به Supabase را در GitHub تنظیم کند.');setBusy(false);return}
