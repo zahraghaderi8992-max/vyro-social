@@ -434,7 +434,7 @@ export default function App(){
     const displayName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==meName)||titleParts[0]):(v.title||'گفت‌وگو');
     return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar:(displayName||'V').slice(0,1).toUpperCase(),last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
    }));
-   if(active)setConversations([...mapped,...conversations.filter(x=>String(x.id).startsWith('local-'))]);
+   if(active)setConversations(current=>[...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
   };
   if(tab==='explore')loadExplore();
   if(tab==='messages')loadChats();
