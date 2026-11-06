@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.jsx';
 import './style.css';
 import './refinements.css';
+import './telegram-reference.css';
 
 // Cache the app shell for reopening when connectivity is unreliable.
 if ('serviceWorker' in navigator && import.meta.env.PROD) {
