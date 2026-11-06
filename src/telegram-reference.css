@@ -90,3 +90,9 @@
  .mobile-nav{overflow-x:auto!important;justify-content:space-around!important}
 }
 @media(min-width:701px){.chat-layout.chat-list-only .chat-window.chat-no-selection{display:none!important}.chat-layout.chat-open .chat-window{display:flex!important}}
+
+@media(min-width:701px){.mobile-nav{display:none!important}}
+@media(max-width:700px){
+ body:has(.chat-layout.chat-open) .feed{padding:0!important;overflow:hidden!important}
+ body:has(.chat-layout.chat-open) .chat-layout.chat-open{height:100dvh!important;max-height:100dvh!important}
+}
