@@ -556,3 +556,55 @@ button:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
   .settings-menu-item small{overflow-wrap:anywhere}
 }
 @media(prefers-reduced-motion:reduce){*,*::before,*::after{scroll-behavior:auto!important;animation-duration:.01ms!important;transition-duration:.01ms!important}}
+
+
+/* Multi-select interactions */
+.message-selection-toolbar{
+ position:sticky;top:4px;z-index:4;display:flex;align-items:center;gap:8px;flex-wrap:wrap;
+ padding:10px 12px;margin:0 0 8px;border:1px solid rgba(230,197,47,.3);
+ border-radius:14px;background:rgba(17,19,17,.94);backdrop-filter:blur(18px);
+ box-shadow:0 8px 26px rgba(0,0,0,.25),0 0 18px rgba(230,197,47,.08)
+}
+.message-selection-toolbar b{font-size:11px;color:var(--lime);margin-left:auto}
+.message-selection-toolbar button,.chat-selection-action,.chat-selection-cancel{
+ border:1px solid rgba(230,197,47,.24);border-radius:10px;padding:7px 10px;
+ background:rgba(230,197,47,.1);color:var(--lime);font-size:10px;font-weight:700
+}
+.message-row.message-selected .message-bubble{
+ outline:2px solid var(--lime);outline-offset:3px;
+ box-shadow:0 0 0 5px rgba(230,197,47,.12),0 0 25px rgba(230,197,47,.16)
+}
+.message-row.message-selected:before{
+ content:"✓";display:grid;place-items:center;position:absolute;right:-4px;top:50%;
+ transform:translateY(-50%);width:19px;height:19px;border-radius:50%;
+ background:var(--lime);color:#17170c;font-size:12px;font-weight:900;z-index:2
+}
+.message-row{position:relative}
+.conversation-wrap{position:relative}
+.conversation-wrap.conversation-selected .conversation{
+ border-color:rgba(230,197,47,.5);background:rgba(230,197,47,.09);
+ box-shadow:inset 0 0 0 1px rgba(230,197,47,.16)
+}
+.conversation-select-mark{
+ position:absolute;right:8px;top:50%;transform:translateY(-50%);z-index:2;
+ display:grid;place-items:center;width:19px;height:19px;border-radius:50%;
+ border:1px solid rgba(230,197,47,.45);background:rgba(12,14,12,.88);
+ color:var(--lime);font-size:11px;font-weight:900;pointer-events:none
+}
+.conversation-selected .conversation{padding-right:35px}
+.chat-selection-action,.chat-selection-cancel{margin-right:5px}
+.chat-selection-cancel{background:transparent;color:#b7b7a9}
+.blocked-user-row{
+ display:flex;align-items:center;gap:11px;padding:12px;margin:9px 0;
+ border:1px solid rgba(230,197,47,.15);border-radius:14px;
+ background:rgba(255,255,255,.025)
+}
+.blocked-user-row>span:nth-child(2){display:grid;gap:4px;min-width:0;flex:1}
+.blocked-user-row b{font-size:11px}.blocked-user-row small{font-size:9px;color:#92978f}
+.blocked-user-row .chat-avatar{overflow:hidden}
+.blocked-user-row .chat-avatar img{width:100%;height:100%;object-fit:cover}
+@media(max-width:700px){
+ .message-selection-toolbar{margin:0 0 8px;padding:9px}
+ .message-selection-toolbar button{padding:7px 9px}
+ .conversation-select-mark{right:6px}
+}
