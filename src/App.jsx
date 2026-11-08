@@ -557,7 +557,7 @@ export default function App(){
  function toggleConversationSelection(conversationId){setSelectedConversationIds(prev=>prev.includes(conversationId)?prev.filter(id=>id!==conversationId):[...prev,conversationId]);setChatRowMenuId(null);}
  async function archiveSelectedConversations(){const ids=[...selectedConversationIds];for(const id of ids)await toggleConversationArchive(id);setSelectedConversationIds([]);setNotice(`${ids.length.toLocaleString('fa-IR')} گفتگو بایگانی شد.`);}
  function clearConversationSelection(){setSelectedConversationIds([]);}
- function toggleConversationArchive(conversationId){
+ async function toggleConversationArchive(conversationId){
   const isArchived=archivedChatIds.includes(conversationId);
   if(session&&supabaseReady&&!String(conversationId).startsWith('local-')){
    const result=isArchived
