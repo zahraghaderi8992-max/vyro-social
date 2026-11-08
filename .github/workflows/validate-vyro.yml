@@ -35,3 +35,10 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_VYRO_OTP_AUTH_UI_ENABLED: ${{ vars.VITE_VYRO_OTP_AUTH_UI_ENABLED }}
         run: npm run build
+      - name: Upload Cloudflare Pages preview bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyro-pages-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 2
