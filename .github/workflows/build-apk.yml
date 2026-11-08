@@ -2,7 +2,7 @@ name: Build VYRO Android APK
 
 on:
   push:
-    branches: [main, work/vyro-core-upgrade-2026-11-04]
+    branches: [main, work/vyro-core-upgrade-2026-11-04, work/vyro-structure-polish-2026-11-08]
     paths:
       - 'src/**'
       - 'public/**'
