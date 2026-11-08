@@ -120,8 +120,8 @@ export default function App(){
  const [musicName,setMusicName]=useState('');
  const [musicCover,setMusicCover]=useState('');
  const [chatFolder,setChatFolder]=useState('all');
- const [archivedChatIds,setArchivedChatIds]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-archived-chats')||'[]')}catch{return []}});
- const [savedChatMessages,setSavedChatMessages]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-saved-messages')||'[]')}catch{return []}});
+ const [archivedChatIds,setArchivedChatIds]=useState([]);
+ const [savedChatMessages,setSavedChatMessages]=useState([]);
  const [chatRowMenuId,setChatRowMenuId]=useState(null);
  const [profileViewer,setProfileViewer]=useState(null);
  const [profileViewerPosts,setProfileViewerPosts]=useState([]);
@@ -196,9 +196,7 @@ export default function App(){
  useEffect(()=>{const audio=musicAudioRef.current;if(!audio)return;if(!musicUrl){audio.pause();return}if(musicIsPlaying){const playPromise=audio.play();if(playPromise?.catch)playPromise.catch(()=>setMusicIsPlaying(false))}else audio.pause()},[musicUrl,musicIsPlaying]);
  useEffect(()=>{if(musicUrl)setMusicIsPlaying(true)},[musicUrl]);
  useEffect(()=>{try{localStorage.setItem('vyro-conversations',JSON.stringify(conversations))}catch{}},[conversations]);
- useEffect(()=>{try{localStorage.setItem('vyro-archived-chats',JSON.stringify(archivedChatIds))}catch{}},[archivedChatIds]);
- useEffect(()=>{try{localStorage.setItem('vyro-saved-messages',JSON.stringify(savedChatMessages))}catch{}},[savedChatMessages]);
- useEffect(()=>{if(!chatId){setChatDraft('');return}try{setChatDraft(localStorage.getItem('vyro-chat-draft-'+chatId)||'')}catch{setChatDraft('')}},[chatId]);
+   useEffect(()=>{if(!chatId){setChatDraft('');return}try{setChatDraft(localStorage.getItem('vyro-chat-draft-'+chatId)||'')}catch{setChatDraft('')}},[chatId]);
  useEffect(()=>{const input=chatInputRef.current;if(!input)return;input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px'},[chatDraft,chatId]);
  useEffect(()=>{try{localStorage.setItem('vyro-pinned-messages',JSON.stringify(pinnedMessageIds))}catch{}},[pinnedMessageIds]);
  useEffect(()=>{try{localStorage.setItem('vyro-message-reactions',JSON.stringify(localMessageReactions))}catch{}},[localMessageReactions]);
@@ -242,6 +240,7 @@ export default function App(){
   if(!session?.user?.id||!supabaseReady){setArchivedChatIds([]);setSavedChatMessages([]);return}
   let active=true;
   const userId=session.user.id;
+  setArchivedChatIds([]);setSavedChatMessages([]);
   const loadPersonalChatState=async()=>{
    const [{data:archiveRows,error:archiveError},{data:savedRows,error:savedError}]=await Promise.all([
     supabase.from('conversation_user_settings').select('conversation_id,archived').eq('user_id',userId).eq('archived',true),
