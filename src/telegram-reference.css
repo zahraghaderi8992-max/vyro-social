@@ -170,3 +170,74 @@ input:focus,textarea:focus,select:focus,[contenteditable=true]:focus{border-colo
 .conversation-wrap.conversation-selected .conversation{background:rgba(228,195,79,.12)!important;outline:1px solid rgba(228,195,79,.45)!important}
 .conversation-select-mark{border:1px solid rgba(228,195,79,.4)!important;color:#f0d66d!important;background:rgba(228,195,79,.1)!important}
 @media(max-width:700px){.mobile-nav{justify-content:space-between!important;padding-inline:5px!important}.mobile-nav button{font-size:10px!important}.mobile-nav svg{width:19px!important;height:19px!important}.settings-panel{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}}
+
+
+/* VYRO charcoal + yellow identity: Telegram-like structure, original VYRO finish. */
+:root{
+  color-scheme:dark;
+  --vyro-gold:#ffd700;
+  --vyro-glass:rgba(23,24,26,.78);
+  --vyro-glass-strong:rgba(15,16,18,.94);
+  --vyro-stroke:rgba(255,215,0,.18);
+  --vyro-glow:rgba(255,215,0,.09);
+  --vyro-tg-gold:#ffd700;
+  --vyro-tg-glass:rgba(23,24,26,.78);
+  --vyro-tg-line:rgba(255,215,0,.16);
+}
+html,body,#root{background:#111214!important;color:#f3f1e8!important}
+body{
+  background-image:
+    radial-gradient(ellipse at 12% 0%,rgba(255,215,0,.045),transparent 38%),
+    radial-gradient(ellipse at 95% 88%,rgba(255,215,0,.025),transparent 36%)!important;
+}
+.app-shell,.feed,.profile-page,.music-hub,.ai-panel,.admin-panel,.settings-panel{
+  background-color:transparent!important;color:#f3f1e8!important;
+}
+.card,.settings-card,.profile-card,.simple-panel,.right-panel,.admin-panel,
+.story-strip,.feed-post,.referral-card,.profile-stats,.profile-shortcuts,
+.modal-card,.create-chat-modal,.composer-modal,.public-profile-card,
+.admin-user-row,.profile-section,.profile-hero,.profile-header,.profile-post-grid,
+.ai-panel,.ai-chat,.ai-messages,.ai-message,.music-panel,.music-library,
+.setting-row,.settings-detail,.setting-card,.playlist-card,.music-track,
+.admin-user-list,.device-session-card,.chat-special-row,.chat-user-search-card{
+  background:rgba(23,24,26,.78)!important;
+  border-color:rgba(255,215,0,.15)!important;
+}
+input:not([type=checkbox]):not([type=radio]):not([type=file]):not([type=color]),
+textarea,select,[contenteditable=true]{
+  background:rgba(255,255,255,.035)!important;
+  border-color:rgba(255,215,0,.16)!important;
+}
+input:focus,textarea:focus,select:focus,[contenteditable=true]:focus{
+  border-color:rgba(255,215,0,.58)!important;
+  box-shadow:0 0 0 3px rgba(255,215,0,.08),0 0 16px rgba(255,215,0,.055)!important;
+}
+.primary-btn,.publish-btn,.send-chat,.welcome-cta{
+  background:linear-gradient(135deg,#ffe34d,#d6ad00)!important;
+  color:#17160f!important;
+  border-color:rgba(255,235,130,.28)!important;
+  box-shadow:0 5px 18px rgba(255,215,0,.10)!important;
+}
+.secondary-btn,.icon-btn,.chat-create-types button,.chat-folders button,
+.chat-kind-shortcuts button,.profile-shortcuts button,.chat-compose>button{
+  color:#f0df85!important;border-color:rgba(255,215,0,.14)!important;
+}
+.settings-menu-icon,.chat-avatar,.chat-member-avatar{
+  color:#ffdf36!important;border-color:rgba(255,215,0,.16)!important;
+}
+.mobile-nav{
+  background:rgba(17,18,20,.92)!important;
+  border-top-color:rgba(255,215,0,.18)!important;
+}
+.mobile-nav button.mobile-active{color:#ffdf36!important;background:rgba(255,215,0,.07)!important}
+.chat-layout.chat-open,.chat-layout.chat-list-only{background:rgba(17,18,20,.78)!important}
+.chat-layout .chat-list.full-chat-list,.chat-layout .chat-top{
+  background:rgba(23,24,26,.82)!important;
+}
+.chat-layout .message-bubble.me{
+  background:linear-gradient(135deg,#ffe34d,#d6ad00)!important;color:#17160f!important;
+}
+@media(max-width:700px){
+  .app-shell{background:#111214!important}
+  .mobile-nav{background:rgba(17,18,20,.94)!important}
+}
