@@ -241,3 +241,80 @@ input:focus,textarea:focus,select:focus,[contenteditable=true]:focus{
   .app-shell{background:#111214!important}
   .mobile-nav{background:rgba(17,18,20,.94)!important}
 }
+
+
+/* Screenshot-matched details: charcoal shell, gold VYRO accents, Telegram-inspired chat palette. */
+:root{
+  --vyro-charcoal:#111214;
+  --vyro-panel:#191a1c;
+  --vyro-gold:#ffd700;
+  --vyro-chat-in:#292a2e;
+  --vyro-chat-out-a:#5575df;
+  --vyro-chat-out-b:#9368df;
+  --vyro-chat-accent:#9aa9ff;
+}
+html,body,#root{background:var(--vyro-charcoal)!important}
+.settings-menu-item{display:flex!important;align-items:center!important;gap:14px!important;min-height:72px!important;padding:12px 14px!important}
+.settings-menu-item>span:nth-child(2){display:flex;flex:1;min-width:0;flex-direction:column;gap:5px;text-align:right}
+.settings-menu-item>span:nth-child(2) b{font-size:15px!important;font-weight:650!important}
+.settings-menu-item>span:nth-child(2) small{font-size:11px!important;line-height:1.5!important;color:#92949b!important}
+.settings-menu-item>svg:last-child{color:#777b84!important}
+.settings-menu-item .settings-menu-icon{width:42px!important;height:42px!important;display:grid;place-items:center;flex:0 0 42px;border-radius:13px!important}
+.settings-menu-item:nth-child(1) .settings-menu-icon{background:rgba(49,151,231,.16)!important;color:#45a9ef!important}
+.settings-menu-item:nth-child(2) .settings-menu-icon{background:rgba(236,157,47,.16)!important;color:#f0a33e!important}
+.settings-menu-item:nth-child(3) .settings-menu-icon{background:rgba(63,190,112,.16)!important;color:#50cf80!important}
+.settings-menu-item:nth-child(4) .settings-menu-icon{background:rgba(235,78,99,.16)!important;color:#f06c7d!important}
+.settings-menu-item:nth-child(5) .settings-menu-icon{background:rgba(75,132,239,.16)!important;color:#6e9cff!important}
+.settings-menu-item:nth-child(6) .settings-menu-icon{background:rgba(45,176,226,.16)!important;color:#42b9e7!important}
+.settings-menu-item:nth-child(7) .settings-menu-icon{background:rgba(167,110,230,.16)!important;color:#b88aef!important}
+.settings-menu-item:nth-child(8) .settings-menu-icon{background:rgba(76,137,231,.16)!important;color:#76a3f4!important}
+.settings-menu-item:nth-child(9) .settings-menu-icon{background:rgba(212,177,63,.14)!important;color:#e4c34f!important}
+.settings-menu-item:nth-child(10) .settings-menu-icon{background:rgba(212,177,63,.14)!important;color:#e4c34f!important}
+.settings-menu-item:nth-child(11) .settings-menu-icon{background:rgba(212,177,63,.14)!important;color:#e4c34f!important}
+.profile-action-row{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:18px 0 14px}
+.profile-action-btn{display:flex;min-height:66px;align-items:center;justify-content:center;flex-direction:column;gap:7px;padding:10px 6px;border-radius:16px!important;background:rgba(30,31,34,.94)!important;border:1px solid rgba(255,215,0,.10)!important;color:#f1f0e9!important;font:inherit;font-size:12px!important;text-decoration:none;cursor:pointer}
+.profile-action-btn svg{color:#ffd700!important}
+.profile-action-btn input{display:none!important}
+.folder-shortcuts{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin-top:12px}
+.folder-shortcuts button{min-height:44px;border-radius:12px!important;background:rgba(255,255,255,.045)!important;border:1px solid rgba(255,215,0,.13)!important;color:#e9d36a!important;font:inherit}
+.chat-layout .chat-body{
+  background-color:#08090c!important;
+  background-image:
+    radial-gradient(circle at 12% 18%,transparent 0 9px,rgba(117,111,171,.10) 9.5px 10px,transparent 10.5px),
+    radial-gradient(circle at 78% 35%,transparent 0 13px,rgba(117,111,171,.08) 13.5px 14px,transparent 14.5px),
+    radial-gradient(circle at 42% 76%,transparent 0 18px,rgba(117,111,171,.075) 18.5px 19px,transparent 19.5px),
+    radial-gradient(rgba(255,255,255,.025) .65px,transparent .75px)!important;
+  background-size:130px 120px,170px 150px,210px 190px,18px 18px!important;
+}
+.chat-layout .message-bubble.them{
+  background:var(--vyro-chat-in)!important;
+  color:#f3f3f5!important;
+  border:1px solid rgba(255,255,255,.055)!important;
+  border-bottom-left-radius:5px!important;
+}
+.chat-layout .message-bubble.me{
+  background:linear-gradient(125deg,var(--vyro-chat-out-a),var(--vyro-chat-out-b))!important;
+  color:#fff!important;
+  border:1px solid rgba(188,190,255,.20)!important;
+  border-bottom-right-radius:5px!important;
+}
+.chat-layout .message-bubble.me small,.chat-layout .message-bubble.me .message-time{color:rgba(255,255,255,.78)!important}
+.chat-layout .message-sender b,.chat-layout .chat-file-link{color:var(--vyro-chat-accent)!important}
+.chat-layout .chat-folders button.selected,.chat-layout .chat-kind-shortcuts button.selected{
+  background:rgba(100,126,225,.18)!important;color:#a9b7ff!important;border-color:rgba(126,145,245,.32)!important;
+}
+.chat-layout .conversation:hover,.chat-layout .conversation.selected{
+  background:rgba(104,122,212,.10)!important;
+  box-shadow:inset 3px 0 #7288e8!important;
+}
+.chat-layout .message-row.message-selected .message-bubble{outline-color:#8297f5!important}
+.chat-layout .chat-compose{border-color:rgba(128,143,231,.20)!important}
+.chat-layout .chat-compose .send-chat{
+  background:linear-gradient(135deg,#6c83e8,#9368df)!important;color:#fff!important;
+}
+.chat-layout .chat-top{border-bottom-color:rgba(128,143,231,.16)!important}
+@media(max-width:700px){
+  .profile-action-row{gap:7px;margin:14px 0 12px}
+  .profile-action-btn{min-height:60px;font-size:11px!important}
+  .settings-menu-item{min-height:66px!important}
+}
