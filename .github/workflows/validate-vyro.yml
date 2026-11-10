@@ -7,6 +7,7 @@ on:
     branches:
       - work/vyro-core-upgrade-2026-11-04
       - work/chat-cloud-sync-and-gif-send-2026-11-05
+      - work/vyro-structure-polish-2026-11-08
   workflow_dispatch:
 
 permissions:
@@ -34,3 +35,10 @@ jobs:
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_VYRO_OTP_AUTH_UI_ENABLED: ${{ vars.VITE_VYRO_OTP_AUTH_UI_ENABLED }}
         run: npm run build
+      - name: Upload Cloudflare Pages preview bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: vyro-pages-dist
+          path: dist/
+          if-no-files-found: error
+          retention-days: 2
