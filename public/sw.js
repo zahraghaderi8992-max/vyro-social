@@ -1,4 +1,4 @@
-const CACHE_NAME = 'vyro-shell-v2';
+const CACHE_NAME = 'vyro-shell-v3';
 const APP_FILES = ['./', './index.html', './manifest.webmanifest', './vyro-icon.svg'];
 
 self.addEventListener('install', event => {
