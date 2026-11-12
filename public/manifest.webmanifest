@@ -8,8 +8,8 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#f3f4f6",
-  "theme_color": "#ffffff",
+  "background_color": "#090a0b",
+  "theme_color": "#090a0b",
   "icons": [
     {
       "src": "./vyro-icon.svg",
