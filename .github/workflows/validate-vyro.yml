@@ -8,6 +8,7 @@ on:
       - work/vyro-core-upgrade-2026-11-04
       - work/chat-cloud-sync-and-gif-send-2026-11-05
       - work/vyro-structure-polish-2026-11-08
+      - work/vyro-followup-2026-11-12
   workflow_dispatch:
 
 permissions:

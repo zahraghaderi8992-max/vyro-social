@@ -26,6 +26,13 @@ Deno.serve(async (req: Request) => {
     const actualUsername = String(user.user_metadata?.username || "").toLowerCase();
     if (!username || username !== actualUsername) return new Response(JSON.stringify({ error: "Username confirmation failed" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data: profile, error: profileError } = await admin.from("profiles").select("role").eq("id", user.id).maybeSingle();
+    if (profileError) throw profileError;
+    if (profile?.role === "owner" || String(user.email || "").toLowerCase() === "hadi.geym1234@gmail.com") {
+      return new Response(JSON.stringify({ error: "حساب مالک اصلی وایرو قابل حذف نیست." }), {
+        status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const { error: deleteError } = await admin.auth.admin.deleteUser(user.id);
     if (deleteError) throw deleteError;
     return new Response(JSON.stringify({ success: true }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
