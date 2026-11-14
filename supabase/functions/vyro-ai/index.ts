@@ -28,7 +28,9 @@ function configuredUrl(name: string): URL | null {
 
 function withPath(base: URL, path: string): string {
   const url = new URL(base.toString());
-  url.pathname = `${url.pathname.replace(/\\/+$/, "")}/${path.replace(/^\\/+/, "")}`;
+  const basePath = url.pathname.endsWith("/") ? url.pathname.slice(0, -1) : url.pathname;
+  const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+  url.pathname = `${basePath}/${cleanPath}`;
   url.search = "";
   return url.toString();
 }
