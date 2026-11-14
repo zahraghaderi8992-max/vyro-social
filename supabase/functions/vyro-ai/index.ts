@@ -6,14 +6,48 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
+type ChatMessage = { role: "user" | "assistant"; content: string };
+
 const json = (body: Record<string, unknown>, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-function endpoint(base: string, path: string) {
-  return base.replace(/\/+$/, "") + path;
+function configuredUrl(name: string): URL | null {
+  const raw = Deno.env.get(name)?.trim();
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.protocol !== "https:" && url.protocol !== "http:") return null;
+    return url;
+  } catch {
+    return null;
+  }
+}
+
+function withPath(base: URL, path: string): string {
+  const url = new URL(base.toString());
+  url.pathname = `${url.pathname.replace(/\\/+$/, "")}/${path.replace(/^\\/+/, "")}`;
+  url.search = "";
+  return url.toString();
+}
+
+async function authorizeTier(req: Request, tier: string): Promise<boolean> {
+  if (tier === "free") return true;
+  const authHeader = req.headers.get("Authorization") || "";
+  const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+  const supabaseUrl = Deno.env.get("SUPABASE_URL");
+  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
+  if (!token || !supabaseUrl || !anonKey) return false;
+  const response = await fetch(`${supabaseUrl.replace(/\\/+$/, "")}/auth/v1/user`, {
+    headers: { Authorization: `Bearer ${token}`, apikey: anonKey },
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!response.ok) return false;
+  const user = await response.json();
+  // Authorization uses app_metadata only; user-editable user_metadata is never trusted.
+  return user?.app_metadata?.vyro_tier === tier;
 }
 
 Deno.serve(async (req: Request) => {
@@ -22,102 +56,114 @@ Deno.serve(async (req: Request) => {
 
   try {
     const body = await req.json();
-    const requestedTier = typeof body?.tier === "string" ? body.tier : "free";
-    const allowedTiers = ["free", "pro", "proplus"];
-    if (!allowedTiers.includes(requestedTier)) return json({ error: "Invalid AI tier" }, 400);
-
-    // The selected tier is never trusted by itself: paid access must be confirmed from Supabase Auth metadata.
-    if (requestedTier !== "free") {
-      const authHeader = req.headers.get("Authorization") || "";
-      const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
-      const supabaseUrl = Deno.env.get("SUPABASE_URL");
-      const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-      if (!token || !supabaseUrl || !anonKey) return json({ error: "Paid subscription is not active", code: "TIER_NOT_ACTIVE" }, 402);
-      const userResponse = await fetch(endpoint(supabaseUrl, "/auth/v1/user"), {
-        headers: { Authorization: `Bearer ${token}`, apikey: anonKey },
-      });
-      const user = userResponse.ok ? await userResponse.json() : null;
-      if (user?.app_metadata?.vyro_tier !== requestedTier) {
-        return json({ error: "This paid AI tier is not active for your account", code: "TIER_NOT_ACTIVE" }, 402);
-      }
+    const tier = typeof body?.tier === "string" ? body.tier : "free";
+    if (!["free", "pro", "proplus"].includes(tier)) return json({ error: "Invalid AI tier" }, 400);
+    if (!(await authorizeTier(req, tier))) {
+      return json({ error: "This AI tier is not active for your account", code: "TIER_NOT_ACTIVE" }, 402);
     }
 
-    // Use a self-hosted or independently chosen OpenAI-compatible inference server.
-    // No OpenAI API key or OpenAI endpoint is assumed.
-    const baseUrl = Deno.env.get("VYRO_AI_BASE_URL");
-    const apiKey = Deno.env.get("VYRO_AI_API_KEY");
-    if (!baseUrl) {
-      return json({
-        error: "AI engine is not configured",
-        code: "AI_ENGINE_NOT_CONFIGURED",
-        message: "Set VYRO_AI_BASE_URL to a reachable self-hosted or third-party compatible inference endpoint.",
-      }, 503);
-    }
+    const ollamaUrl = configuredUrl("VYRO_OLLAMA_URL");
+    const timeoutMs = Math.min(Math.max(Number(Deno.env.get("VYRO_AI_TIMEOUT_MS") || 90000), 10000), 180000);
 
+    // Image generation uses a separate self-hosted AUTOMATIC1111/Forge-compatible server.
+    // No OpenAI SDK, OpenAI endpoint, or OpenAI API key is used.
     if (typeof body?.imagePrompt === "string" && body.imagePrompt.trim()) {
-      const imageUrl = Deno.env.get("VYRO_IMAGE_API_URL");
-      if (!imageUrl) return json({
-        error: "Image generation is not configured",
-        code: "IMAGE_ENGINE_NOT_CONFIGURED",
-        message: "A separate image-generation service must be configured; chat-model access alone cannot generate images.",
-      }, 503);
-      const imageHeaders: Record<string, string> = { "Content-Type": "application/json" };
-      if (apiKey) imageHeaders.Authorization = `Bearer ${apiKey}`;
-      const imageResponse = await fetch(imageUrl, {
+      const imageUrl = configuredUrl("VYRO_IMAGE_ENGINE_URL");
+      if (!imageUrl) {
+        return json({
+          error: "Image engine is not configured",
+          code: "IMAGE_ENGINE_NOT_CONFIGURED",
+          message: "Configure a reachable Stable Diffusion WebUI/Forge server before enabling image generation.",
+        }, 503);
+      }
+      const response = await fetch(withPath(imageUrl, "sdapi/v1/txt2img"), {
         method: "POST",
-        headers: imageHeaders,
+        headers: { "Content-Type": "application/json" },
+        signal: AbortSignal.timeout(timeoutMs),
         body: JSON.stringify({
-          model: Deno.env.get("VYRO_IMAGE_MODEL") || "default",
           prompt: body.imagePrompt.trim().slice(0, 1800),
-          size: "1024x1024",
-          n: 1,
+          negative_prompt: "low quality, blurry, distorted, watermark, unreadable text",
+          steps: 24,
+          width: 768,
+          height: 768,
+          cfg_scale: 6.5,
+          batch_size: 1,
         }),
       });
-      const imageResult = await imageResponse.json();
-      if (!imageResponse.ok) return json({ error: "Image generation failed" }, 502);
-      const image = imageResult?.data?.[0];
-      if (image?.b64_json) return json({ imageUrl: `data:image/png;base64,${image.b64_json}` });
-      if (image?.url) return json({ imageUrl: image.url });
-      if (typeof imageResult?.imageUrl === "string") return json({ imageUrl: imageResult.imageUrl });
-      return json({ error: "Image provider returned no image" }, 502);
+      if (!response.ok) {
+        console.error("Vyro image engine failed", response.status);
+        return json({ error: "Image engine request failed", code: "IMAGE_ENGINE_ERROR" }, 502);
+      }
+      const result = await response.json();
+      const image = result?.images?.[0];
+      if (typeof image !== "string" || !image) {
+        return json({ error: "Image engine returned no image", code: "IMAGE_EMPTY" }, 502);
+      }
+      return json({ imageUrl: image.startsWith("data:") ? image : `data:image/png;base64,${image}` });
     }
 
-    const messages = Array.isArray(body?.messages) ? body.messages : [];
-    const safeMessages = messages
-      .filter((m: any) => m && ["user", "assistant"].includes(m.role) && typeof m.content === "string")
+    if (!ollamaUrl) {
+      return json({
+        error: "Vyro's independent AI engine is not configured",
+        code: "AI_ENGINE_NOT_CONFIGURED",
+        message: "Set VYRO_OLLAMA_URL to a reachable Ollama server. No OpenAI key is required.",
+      }, 503);
+    }
+
+    const incoming = Array.isArray(body?.messages) ? body.messages : [];
+    const messages: ChatMessage[] = incoming
+      .filter((message: any) => message && ["user", "assistant"].includes(message.role) && typeof message.content === "string")
       .slice(-20)
-      .map((m: any) => ({ role: m.role, content: m.content.slice(0, 6000) }));
-    if (!safeMessages.length || safeMessages[safeMessages.length - 1].role !== "user") {
-      return json({ error: "A user message is required" }, 400);
+      .map((message: any) => ({ role: message.role, content: message.content.slice(0, 6000) }));
+    if (!messages.length || messages[messages.length - 1].role !== "user") {
+      return json({ error: "A user message is required", code: "INVALID_MESSAGES" }, 400);
     }
 
-    const modelEnv = requestedTier === "proplus" ? "VYRO_PROPLUS_MODEL" : requestedTier === "pro" ? "VYRO_PRO_MODEL" : "VYRO_FREE_MODEL";
-    const model = Deno.env.get(modelEnv) || Deno.env.get("VYRO_DEFAULT_MODEL") || "llama3.1";
-    const headers: Record<string, string> = { "Content-Type": "application/json" };
-    if (apiKey) headers.Authorization = `Bearer ${apiKey}`;
-    const response = await fetch(endpoint(baseUrl, "/chat/completions"), {
+    const modelEnv = tier === "proplus" ? "VYRO_PROPLUS_MODEL" : tier === "pro" ? "VYRO_PRO_MODEL" : "VYRO_FREE_MODEL";
+    const model = Deno.env.get(modelEnv)?.trim() || Deno.env.get("VYRO_DEFAULT_MODEL")?.trim() || "qwen2.5:7b";
+    const response = await fetch(withPath(ollamaUrl, "api/chat"), {
       method: "POST",
-      headers,
+      headers: { "Content-Type": "application/json" },
+      signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify({
         model,
+        stream: false,
         messages: [
-          { role: "system", content: "You are Vyro's helpful, respectful Persian-first assistant. Reply in the language the user uses. Be clear and concise. Do not claim to have performed actions you cannot perform." },
-          ...safeMessages,
+          {
+            role: "system",
+            content: "تو دستیار هوشمند وایرو هستی. زبان پیش‌فرضت فارسی است اما همیشه به زبان کاربر پاسخ بده. پاسخ دقیق، روشن، محترمانه و کاربردی بده. اگر پاسخ را نمی‌دانی صادقانه بگو. ادعای انجام کار یا دسترسی به اطلاعات زنده‌ای که نداری نکن. اطلاعات حساس کاربر را درخواست نکن.",
+          },
+          ...messages,
         ],
-        temperature: 0.7,
-        max_tokens: requestedTier === "proplus" ? 1800 : requestedTier === "pro" ? 1200 : 700,
+        options: {
+          temperature: 0.7,
+          num_predict: tier === "proplus" ? 1800 : tier === "pro" ? 1200 : 800,
+        },
+        keep_alive: "10m",
       }),
     });
-    const result = await response.json();
+
     if (!response.ok) {
-      console.error("Vyro inference provider error", response.status);
-      return json({ error: "AI provider request failed", status: response.status }, 502);
+      console.error("Vyro Ollama engine error", response.status);
+      return json({
+        error: "The independent AI model could not complete the request",
+        code: "AI_MODEL_ERROR",
+        status: response.status,
+      }, 502);
     }
-    const answer = result?.choices?.[0]?.message?.content;
-    if (typeof answer !== "string") throw new Error("AI provider returned an empty response");
-    return json({ answer });
+    const result = await response.json();
+    const answer = result?.message?.content;
+    if (typeof answer !== "string" || !answer.trim()) {
+      return json({ error: "The model returned an empty answer", code: "AI_EMPTY_RESPONSE" }, 502);
+    }
+    return json({ answer: answer.trim(), model, provider: "ollama" });
   } catch (error) {
-    console.error("vyro-ai error", error);
-    return json({ error: "Unexpected AI function error" }, 500);
+    const message = error instanceof Error ? error.message : "Unknown error";
+    const timedOut = message.toLowerCase().includes("timeout") || message.toLowerCase().includes("aborted");
+    console.error("vyro-ai error", timedOut ? "timeout" : message);
+    return json({
+      error: timedOut ? "The AI model took too long to respond" : "Unexpected Vyro AI engine error",
+      code: timedOut ? "AI_TIMEOUT" : "AI_ENGINE_ERROR",
+    }, timedOut ? 504 : 500);
   }
 });
