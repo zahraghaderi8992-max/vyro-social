@@ -738,3 +738,66 @@ body{overflow-y:auto!important}
  .mobile-nav button small{font-size:8px}
  .explore-actions{grid-template-columns:repeat(2,minmax(0,1fr))}
 }
+
+
+/* VYRO Explore v3 — discovery controls, accessible filters and polished responsive feed */
+.explore-feed-toolbar{
+ position:sticky;top:8px;z-index:24;display:grid;gap:10px;padding:12px;
+ border:1px solid rgba(230,197,47,.16);border-radius:18px;
+ background:rgba(12,14,13,.92);backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);
+ box-shadow:0 12px 30px rgba(0,0,0,.22)
+}
+.explore-feed-filter{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.explore-feed-filter button{min-width:0;padding:10px 7px;font-size:11px}
+.explore-search{display:flex;align-items:center;gap:9px;min-width:0;padding:0 12px;border:1px solid rgba(230,197,47,.18);border-radius:13px;background:rgba(255,255,255,.035);color:var(--lime)}
+.explore-search:focus-within{border-color:rgba(230,197,47,.55);box-shadow:0 0 0 3px rgba(230,197,47,.08)}
+.explore-search input{width:100%;min-width:0;height:43px;border:0;outline:0;background:transparent;color:#f5f3e9;font-size:12px}
+.explore-search input::placeholder{color:#85877e}
+.explore-search button{display:grid;place-items:center;width:28px;height:28px;border:0;border-radius:8px;background:rgba(255,255,255,.06);color:#aaa}
+.explore-discovery-row{display:flex;align-items:center;justify-content:space-between;gap:10px;min-width:0}
+.explore-media-filters{display:flex;align-items:center;gap:5px;min-width:0;overflow-x:auto;scrollbar-width:none}
+.explore-media-filters::-webkit-scrollbar{display:none}
+.explore-media-filters button{flex:0 0 auto;padding:7px 11px;border:1px solid transparent;border-radius:999px;background:transparent;color:#9b9d92;font-size:10px}
+.explore-media-filters button.active{border-color:rgba(230,197,47,.26);background:rgba(230,197,47,.1);color:var(--lime)}
+.explore-sort{display:flex;align-items:center;gap:6px;flex:0 0 auto;color:#85877e;font-size:10px}
+.explore-sort select{max-width:105px;padding:7px 9px;border:1px solid rgba(230,197,47,.16);border-radius:10px;background:#151714;color:#e8e7dc;font-size:10px;outline:0}
+.explore-feed-head{padding:2px 2px 0}
+.explore-feed-head h2{font-size:18px;letter-spacing:-.2px}
+.feed-post{border-color:rgba(230,197,47,.15);background:linear-gradient(155deg,rgba(25,27,24,.98),rgba(11,13,12,.99));transition:border-color .2s,transform .2s,box-shadow .2s}
+.feed-post:hover{border-color:rgba(230,197,47,.28);box-shadow:0 14px 36px rgba(0,0,0,.3)}
+.feed-post-head{align-items:center}
+.feed-post-author small{display:flex;align-items:center;gap:6px}
+.feed-post-content{overflow-wrap:anywhere}
+.feed-post-media{display:block;width:100%;max-height:min(78vh,820px);border:1px solid rgba(255,255,255,.035);border-radius:15px;background:#050606}
+.feed-video-preview{border:1px solid rgba(255,255,255,.06);border-radius:15px}
+.feed-post-actions{margin-top:11px}
+.feed-post-actions button:focus-visible,.feed-post-menu button:focus-visible,.explore-feed-toolbar button:focus-visible,.explore-search input:focus-visible{outline:2px solid var(--lime);outline-offset:2px}
+.explore-empty{min-height:210px;align-content:center;background:radial-gradient(ellipse at center,rgba(230,197,47,.055),transparent 70%)}
+.story-strip{padding-top:2px}
+.story-list{scroll-snap-type:x proximity}
+.story-item{scroll-snap-align:start}
+.story-avatar>span{transition:transform .2s,box-shadow .2s}
+.story-avatar:hover>span{transform:translateY(-2px);box-shadow:0 0 0 4px rgba(230,197,47,.1),0 0 25px rgba(230,197,47,.16)}
+@media(min-width:701px){
+ .app-shell{display:grid!important;direction:rtl;grid-template-columns:220px minmax(0,760px)!important;align-items:start}
+ .sidebar{grid-column:1;grid-row:1;border-left:1px solid rgba(230,197,47,.13);border-right:0;padding-inline:0 14px}
+ .feed{grid-column:2;grid-row:1}
+ .explore-page{max-width:760px}
+ .explore-feed-toolbar{top:12px}
+}
+@media(max-width:700px){
+ .explore-feed-toolbar{top:4px;padding:9px;gap:8px;border-radius:15px}
+ .explore-feed-filter button{padding:9px 4px;font-size:10px}
+ .explore-discovery-row{align-items:flex-start;flex-direction:column;gap:7px}
+ .explore-media-filters{width:100%}
+ .explore-sort{align-self:flex-end}
+ .explore-feed-head h2{font-size:16px}
+ .feed-post{border-radius:16px}
+ .feed-post-media{max-height:70vh}
+}
+@media(max-width:360px){
+ .explore-feed-toolbar{padding:8px}
+ .explore-feed-filter button{font-size:9px}
+ .explore-media-filters button{padding:7px 9px}
+ .explore-search input{font-size:11px}
+}
