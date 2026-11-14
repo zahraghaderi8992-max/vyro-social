@@ -48,6 +48,9 @@ export default function App(){
  const [reelIndex,setReelIndex]=useState(0);
  const [lockedPreviewVideos,setLockedPreviewVideos]=useState({});
  const [exploreMenuPostId,setExploreMenuPostId]=useState(null);
+ const [savedExplorePostIds,setSavedExplorePostIds]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-saved-explore-posts')||'[]')}catch{return []}});
+ const [hiddenExplorePostIds,setHiddenExplorePostIds]=useState(()=>{try{return JSON.parse(localStorage.getItem('vyro-hidden-explore-posts')||'[]')}catch{return []}});
+ const [exploreFeedFilter,setExploreFeedFilter]=useState('all');
  const reelsScrollRef=useRef(null);
  const [chatUsername,setChatUsername]=useState('');
  const [password,setPassword]=useState('');
@@ -200,6 +203,8 @@ export default function App(){
  const verifiedBadge=(username,email='')=>isVerifiedAccount(username,email)?<span className="verified-badge" title="حساب تأییدشده" aria-label="حساب تأییدشده"><Check size={10}/></span>:null;
 
  useEffect(()=>{if(!notice||!settings.toast)return;const t=setTimeout(()=>setNotice(''),3000);return()=>clearTimeout(t)},[notice,settings.toast]);
+ useEffect(()=>{try{localStorage.setItem('vyro-saved-explore-posts',JSON.stringify(savedExplorePostIds))}catch{}},[savedExplorePostIds]);
+ useEffect(()=>{try{localStorage.setItem('vyro-hidden-explore-posts',JSON.stringify(hiddenExplorePostIds))}catch{}},[hiddenExplorePostIds]);
  useEffect(()=>{if(reelsOpen&&reelsScrollRef.current){reelsScrollRef.current.scrollTop=reelIndex*reelsScrollRef.current.clientHeight}},[reelsOpen]);
  useEffect(()=>{try{localStorage.removeItem('vyro-spotify-token');localStorage.removeItem('vyro-spotify-client-id');localStorage.removeItem('vyro-spotify-pkce-verifier');localStorage.removeItem('vyro-spotify-oauth-state')}catch{}},[]);
  useEffect(()=>{const key='vyro-music-favorites-'+(session?.user?.id||'guest');const remote=session?.user?.user_metadata?.music_favorites;if(Array.isArray(remote)){setMusicFavorites(remote);try{localStorage.setItem(key,JSON.stringify(remote))}catch{};return}try{setMusicFavorites(JSON.parse(localStorage.getItem(key)||'[]'))}catch{setMusicFavorites([])}},[session?.user?.id,session?.user?.user_metadata?.music_favorites]);
@@ -999,10 +1004,21 @@ export default function App(){
   setReelIndex(Math.max(0,index));setReelsOpen(true);
  }
  async function shareExplorePost(p){
-  const shareText=(p.content||'پست وایرو')+'\\n'+window.location.origin+window.location.pathname;
-  try{if(navigator.share)await navigator.share({title:'پست وایرو',text:shareText});else if(navigator.clipboard){await navigator.clipboard.writeText(shareText);setNotice('متن پست برای اشتراک‌گذاری کپی شد.')}else setNotice(shareText)}
+  const shareText=(p.content||'پست وایرو')+'\\n'+window.location.origin+window.location.pathname+'#post-'+p.id;
+  try{if(navigator.share)await navigator.share({title:'پست وایرو',text:shareText,url:window.location.origin+window.location.pathname+'#post-'+p.id});else if(navigator.clipboard){await navigator.clipboard.writeText(shareText);setNotice('پیوند پست کپی شد.')}else setNotice(shareText)}
   catch(err){if(err?.name!=='AbortError')setNotice('اشتراک‌گذاری انجام نشد.')}
  }
+ function toggleExploreSave(postId){setSavedExplorePostIds(v=>v.includes(postId)?v.filter(id=>id!==postId):[...v,postId]);setNotice(savedExplorePostIds.includes(postId)?'از ذخیره‌ها برداشته شد.':'پست در ذخیره‌ها ثبت شد.')}
+ async function toggleExploreFollow(p){
+  if(!session||!supabaseReady||!p.user_id){setNotice('برای دنبال‌کردن وارد حساب آنلاین شو.');return}
+  if(p.user_id===session.user.id){setNotice('این پست متعلق به خودت است.');return}
+  const following=followedUsers.includes(p.user_id);
+  const {error}=following?await supabase.from('profile_follows').delete().eq('follower_id',session.user.id).eq('following_id',p.user_id):await supabase.from('profile_follows').upsert({follower_id:session.user.id,following_id:p.user_id},{onConflict:'follower_id,following_id'});
+  if(error){setNotice('تغییر وضعیت دنبال‌کردن انجام نشد.');return}
+  setFollowedUsers(v=>following?v.filter(id=>id!==p.user_id):[...new Set([...v,p.user_id])]);
+  setNotice(following?'دنبال‌کردن لغو شد.':'این کاربر را دنبال می‌کنی.');
+ }
+ async function copyExploreLink(p){const url=window.location.origin+window.location.pathname+'#post-'+p.id;try{await navigator.clipboard.writeText(url);setNotice('پیوند مستقیم پست کپی شد.')}catch{setNotice(url)}}
  async function manageServerUser(user,action,permissions=null){
   if(action==='delete'&&!window.confirm('حذف کامل حساب @'+(user.username||'این کاربر')+'؟ همهٔ اطلاعات وابسته نیز حذف می‌شوند و این کار برگشت‌پذیر نیست.'))return;
   if(!isAdmin||!supabaseReady){setNotice('دسترسی مدیریت در دسترس نیست.');return}
@@ -1058,8 +1074,12 @@ export default function App(){
       {!stories.some(s=>followedUsers.includes(s.user_id)&&Date.now()-s.createdAt<86400000)&&<div className="stories-empty">هنوز از افرادی که دنبال می‌کنی استوری تازه‌ای منتشر نشده.</div>}
      </div>
     </div>
-    <div className="explore-feed-head"><div><span className="eyebrow">جامعهٔ وایرو</span><h2>پست‌ها</h2></div><button className="icon-btn" aria-label="بارگذاری دوباره" onClick={async()=>{if(!supabaseReady){setNotice('اتصال سرور هنوز آماده نیست.');return}const {data,error}=await supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url,bio)').order('created_at',{ascending:false}).limit(24);if(error){setNotice('بارگذاری پست‌ها ناموفق بود.');return}setPosts((data||[]).map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));setNotice('اکسپلور به‌روزرسانی شد.')}}><RotateCcw size={17}/></button></div>
-    {posts.length?posts.map(p=><article className="feed-post" key={p.id}>
+    <div className="explore-feed-filter" role="tablist" aria-label="فیلتر فید">
+     <button role="tab" aria-selected={exploreFeedFilter==='all'} className={exploreFeedFilter==='all'?'selected':''} onClick={()=>setExploreFeedFilter('all')}>برای تو</button>
+     <button role="tab" aria-selected={exploreFeedFilter==='following'} className={exploreFeedFilter==='following'?'selected':''} onClick={()=>setExploreFeedFilter('following')}>دنبال‌شده‌ها</button>
+    </div>
+    <div className="explore-feed-head"><div><span className="eyebrow">جامعهٔ وایرو</span><h2>فید</h2></div><button className="icon-btn" aria-label="بارگذاری دوباره" onClick={async()=>{if(!supabaseReady){setNotice('اتصال سرور هنوز آماده نیست.');return}const {data,error}=await supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url,bio)').order('created_at',{ascending:false}).limit(24);if(error){setNotice('بارگذاری پست‌ها ناموفق بود.');return}setPosts((data||[]).map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));setNotice('اکسپلور به‌روزرسانی شد.')}}><RotateCcw size={17}/></button></div>
+    {posts.filter(p=>!hiddenExplorePostIds.includes(p.id)&&(exploreFeedFilter==='all'||followedUsers.includes(p.user_id))).length?posts.filter(p=>!hiddenExplorePostIds.includes(p.id)&&(exploreFeedFilter==='all'||followedUsers.includes(p.user_id))).map(p=><article className="feed-post" id={'post-'+p.id} key={p.id}>
      <div className="feed-post-head">
       <button className="avatar profile-open-avatar" onClick={()=>setProfileViewer({id:p.user_id,username:p.username,display_name:p.display_name,avatar_url:p.avatar_url,banner_url:p.banner_url,bio:p.bio})}>{p.avatar_url?<img src={p.avatar_url} alt=""/>:(p.username||'V')[0].toUpperCase()}</button>
       <div className="feed-post-author"><button className="profile-open-name" onClick={()=>setProfileViewer({id:p.user_id,username:p.username,display_name:p.display_name,avatar_url:p.avatar_url,banner_url:p.banner_url,bio:p.bio})}><b>@{p.username||'vyro_user'} {verifiedBadge(p.username)}</b></button><small>{p.time||'تازه'}</small></div>
@@ -1071,11 +1091,22 @@ export default function App(){
       {lockedPreviewVideos[p.id]&&<div className="video-preview-lock"><span>پیش‌نمایش ۳۰ ثانیه‌ای تمام شد</span><button className="primary-btn" onClick={()=>openReels(p.id)}>مشاهده ادامه <ArrowRight size={16}/></button></div>}
      </div>:p.media_type?.startsWith('audio/')?<audio className="feed-post-media" src={p.media_url} controls preload="none"/>:(p.media_type?.startsWith('image/')||!p.media_type||p.media_type==='none')?<img className="feed-post-media" src={p.media_url} alt="رسانهٔ پست" loading="lazy"/>:<a className="feed-file-link" href={p.media_url} target="_blank" rel="noreferrer"><Paperclip size={18}/> بازکردن فایل · {p.media_type?.split('/').pop()||'فایل'}</a>)}
      <div className="feed-post-actions">
-      <button onClick={()=>reactToPost(p.id,'like')} aria-label="لایک"><ThumbsUp size={18}/> <span>{postReactions.filter(r=>r.post_id===p.id&&r.reaction_type==='like').length}</span></button>
-      <button onClick={()=>reactToPost(p.id,'dislike')} aria-label="دیس‌لایک"><ThumbsDown size={18}/> <span>{postReactions.filter(r=>r.post_id===p.id&&r.reaction_type==='dislike').length}</span></button>
-      <button onClick={()=>setExpandedComments(v=>({...v,[p.id]:!v[p.id]}))}><MessageCircle size={18}/> <span>{postComments.filter(c=>c.post_id===p.id).length}</span></button>
-      <button onClick={()=>shareExplorePost(p)}><Share2 size={18}/> <span>Share</span></button>
+      <button className={postReactions.some(r=>r.post_id===p.id&&r.user_id===session?.user?.id&&r.reaction_type==='like')?'is-active':''} onClick={()=>reactToPost(p.id,'like')} aria-label="پسندیدن"><ThumbsUp size={19}/> <span>{postReactions.filter(r=>r.post_id===p.id&&r.reaction_type==='like').length}</span></button>
+      <button onClick={()=>setExpandedComments(v=>({...v,[p.id]:!v[p.id]}))} aria-label="دیدگاه‌ها"><MessageCircle size={19}/> <span>{postComments.filter(c=>c.post_id===p.id).length}</span></button>
+      <button onClick={()=>shareExplorePost(p)} aria-label="اشتراک‌گذاری"><Share2 size={19}/> <span>Share</span></button>
+      <button className={savedExplorePostIds.includes(p.id)?'is-active':''} onClick={()=>toggleExploreSave(p.id)} aria-label="ذخیرهٔ پست"><span className="save-glyph">{savedExplorePostIds.includes(p.id)?'▣':'▢'}</span><span>ذخیره</span></button>
+      <button className="feed-more-trigger" aria-label="سایر گزینه‌های پست" aria-expanded={exploreMenuPostId===p.id} onClick={()=>setExploreMenuPostId(v=>v===p.id?null:p.id)}><MoreVertical size={20}/></button>
      </div>
+     {exploreMenuPostId===p.id&&<div className="feed-post-menu" role="menu">
+      <button role="menuitem" onClick={()=>{reactToPost(p.id,'dislike');setExploreMenuPostId(null)}}><ThumbsDown size={16}/> نپسندیدن این پست</button>
+      <button role="menuitem" onClick={()=>{toggleExploreFollow(p);setExploreMenuPostId(null)}}><Users size={16}/> {followedUsers.includes(p.user_id)?'لغو دنبال‌کردن نویسنده':'دنبال‌کردن نویسنده'}</button>
+      <button role="menuitem" onClick={()=>{copyExploreLink(p);setExploreMenuPostId(null)}}><Copy size={16}/> کپی پیوند پست</button>
+      {p.media_url&&<a role="menuitem" href={p.media_url} download target="_blank" rel="noreferrer"><Download size={16}/> دریافت رسانه</a>}
+      <button role="menuitem" onClick={()=>{setHiddenExplorePostIds(v=>[...new Set([...v,p.id])]);setExploreMenuPostId(null);setNotice('این پست از فید تو پنهان شد.')}}><X size={16}/> پنهان‌کردن پست</button>
+      <button role="menuitem" onClick={()=>{setProfileViewer({id:p.user_id,username:p.username,display_name:p.display_name,avatar_url:p.avatar_url,banner_url:p.banner_url,bio:p.bio});setExploreMenuPostId(null)}}><UserRound size={16}/> مشاهدهٔ پروفایل</button>
+      {p.user_id!==session?.user?.id&&<button role="menuitem" onClick={()=>{setNotifiedUsers(v=>v.includes(p.user_id)?v.filter(id=>id!==p.user_id):[...v,p.user_id]);setNotice(notifiedUsers.includes(p.user_id)?'اعلان‌های این حساب خاموش شد.':'اعلان‌های این حساب در این دستگاه روشن شد.');setExploreMenuPostId(null)}}><Bell size={16}/> {notifiedUsers.includes(p.user_id)?'خاموش‌کردن اعلان‌ها':'روشن‌کردن اعلان‌ها'}</button>}
+      {(isAdmin||p.user_id===session?.user?.id)&&<button role="menuitem" className="danger" onClick={()=>{deleteExploreContent('post',p);setExploreMenuPostId(null)}}><Trash2 size={16}/> حذف پست</button>}
+     </div>}
      {expandedComments[p.id]&&<div className="post-comments"><div className="post-comments-list">{postComments.filter(c=>c.post_id===p.id).map(c=><div className="post-comment" key={c.id}><b>@{c.profiles?.username||'عضو وایرو'} {verifiedBadge(c.profiles?.username)}</b><span>{c.content}</span></div>)}</div><form onSubmit={e=>{e.preventDefault();addPostComment(p.id)}}><input value={commentDrafts[p.id]||''} onChange={e=>setCommentDrafts(v=>({...v,[p.id]:e.target.value}))} placeholder="نظرت رو بنویس…" maxLength={2000}/><button type="submit" className="primary-btn">ارسال</button></form></div>}
     </article>):<div className="explore-empty"><Compass size={25}/><h3>هنوز پستی منتشر نشده</h3><p>اولین پست وایرو را تو منتشر کن.</p><button className="primary-btn" onClick={()=>setComposerOpen(true)}><Plus size={17}/> ساخت اولین پست</button></div>}
    </section>}
