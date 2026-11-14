@@ -833,3 +833,9 @@ body{overflow-y:auto!important}
 .explore-load-more{display:block;width:min(100%,420px);margin:8px auto 26px;padding:13px 18px;border:1px solid rgba(230,197,47,.25);border-radius:14px;background:linear-gradient(120deg,rgba(230,197,47,.1),rgba(230,197,47,.035));color:var(--lime);font-weight:700;font-size:12px;transition:background .2s,border-color .2s}
 .explore-load-more:hover:not(:disabled){background:rgba(230,197,47,.15);border-color:rgba(230,197,47,.55)}
 .explore-load-more:disabled{opacity:.6;cursor:wait}
+
+.feed-post-media[role="button"]{cursor:zoom-in}
+.feed-post-media[role="button"]:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+.story-navigation{display:flex;gap:8px;margin-top:12px}
+.story-navigation button{flex:1;padding:9px 12px;border:1px solid rgba(230,197,47,.24);border-radius:11px;background:rgba(230,197,47,.08);color:var(--lime);font-size:11px}
+.story-navigation button:hover{background:rgba(230,197,47,.16)}
