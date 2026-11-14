@@ -829,3 +829,7 @@ body{overflow-y:auto!important}
 .ai-compose input{min-width:0}
 .ai-image-mode{align-self:stretch}
 @media(max-width:700px){.ai-heading{align-items:flex-start}.ai-clear-history{margin-inline-start:auto}.ai-quick-prompts button{font-size:9px;padding:7px 10px}.ai-compose{gap:5px}.ai-image-mode{padding:7px 8px}}
+
+.explore-load-more{display:block;width:min(100%,420px);margin:8px auto 26px;padding:13px 18px;border:1px solid rgba(230,197,47,.25);border-radius:14px;background:linear-gradient(120deg,rgba(230,197,47,.1),rgba(230,197,47,.035));color:var(--lime);font-weight:700;font-size:12px;transition:background .2s,border-color .2s}
+.explore-load-more:hover:not(:disabled){background:rgba(230,197,47,.15);border-color:rgba(230,197,47,.55)}
+.explore-load-more:disabled{opacity:.6;cursor:wait}
