@@ -1036,6 +1036,7 @@ export default function App(){
  }
  async function addAdminByUsername(e){e.preventDefault();const username=newAdminUsername.trim().replace(/^@/,'').toLowerCase();if(!isOwner){setNotice('فقط مالک وایرو می‌تواند ادمین اضافه کند.');return}if(!/^[a-z0-9_.]{3,24}$/.test(username)){setNotice('نام کاربری معتبر نیست.');return}if(!supabaseReady){setNotice('اتصال پایگاه داده در دسترس نیست.');return}const {data:user,error}=await supabase.from('profiles').select('id,username,role').eq('username',username).maybeSingle();if(error||!user){setNotice('کاربر پیدا نشد؛ ابتدا نام کاربری دقیق را جست‌وجو کن.');return}const {error:actionError}=await supabase.rpc('vyro_admin_manage_user',{p_target_user:user.id,p_action:'promote_admin',p_permissions:['users_view','users_suspend']});if(actionError){setNotice(actionError.message||'ارتقای ادمین انجام نشد.');return}setNewAdminUsername('');setAdminView('users');setNotice('نقش ادمین در سرور ثبت شد.');}
 
+ const exploreTrendingTags=Array.from(posts.reduce((map,p)=>{const tags=String(p.content||'').match(/#[\\p{L}\\p{N}_]+/gu)||[];tags.forEach(tag=>map.set(tag,(map.get(tag)||0)+1));return map},new Map()).entries()).sort((a,b)=>b[1]-a[1]).slice(0,8);
  const exploreVisiblePosts=posts
   .filter(p=>!hiddenExplorePostIds.includes(p.id))
   .filter(p=>exploreFeedFilter==='all'||(exploreFeedFilter==='following'&&followedUsers.includes(p.user_id))||(exploreFeedFilter==='saved'&&savedExplorePostIds.includes(p.id)))
@@ -1091,6 +1092,7 @@ export default function App(){
       <button role="tab" aria-selected={exploreFeedFilter==='saved'} className={exploreFeedFilter==='saved'?'selected':''} onClick={()=>setExploreFeedFilter('saved')}>ذخیره‌شده‌ها</button>
      </div>
      <label className="explore-search"><Search size={17}/><input value={exploreSearch} onChange={e=>setExploreSearch(e.target.value)} placeholder="جست‌وجوی پست، متن یا کاربر…" aria-label="جست‌وجو در اکسپلور"/>{exploreSearch&&<button onClick={()=>setExploreSearch('')} aria-label="پاک‌کردن جست‌وجو"><X size={15}/></button>}</label>
+     {exploreTrendingTags.length>0&&<div className="explore-trending"><span><Sparkles size={13}/> موضوع‌های داغ وایرو</span><div>{exploreTrendingTags.map(([tag,count])=><button key={tag} onClick={()=>{setExploreSearch(tag);setExploreFeedFilter('all');setExploreMediaFilter('all')}}>{tag}<small>{count.toLocaleString('fa-IR')}</small></button>)}</div></div>}
      <div className="explore-discovery-row">
       <div className="explore-media-filters" aria-label="نوع محتوا">
        <button className={exploreMediaFilter==='all'?'active':''} onClick={()=>setExploreMediaFilter('all')}>همه</button>
