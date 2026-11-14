@@ -1,0 +1,29 @@
+name: Validate independent Vyro AI engine
+
+on:
+  push:
+    branches:
+      - work/vyro-performance-explore-2026-11-14
+    paths:
+      - 'supabase/functions/vyro-ai/**'
+      - 'docs/VYRO-AI-ENGINE.md'
+      - '.github/workflows/validate-ai-engine.yml'
+  pull_request:
+    paths:
+      - 'supabase/functions/vyro-ai/**'
+      - 'docs/VYRO-AI-ENGINE.md'
+      - '.github/workflows/validate-ai-engine.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  deno-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Type-check independent AI Edge Function
+        run: deno check --no-config supabase/functions/vyro-ai/index.ts
