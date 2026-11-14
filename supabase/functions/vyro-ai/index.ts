@@ -34,7 +34,6 @@ function withPath(base: URL, path: string): string {
 }
 
 async function authorizeTier(req: Request, tier: string): Promise<boolean> {
-  if (tier === "free") return true;
   const authHeader = req.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
@@ -55,6 +54,8 @@ async function authorizeTier(req: Request, tier: string): Promise<boolean> {
   });
   if (!response.ok) return false;
   const user = await response.json();
+  if (!user?.id) return false;
+  if (tier === "free") return true;
   // Authorization uses app_metadata only; user-editable user_metadata is never trusted.
   return user?.app_metadata?.vyro_tier === tier;
 }
