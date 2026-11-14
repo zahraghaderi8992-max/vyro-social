@@ -335,9 +335,15 @@ export default function App(){
  async function saveDownload(url,filename='download'){try{const response=await fetch(url);if(!response.ok)throw new Error('download failed');const blob=await response.blob();const reader=new FileReader();reader.onloadend=async()=>{try{const base64=String(reader.result).split(',')[1];await Filesystem.writeFile({path:'VYRO/Downloads/'+filename.replace(/[^a-zA-Z0-9._-]/g,'_'),data:base64,directory:Directory.Documents,recursive:true});setNotice('فایل در پوشهٔ VYRO/Downloads در فضای اسناد برنامه ذخیره شد.');}catch{const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=filename;a.click();URL.revokeObjectURL(a.href);setNotice('دانلود در دستگاه شروع شد.');}};reader.readAsDataURL(blob);}catch{window.open(url,'_blank','noopener,noreferrer');setNotice('این منبع دانلود مستقیم را نمی‌پذیرد؛ در مرورگر باز شد.');}}
  useEffect(()=>{
   if(!supabaseReady){setAuthChecked(true);return}
-  supabase.auth.getSession().then(({data})=>{setSession(data.session);setAuthChecked(true)});
-  const {data:listener}=supabase.auth.onAuthStateChange((_e,next)=>{setSession(next);setAuthChecked(true)});
-  return()=>listener.subscription.unsubscribe();
+  let active=true;
+  // Do not let a slow auth refresh keep the whole app behind the boot screen.
+  const fallback=window.setTimeout(()=>{if(active)setAuthChecked(true)},1200);
+  supabase.auth.getSession()
+   .then(({data})=>{if(!active)return;setSession(data.session);setAuthChecked(true)})
+   .catch(()=>{if(active)setAuthChecked(true)})
+   .finally(()=>window.clearTimeout(fallback));
+  const {data:listener}=supabase.auth.onAuthStateChange((_e,next)=>{if(!active)return;setSession(next);setAuthChecked(true)});
+  return()=>{active=false;window.clearTimeout(fallback);listener.subscription.unsubscribe()};
  },[]);
  useEffect(()=>{
   if(!session?.user?.id||!supabaseReady){setDeviceSessionInfo(null);setDeviceSessions([]);return}
@@ -403,14 +409,18 @@ export default function App(){
     supabase.from('stories').select('id,user_id,text_content,media_url,expires_at,created_at,profiles(username)').gt('expires_at',new Date().toISOString()).order('created_at',{ascending:false}).limit(24)
    ]);
    if(!active)return;
-   if(postResult.data)setPosts(postResult.data.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));
+   const postRows=postResult.data||[];
+   if(postResult.data)setPosts(postRows.map(p=>({id:p.id,username:p.profiles?.username||'vyro_user',display_name:p.profiles?.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||'',banner_url:p.profiles?.banner_url||'',bio:p.profiles?.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||'',likes:0})));
    if(storyResult.data)setStories(storyResult.data.map(s=>({id:s.id,username:s.profiles?.username||'vyro_user',text:s.text_content||'',media_url:s.media_url||'',createdAt:new Date(s.created_at).getTime(),expiresAt:s.expires_at,online:true})));
-   const [{data:r},{data:c}]=await Promise.all([
-    supabase.from('post_reactions').select('id,post_id,user_id,reaction_type'),
-    supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').order('created_at',{ascending:true}).limit(120)
-   ]);
-   if(active&&r)setPostReactions(r);
-   if(active&&c)setPostComments(c);
+   // Fetch reactions and comments only for the 24 posts currently shown in Explore.
+   const postIds=postRows.map(p=>p.id);
+   const [reactionResult,commentResult]=postIds.length?await Promise.all([
+    supabase.from('post_reactions').select('id,post_id,user_id,reaction_type').in('post_id',postIds),
+    supabase.from('post_comments').select('id,post_id,user_id,content,created_at,profiles(username)').in('post_id',postIds).order('created_at',{ascending:true}).limit(120)
+   ]):[{data:[]},{data:[]}];
+   if(!active)return;
+   setPostReactions(reactionResult.data||[]);
+   setPostComments(commentResult.data||[]);
   };
   const loadChats=async()=>{
    if(!session?.user?.id)return;
