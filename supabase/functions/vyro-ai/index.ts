@@ -50,7 +50,8 @@ async function authorizeTier(req: Request, tier: string): Promise<boolean> {
     }
   }
   if (!token || !supabaseUrl || !publishableKey) return false;
-  const response = await fetch(`${supabaseUrl.replace(/\\/+$/, "")}/auth/v1/user`, {
+  const authUrl = supabaseUrl.endsWith("/") ? supabaseUrl.slice(0, -1) : supabaseUrl;
+  const response = await fetch(`${authUrl}/auth/v1/user`, {
     headers: { Authorization: `Bearer ${token}`, apikey: publishableKey },
     signal: AbortSignal.timeout(8000),
   });
