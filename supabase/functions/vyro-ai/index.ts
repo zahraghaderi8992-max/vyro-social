@@ -38,10 +38,19 @@ async function authorizeTier(req: Request, tier: string): Promise<boolean> {
   const authHeader = req.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
   const supabaseUrl = Deno.env.get("SUPABASE_URL");
-  const anonKey = Deno.env.get("SUPABASE_ANON_KEY");
-  if (!token || !supabaseUrl || !anonKey) return false;
+  let publishableKey = Deno.env.get("SUPABASE_ANON_KEY") || "";
+  const publishableKeysRaw = Deno.env.get("SUPABASE_PUBLISHABLE_KEYS");
+  if (publishableKeysRaw) {
+    try {
+      const parsed = JSON.parse(publishableKeysRaw);
+      publishableKey = parsed?.default || publishableKey;
+    } catch {
+      // Fall back to the legacy anon key for projects not migrated yet.
+    }
+  }
+  if (!token || !supabaseUrl || !publishableKey) return false;
   const response = await fetch(`${supabaseUrl.replace(/\\/+$/, "")}/auth/v1/user`, {
-    headers: { Authorization: `Bearer ${token}`, apikey: anonKey },
+    headers: { Authorization: `Bearer ${token}`, apikey: publishableKey },
     signal: AbortSignal.timeout(8000),
   });
   if (!response.ok) return false;
