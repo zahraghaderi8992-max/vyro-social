@@ -115,3 +115,9 @@
 @media(prefers-reduced-motion:reduce){
   .nav-item,.mobile-nav button,.settings-menu-item{transition:none!important}
 }
+
+
+/* VYRO Muzio mini-player placement and real local-audio seeking */
+.muzio-mini-player{width:min(380px,calc(100vw - 28px));max-width:380px;left:auto;right:18px;margin:0;bottom:18px;direction:rtl}
+.muzio-seek{display:block;width:min(100%,480px);height:5px;margin:12px 0 0;accent-color:var(--lime,#ffd700);cursor:pointer}
+@media(max-width:700px){.muzio-mini-player{width:min(380px,calc(100vw - 24px));left:auto;right:12px;bottom:calc(74px + env(safe-area-inset-bottom));padding:8px 10px}.mobile-nav{position:fixed;right:0;bottom:0;left:0;width:100%;z-index:120}}

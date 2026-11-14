@@ -608,3 +608,48 @@ button:focus-visible{outline:2px solid var(--lime);outline-offset:3px}
  .message-selection-toolbar button{padding:7px 9px}
  .conversation-select-mark{right:6px}
 }
+
+
+/* VYRO chat palette and Saved Messages */
+.chat-layout{
+  --vyro-chat-bg:#000000;
+  --vyro-chat-accent:#6A6500;
+  --vyro-chat-outgoing-a:#E1D600;
+  --vyro-chat-outgoing-b:#FFFF02;
+  background:var(--vyro-chat-bg)!important;
+  border-color:rgba(106,101,0,.52)!important;
+}
+.chat-layout .chat-list,
+.chat-layout .chat-thread,
+.chat-layout .chat-top,
+.chat-layout .chat-compose,
+.chat-layout .chat-messages,
+.chat-layout .chat-list-head,
+.chat-layout .chat-list .search-box{
+  background-color:#000000!important;
+}
+.chat-layout .chat-list{border-color:#6A6500!important}
+.chat-layout .chat-top,.chat-layout .chat-compose{border-color:rgba(106,101,0,.65)!important}
+.chat-layout .chat-folders button{border-color:#6A6500!important;color:#bcb98a!important}
+.chat-layout .chat-folders button.selected{background:rgba(106,101,0,.25)!important;border-color:#6A6500!important;color:#FFFF02!important}
+.chat-layout .conversation:hover,.chat-layout .conversation.selected{background:rgba(106,101,0,.2)!important}
+.chat-layout .message-bubble.them{background:#101000!important;border-color:#6A6500!important;color:#f5f4dc!important}
+.chat-layout .message-bubble.me{background:linear-gradient(135deg,#E1D600,#FFFF02)!important;color:#080800!important;border:1px solid #FFFF02!important}
+.chat-layout .message-bubble.me small{color:#4c4900!important}
+.chat-layout .chat-compose{background:#000!important}
+.chat-layout .chat-compose input,.chat-layout .search-box input{background:transparent!important;color:#fff!important}
+.chat-layout .chat-special-list{display:grid;gap:10px}
+.saved-note-composer,.saved-note-card{display:grid;gap:9px;padding:12px;border:1px solid rgba(106,101,0,.72);border-radius:13px;background:#080800}
+.saved-note-composer textarea,.saved-note-card textarea{width:100%;min-height:64px;resize:vertical;border:1px solid rgba(106,101,0,.7);border-radius:10px;padding:10px;background:#000;color:#fff;font:inherit;font-size:12px;line-height:1.8;outline:none}
+.saved-note-composer textarea:focus,.saved-note-card textarea:focus{border-color:#FFFF02;box-shadow:0 0 0 2px rgba(255,255,2,.08)}
+.saved-note-composer button,.saved-note-actions button{justify-self:start;border:1px solid #6A6500;border-radius:9px;padding:7px 12px;background:rgba(106,101,0,.25);color:#FFFF02;font:inherit;font-size:11px}
+.saved-note-composer button:disabled{opacity:.4}
+.saved-note-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.saved-note-actions small{margin-inline-end:auto;color:#888;font-size:9px}
+.saved-note-actions .saved-note-delete,.saved-message-remove{color:#ff9b9b;border-color:rgba(220,70,70,.4);background:rgba(120,20,20,.15)}
+.chat-special-row{display:flex;align-items:center;gap:6px;padding:8px;border:1px solid rgba(106,101,0,.35);border-radius:11px;background:#080800}
+.chat-special-row .saved-message-open{display:flex;align-items:center;gap:9px;flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:right}
+.chat-special-row .saved-message-open>span:nth-child(2){display:grid;gap:4px;min-width:0;flex:1}
+.chat-special-row .saved-message-open small{color:#aaa;font-size:9px}
+.chat-special-row .saved-message-remove{width:28px;height:28px;border:1px solid;border-radius:8px;background:transparent}
+@media(max-width:700px){.chat-layout{background:#000!important}.saved-note-composer,.saved-note-card{padding:10px}}

@@ -2,7 +2,7 @@ name: Build VYRO Windows Installer
 
 on:
   push:
-    branches: [main, work/vyro-structure-polish-2026-11-08]
+    branches: [main, work/vyro-structure-polish-2026-11-08, work/vyro-followup-2026-11-12]
     paths:
       - 'src/**'
       - 'public/**'
