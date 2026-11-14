@@ -801,3 +801,14 @@ body{overflow-y:auto!important}
  .explore-media-filters button{padding:7px 9px}
  .explore-search input{font-size:11px}
 }
+
+
+.explore-trending{display:grid;gap:7px;min-width:0;padding:2px 0 1px}
+.explore-trending>span{display:flex;align-items:center;gap:6px;color:#a6a797;font-size:10px}
+.explore-trending>span svg{color:var(--lime)}
+.explore-trending>div{display:flex;gap:7px;overflow-x:auto;padding:1px 1px 4px;scrollbar-width:none}
+.explore-trending>div::-webkit-scrollbar{display:none}
+.explore-trending button{display:flex;align-items:center;gap:7px;flex:0 0 auto;padding:7px 10px;border:1px solid rgba(230,197,47,.15);border-radius:999px;background:rgba(230,197,47,.045);color:#e9e7dc;font-size:10px}
+.explore-trending button:hover{border-color:rgba(230,197,47,.42);background:rgba(230,197,47,.1);color:var(--lime)}
+.explore-trending small{display:grid;place-items:center;min-width:17px;height:17px;padding:0 4px;border-radius:999px;background:rgba(230,197,47,.12);color:var(--lime);font-size:8px}
+@media(max-width:700px){.explore-trending>span{font-size:9px}.explore-trending button{padding:7px 9px}}
