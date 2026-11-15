@@ -35,6 +35,13 @@ function withPath(base: URL, path: string): string {
   return url.toString();
 }
 
+function providerHeaders(tokenName: string): Record<string, string> {
+  const headers: Record<string, string> = { "Content-Type": "application/json" };
+  const token = Deno.env.get(tokenName)?.trim();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  return headers;
+}
+
 async function authorizeTier(req: Request, tier: string): Promise<boolean> {
   const authHeader = req.headers.get("Authorization") || "";
   const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
@@ -91,7 +98,7 @@ Deno.serve(async (req: Request) => {
       }
       const response = await fetch(withPath(imageUrl, "sdapi/v1/txt2img"), {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: providerHeaders("VYRO_IMAGE_ENGINE_TOKEN"),
         signal: AbortSignal.timeout(timeoutMs),
         body: JSON.stringify({
           prompt: body.imagePrompt.trim().slice(0, 1800),
@@ -136,7 +143,7 @@ Deno.serve(async (req: Request) => {
     const model = Deno.env.get(modelEnv)?.trim() || Deno.env.get("VYRO_DEFAULT_MODEL")?.trim() || "qwen2.5:7b";
     const response = await fetch(withPath(ollamaUrl, "api/chat"), {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: providerHeaders("VYRO_OLLAMA_TOKEN"),
       signal: AbortSignal.timeout(timeoutMs),
       body: JSON.stringify({
         model,
