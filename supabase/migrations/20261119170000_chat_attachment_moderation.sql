@@ -91,14 +91,20 @@ to authenticated
 using (
   bucket_id = 'chat-files'
   and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
+    (
+      (storage.foldername(name))[1] = (select auth.uid())::text
+      and private.vyro_is_conversation_member(((storage.foldername(name))[2])::uuid)
+    )
     or public.vyro_can_moderate_chat()
   )
 )
 with check (
   bucket_id = 'chat-files'
   and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
+    (
+      (storage.foldername(name))[1] = (select auth.uid())::text
+      and private.vyro_is_conversation_member(((storage.foldername(name))[2])::uuid)
+    )
     or public.vyro_can_moderate_chat()
   )
 );
@@ -111,7 +117,10 @@ to authenticated
 using (
   bucket_id = 'chat-files'
   and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
+    (
+      (storage.foldername(name))[1] = (select auth.uid())::text
+      and private.vyro_is_conversation_member(((storage.foldername(name))[2])::uuid)
+    )
     or public.vyro_can_moderate_chat()
   )
 );
