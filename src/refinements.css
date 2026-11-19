@@ -1472,3 +1472,17 @@ input[type=file]{
 .chat-saved-shortcut small{font-size:10px;color:#a9a99e}
 .chat-saved-shortcut>svg:last-child{color:#9a9271;transform:rotate(180deg)}
 @media(max-width:700px){.chat-saved-shortcut{margin:8px 0 10px}.chat-kind-shortcuts.chat-folders{margin-bottom:8px}}
+
+
+/* Saved Messages notes panel and reliable bottom dock bounds */
+.chat-saved-note{display:grid;gap:10px;margin:5px 0 12px;padding:13px;border:1px solid rgba(255,215,0,.2);border-radius:15px;background:linear-gradient(145deg,rgba(255,215,0,.07),rgba(255,255,255,.025))}
+.chat-saved-note>div{display:grid;gap:4px}
+.chat-saved-note b{font-size:12px;color:#f3e9c1}
+.chat-saved-note small{font-size:10px;color:#a8a28f}
+.chat-saved-note textarea{width:100%;min-height:92px;resize:vertical;box-sizing:border-box;padding:11px;border-radius:11px;background:rgba(0,0,0,.2)!important;line-height:1.8}
+.chat-saved-note .primary-btn{justify-self:start;min-width:130px}
+@media(max-width:700px){
+ .app-shell{overflow:visible!important}
+ .mobile-nav{box-sizing:border-box!important;height:64px!important;min-height:64px!important;max-height:64px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;padding:5px 7px!important;width:min(94vw,540px)!important;max-width:calc(100vw - 20px)!important;overflow:hidden!important}
+ .mobile-nav button{box-sizing:border-box!important;max-width:none!important;min-width:0!important;min-height:48px!important;height:48px!important;flex:1 1 0!important}
+}
