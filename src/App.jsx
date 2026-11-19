@@ -463,7 +463,7 @@ export default function App(){
     const ms=(messageRows||[]).filter(m=>m.conversation_id===v.id).reverse().map(m=>{
      const rawUrl=m.file_url||'';
      const fileUrl=rawUrl&&!rawUrl.startsWith('http')?(signedByPath.get(rawUrl)||''):rawUrl;
-     return{id:m.id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
+     return{id:m.id,sender_id:m.sender_id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,file_path:m.file_url||'',message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
     });
     const last=ms[ms.length-1];
     const meName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
@@ -573,7 +573,7 @@ export default function App(){
   const time=new Date(data.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
   const text=displayText||content||'فایل';
   playDefaultSound();
-  setConversations(v=>v.map(c=>c.id===conversationId?{...c,last:text,time,messages:[...c.messages,{id:data.id,from:'me',text:content||'',file_url:displayUrl||fileUrl||'',message_type:messageType,time}]}:c));
+  setConversations(v=>v.map(c=>c.id===conversationId?{...c,last:text,time,messages:[...c.messages,{id:data.id,sender_id:session.user.id,from:'me',text:content||'',file_url:displayUrl||fileUrl||'',file_path:fileUrl||'',message_type:messageType,time}]}:c));
   setBusy(false);return true;
  }
  function insertChatLineBreak(){const input=chatInputRef.current;if(!input){setChatDraft(v=>v+'\n');return}const start=input.selectionStart??chatDraft.length;const end=input.selectionEnd??start;const next=chatDraft.slice(0,start)+'\n'+chatDraft.slice(end);setChatDraft(next);if(chatId){try{localStorage.setItem('vyro-chat-draft-'+chatId,next)}catch{}}requestAnimationFrame(()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';input.focus();input.setSelectionRange(start+1,start+1)})}
