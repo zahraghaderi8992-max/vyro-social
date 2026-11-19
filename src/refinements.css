@@ -1404,3 +1404,27 @@ input[type=file]{
  .chat-folders button{padding-inline:10px}
  .settings-menu-item b{font-size:10px}
 }
+
+
+/* Mobile navigation follows the compact floating Telegram dock while retaining Vyro's five sections */
+@media(max-width:700px){
+ .mobile-nav{position:fixed!important;left:50%!important;right:auto!important;bottom:calc(9px + env(safe-area-inset-bottom))!important;transform:translateX(-50%);width:min(94vw,540px)!important;max-width:540px!important;display:flex!important;align-items:center;justify-content:space-around!important;gap:3px;padding:6px 7px!important;overflow:visible!important;border:1px solid rgba(255,215,0,.2);border-radius:999px;background:rgba(19,19,21,.91);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);box-shadow:0 8px 32px #0009,0 0 18px rgba(255,215,0,.055)}
+ .mobile-nav button{flex:1 1 0!important;min-width:0!important;min-height:46px!important;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:5px 2px!important;border:0;border-radius:999px;background:transparent;color:#929297}
+ .mobile-nav button svg{width:19px;height:19px;stroke-width:1.8}
+ .mobile-nav button small{font-size:8px;line-height:1.2;white-space:nowrap}
+ .mobile-nav button.mobile-active{background:rgba(255,215,0,.13);color:#f1cf59}
+ .feed{padding-bottom:calc(86px + env(safe-area-inset-bottom))!important}
+ .chat-layout.chat-list-only .chat-window{display:none!important}
+ .chat-layout.chat-open .chat-list{display:none!important}
+ .chat-layout.chat-open .chat-window{display:flex!important;width:100%!important;min-height:calc(100dvh - 155px)}
+ .chat-layout{display:block!important}
+ .chat-window{min-height:calc(100dvh - 155px)}
+}
+.message-row.me{margin-left:auto!important;margin-right:0!important}
+.message-row.them{margin-right:auto!important;margin-left:0!important}
+.message-bubble{max-width:100%;border-radius:15px!important;padding:9px 12px!important}
+.message-bubble.me{background:linear-gradient(145deg,#51431e,#3c331c)!important;border:1px solid rgba(255,215,0,.16)!important;color:#fff!important}
+.message-bubble.them{background:#222225!important;border:1px solid rgba(255,255,255,.07)!important;color:#f0f0f0!important}
+.message-bubble p{font-size:12px;line-height:1.8}
+.message-time{font-size:8px!important;color:#b9b1a0!important}
+.chat-compose{position:sticky;bottom:0;z-index:3}
