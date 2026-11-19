@@ -1215,3 +1215,6 @@ input[type=file]{
 .feed-post-actions button:hover{color:var(--lime)}
 .message-action-popover button{cursor:pointer}
 .message-action-popover button:focus-visible,.feed-post-actions button:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:8px}
+
+.explore-mode-tabs{display:flex;align-items:center;gap:6px;flex:0 0 auto;margin-inline:auto}.explore-mode-tabs button{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:999px;padding:7px 11px;background:transparent;color:var(--muted);font:inherit;font-size:10px;white-space:nowrap}.explore-mode-tabs button.selected{border-color:color-mix(in srgb,var(--lime) 55%,var(--line));background:color-mix(in srgb,var(--lime) 12%,transparent);color:var(--lime)}
+@media(max-width:480px){.explore-feed-head{flex-wrap:wrap;gap:8px}.explore-mode-tabs{margin-inline:0}.explore-mode-tabs button{padding:6px 9px;font-size:9px}.feed-post-actions{gap:10px}.feed-post-actions button{font-size:10px}}
