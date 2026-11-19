@@ -25,11 +25,7 @@ on public.messages
 for select
 to authenticated
 using (
-  exists (
-    select 1 from public.conversation_members cm
-    where cm.conversation_id = messages.conversation_id
-      and cm.user_id = (select auth.uid())
-  )
+  private.vyro_is_conversation_member(messages.conversation_id)
   or public.vyro_can_moderate_chat()
 );
 
@@ -43,7 +39,7 @@ on public.messages
 for update
 to authenticated
 using (
-  sender_id = (select auth.uid())
+  (sender_id = (select auth.uid()) and private.vyro_is_conversation_member(messages.conversation_id))
   or public.vyro_can_moderate_chat()
 )
 with check (
@@ -57,7 +53,7 @@ on public.messages
 for delete
 to authenticated
 using (
-  sender_id = (select auth.uid())
+  (sender_id = (select auth.uid()) and private.vyro_is_conversation_member(messages.conversation_id))
   or public.vyro_can_moderate_chat()
 );
 
@@ -69,7 +65,10 @@ to authenticated
 using (
   bucket_id = 'chat-files'
   and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
+    (
+      (storage.foldername(name))[1] = (select auth.uid())::text
+      and private.vyro_is_conversation_member(((storage.foldername(name))[2])::uuid)
+    )
     or public.vyro_can_moderate_chat()
   )
 );
@@ -81,10 +80,7 @@ for insert
 to authenticated
 with check (
   bucket_id = 'chat-files'
-  and (
-    (storage.foldername(name))[1] = (select auth.uid())::text
-    or public.vyro_can_moderate_chat()
-  )
+  and public.vyro_can_moderate_chat()
 );
 
 drop policy if exists vyro_chat_files_update_owner_or_moderator on storage.objects;
