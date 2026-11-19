@@ -1208,3 +1208,10 @@ input[type=file]{
     background:rgba(15,17,24,.96)!important;
   }
 }
+
+/* Explore internal post links and moderation controls */
+.feed-post-actions{flex-wrap:wrap;align-items:center}
+.feed-post-actions button{min-height:30px;padding:5px 2px}
+.feed-post-actions button:hover{color:var(--lime)}
+.message-action-popover button{cursor:pointer}
+.message-action-popover button:focus-visible,.feed-post-actions button:focus-visible{outline:2px solid var(--lime);outline-offset:3px;border-radius:8px}
