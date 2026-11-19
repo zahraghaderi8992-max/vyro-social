@@ -1428,3 +1428,14 @@ input[type=file]{
 .message-bubble p{font-size:12px;line-height:1.8}
 .message-time{font-size:8px!important;color:#b9b1a0!important}
 .chat-compose{position:sticky;bottom:0;z-index:3}
+
+.settings-menu-item{transition:background .18s ease,color .18s ease}
+.settings-menu-item:nth-child(4),.settings-menu-item:nth-child(7),.settings-menu-item:nth-child(10){margin-top:9px;border-top:1px solid rgba(255,255,255,.08)}
+.settings-menu-item:nth-child(1) .settings-menu-icon{background:rgba(67,145,255,.14);color:#73aaff}
+.settings-menu-item:nth-child(2) .settings-menu-icon{background:rgba(218,173,54,.14);color:#e5bd50}
+.settings-menu-item:nth-child(3) .settings-menu-icon{background:rgba(57,184,125,.14);color:#65c995}
+.settings-menu-item:nth-child(4) .settings-menu-icon{background:rgba(231,91,111,.14);color:#f08393}
+.settings-menu-item:nth-child(5) .settings-menu-icon{background:rgba(77,156,220,.14);color:#79b8ec}
+.settings-menu-item:nth-child(6) .settings-menu-icon{background:rgba(171,117,224,.14);color:#c49be9}
+.mobile-nav button{transition:background .2s ease,color .2s ease,transform .2s ease}
+.mobile-nav button:active{transform:scale(.96)}
