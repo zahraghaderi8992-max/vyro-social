@@ -74,6 +74,19 @@ using (
   )
 );
 
+drop policy if exists vyro_chat_files_insert_sender_or_moderator on storage.objects;
+create policy vyro_chat_files_insert_sender_or_moderator
+on storage.objects
+for insert
+to authenticated
+with check (
+  bucket_id = 'chat-files'
+  and (
+    (storage.foldername(name))[1] = (select auth.uid())::text
+    or public.vyro_can_moderate_chat()
+  )
+);
+
 drop policy if exists vyro_chat_files_update_owner_or_moderator on storage.objects;
 create policy vyro_chat_files_update_owner_or_moderator
 on storage.objects
