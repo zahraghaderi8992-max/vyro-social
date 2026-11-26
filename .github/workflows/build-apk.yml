@@ -41,7 +41,7 @@ jobs:
         run: npm run version:sync
       - name: Build web app
         env:
-          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          VITE_SUPABASE_URL: https://vyro-ai-engine.vyro-social.workers.dev/supabase
           VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
           VITE_GIPHY_API_KEY: ${{ secrets.GIPHY_API_KEY_ANDROID }}
           VITE_VYRO_OTP_AUTH_UI_ENABLED: ${{ vars.VITE_VYRO_OTP_AUTH_UI_ENABLED }}

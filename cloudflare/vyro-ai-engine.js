@@ -4,6 +4,7 @@ export default {
   const allowed = [
    "https://vyro-web-b9p.pages.dev",
    "https://zahraghaderi8992-max.github.io",
+   "https://vyro-ai-engine.vyro-social.workers.dev",
    "capacitor://localhost",
    "http://localhost",
    "https://localhost"
@@ -11,7 +12,7 @@ export default {
   const corsOrigin = allowed.includes(origin) ? origin : "https://vyro-web-b9p.pages.dev";
   const cors = {
    "Access-Control-Allow-Origin": corsOrigin,
-   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+   "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
    "Access-Control-Allow-Headers": "Authorization, Content-Type, apikey",
    "Vary": "Origin"
   };
@@ -21,6 +22,39 @@ export default {
   });
   if (request.method === "OPTIONS") return new Response(null, { headers: cors });
   const requestUrl = new URL(request.url);
+  // Alternate browser entry point: serve the GitHub Pages build through this Worker.
+  // This gives the app a second hostname without requiring a VPN just to reach github.io.
+  if (request.method === "GET" || request.method === "HEAD") {
+   if (requestUrl.pathname === "/app") return Response.redirect(new URL("/app/", request.url), 302);
+   if (requestUrl.pathname === "/app/" || requestUrl.pathname.startsWith("/app/")) {
+    const suffix = requestUrl.pathname.slice(4) || "/";
+    const upstreamUrl = new URL("https://zahraghaderi8992-max.github.io/vyro-social" + suffix);
+    upstreamUrl.search = requestUrl.search;
+    let upstream = await fetch(new Request(upstreamUrl.toString(), request));
+    if (upstream.status === 404 && !/\\.[a-z0-9]{1,12}$/i.test(suffix)) {
+     const fallbackUrl = new URL("https://zahraghaderi8992-max.github.io/vyro-social/");
+     upstream = await fetch(new Request(fallbackUrl.toString(), request));
+    }
+    const headers = new Headers(upstream.headers);
+    headers.set("X-Vyro-Delivery", "cloudflare-worker-fallback");
+    return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+   }
+  }
+  // Proxy Supabase HTTP and WebSocket traffic through the same host used by the app.
+  if (requestUrl.pathname === "/supabase" || requestUrl.pathname.startsWith("/supabase/")) {
+   const suffix = requestUrl.pathname.slice("/supabase".length) || "/";
+   const upstreamUrl = new URL("https://drwnfifwvyfplsiqnvlp.supabase.co" + suffix);
+   upstreamUrl.search = requestUrl.search;
+   const upstreamRequest = new Request(upstreamUrl.toString(), request);
+   const upstream = await fetch(upstreamRequest);
+   const headers = new Headers(upstream.headers);
+   headers.set("Access-Control-Allow-Origin", corsOrigin);
+   headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
+   headers.set("Access-Control-Allow-Headers", "Authorization, Content-Type, apikey, x-client-info, x-supabase-api-version, Prefer, Range");
+   headers.set("Access-Control-Expose-Headers", "Content-Range, Range, X-Total-Count");
+   headers.set("Vary", "Origin");
+   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  }
   if (request.method === "POST" && requestUrl.pathname.endsWith("/verify-turnstile")) {
    try {
     if (!env.TURNSTILE_SECRET) return json({ success: false, error: "verification_not_configured" }, 503);
