@@ -44,6 +44,7 @@ Deno.serve(async (req: Request) => {
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: existing } = await admin.from("security_login_events").select("*").eq("user_id", authData.user.id).eq("session_id", sessionId).maybeSingle();
+  const { data: previousLogin } = await admin.from("security_login_events").select("id").eq("user_id", authData.user.id).neq("session_id", sessionId).limit(1).maybeSingle();
   const ua = req.headers.get("user-agent") || String(body.user_agent || "");
   const details = deviceDetails(ua);
   const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
@@ -69,7 +70,7 @@ Deno.serve(async (req: Request) => {
   const timestamp = new Date(event.created_at).toLocaleString("fa-IR", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Tehran" });
   const ipLabel = event.ip_address || "به دلایل حریم خصوصی یا محدودیت شبکه در دسترس نبود";
   const accountAgeMs = Date.now() - new Date(authData.user.created_at).getTime();
-  const isSignup = String(body.event || "") === "SIGNED_UP" || (Number.isFinite(accountAgeMs) && accountAgeMs >= 0 && accountAgeMs < 180000);
+  const isSignup = String(body.event || "") === "SIGNED_UP" || (!previousLogin && Number.isFinite(accountAgeMs) && accountAgeMs >= 0 && accountAgeMs < 180000);
   const content = [
     isSignup ? "🎉 به وایرو خوش آمدی!" : "🔐 هشدار امنیتی حساب وایرو",
     "",
@@ -114,5 +115,5 @@ Deno.serve(async (req: Request) => {
     });
     if (messageError) return reply({ error: "Security event recorded but support alert could not be saved" }, 500);
   }
-  return reply({ ok: true, duplicate: !!existing, event: { ...event, support_conversation_id: conversation.id } });
+  return reply({ ok: true, duplicate: !!priorMessage, event: { ...event, support_conversation_id: conversation.id } });
 });
