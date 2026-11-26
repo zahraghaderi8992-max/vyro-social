@@ -105,6 +105,19 @@ export default function VyroIntelligence({ session, onNotice }) {
   }, [userId]);
 
   useEffect(() => {
+    const openSupport = () => {
+      const latest = conversations.find(item => item.service === 'support' && !item.archived);
+      setService('support');
+      setActiveId(latest?.id || null);
+      setMessages(latest ? [] : [{ role: 'assistant', text: SERVICE_LIST[1].intro }]);
+      setSettingsOpen(false);
+      setHistoryOpen(false);
+    };
+    window.addEventListener('vyro-open-support', openSupport);
+    return () => window.removeEventListener('vyro-open-support', openSupport);
+  }, [conversations]);
+
+  useEffect(() => {
     if (!activeId || !userId || !supabaseReady) {
       setMessages([]);
       return;
