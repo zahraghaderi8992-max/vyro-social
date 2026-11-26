@@ -44,25 +44,29 @@ Deno.serve(async (req: Request) => {
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: existing } = await admin.from("security_login_events").select("*").eq("user_id", authData.user.id).eq("session_id", sessionId).maybeSingle();
-  if (existing) return reply({ ok: true, duplicate: true, event: existing });
+  if (existing?.support_conversation_id) return reply({ ok: true, duplicate: true, event: existing });
 
   const ua = req.headers.get("user-agent") || String(body.user_agent || "");
   const details = deviceDetails(ua);
   const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
   const entryPath = String(body.entry_path || "Vyro").slice(0, 250);
   const loginMethod = String(body.login_method || "unknown").slice(0, 60);
-  const { data: event, error: insertError } = await admin.from("security_login_events").insert({
-    user_id: authData.user.id,
-    session_id: sessionId,
-    login_method: loginMethod,
-    platform: details.platform,
-    device_model: String(body.device_model || details.model).slice(0, 140),
-    browser: String(body.browser || details.browser).slice(0, 80),
-    entry_path: entryPath,
-    ip_address: ip,
-    user_agent: ua.slice(0, 1000)
-  }).select("*").single();
-  if (insertError) return reply({ error: "Could not record security event", details: insertError.message }, 500);
+  let event = existing;
+  if (!event) {
+    const { data, error: insertError } = await admin.from("security_login_events").insert({
+      user_id: authData.user.id,
+      session_id: sessionId,
+      login_method: loginMethod,
+      platform: details.platform,
+      device_model: String(body.device_model || details.model).slice(0, 140),
+      browser: String(body.browser || details.browser).slice(0, 80),
+      entry_path: entryPath,
+      ip_address: ip,
+      user_agent: ua.slice(0, 1000)
+    }).select("*").single();
+    if (insertError) return reply({ error: "Could not record security event", details: insertError.message }, 500);
+    event = data;
+  }
 
   const timestamp = new Date(event.created_at).toLocaleString("fa-IR", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Tehran" });
   const ipLabel = event.ip_address || "به دلایل حریم خصوصی یا محدودیت شبکه در دسترس نبود";
@@ -86,14 +90,23 @@ Deno.serve(async (req: Request) => {
     "رمز عبورت را تغییر بده و کد ورود یا رمز یک‌بارمصرفت را در اختیار هیچ‌کس نگذار. پشتیبانی وایرو هرگز این اطلاعات را از تو نمی‌خواهد."
   ].join("\n");
 
-  const { data: conversation, error: conversationError } = await admin.from("vyro_ai_conversations").insert({
-    user_id: authData.user.id,
-    service: "support",
-    title: (isSignup ? "خوش‌آمدگویی و امنیت حساب" : "هشدار امنیتی ورود") + " · " + details.platform,
-    archived: false
-  }).select("id").single();
+  let conversation = event.support_conversation_id ? { id: event.support_conversation_id } : null;
+  if (!conversation) {
+    const { data, error: conversationError } = await admin.from("vyro_ai_conversations").insert({
+      user_id: authData.user.id,
+      service: "support",
+      title: (isSignup ? "خوش‌آمدگویی و امنیت حساب" : "هشدار امنیتی ورود") + " · " + details.platform,
+      archived: false
+    }).select("id").single();
+    if (conversationError || !data) return reply({ error: "Security event recorded but support conversation could not be created" }, 500);
+    conversation = data;
+    await admin.from("security_login_events").update({ support_conversation_id: conversation.id }).eq("id", event.id);
+  }
 
-  if (!conversationError && conversation) {
+  const { data: priorMessage } = await admin.from("vyro_ai_messages").select("id")
+    .eq("conversation_id", conversation.id).eq("user_id", authData.user.id)
+    .contains("attachments", [{ kind: "security_login_event", event_id: event.id }]).maybeSingle();
+  if (!priorMessage) {
     const { error: messageError } = await admin.from("vyro_ai_messages").insert({
       conversation_id: conversation.id,
       user_id: authData.user.id,
@@ -101,9 +114,7 @@ Deno.serve(async (req: Request) => {
       content,
       attachments: [{ kind: "security_login_event", event_id: event.id }]
     });
-    if (!messageError) {
-      await admin.from("security_login_events").update({ support_conversation_id: conversation.id }).eq("id", event.id);
-    }
+    if (messageError) return reply({ error: "Security event recorded but support alert could not be saved" }, 500);
   }
-  return reply({ ok: true, duplicate: false, event: { ...event, support_conversation_id: conversation?.id || null } });
+  return reply({ ok: true, duplicate: !!existing, event: { ...event, support_conversation_id: conversation.id } });
 });
