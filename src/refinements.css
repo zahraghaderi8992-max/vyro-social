@@ -1581,3 +1581,58 @@ input[type=file]{
 .saved-self-compose-actions{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .saved-source-open{border:0;background:transparent;color:#e4c75b;font-size:11px;padding:6px 0;cursor:pointer}
 .saved-message-delete{margin-inline-start:8px}
+
+
+/* Chat folder pills: larger, smoky glass with clear category icons */
+.chat-kind-shortcuts.chat-folders{
+  display:flex!important;align-items:center;gap:9px!important;
+  width:100%;margin:12px 0 16px!important;padding:5px 2px 9px;
+  overflow-x:auto;overflow-y:hidden;scrollbar-width:thin;
+  scrollbar-color:rgba(210,210,210,.25) transparent;
+  -webkit-overflow-scrolling:touch;
+}
+.chat-kind-shortcuts.chat-folders button{
+  flex:0 0 auto!important;min-height:48px;min-width:94px;
+  display:inline-flex!important;align-items:center;justify-content:center;gap:8px;
+  padding:11px 17px!important;border-radius:999px!important;
+  border:1px solid rgba(205,211,216,.20)!important;
+  background:linear-gradient(145deg,rgba(100,106,112,.24),rgba(52,57,62,.19))!important;
+  color:#d5d8da!important;font-size:12px!important;font-weight:600;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 5px 15px rgba(0,0,0,.18);
+  backdrop-filter:blur(16px) saturate(135%);-webkit-backdrop-filter:blur(16px) saturate(135%);
+  transition:background .18s,border-color .18s,box-shadow .18s,transform .18s;
+}
+.chat-kind-shortcuts.chat-folders button svg{flex:0 0 auto;color:#c4c9cc;opacity:.95}
+.chat-kind-shortcuts.chat-folders button.selected{
+  border-color:rgba(230,197,47,.64)!important;
+  background:linear-gradient(145deg,rgba(230,197,47,.20),rgba(105,91,29,.20))!important;
+  color:#f3dc70!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 0 0 1px rgba(230,197,47,.12),0 7px 20px rgba(0,0,0,.22);
+}
+.chat-kind-shortcuts.chat-folders button.selected svg{color:#f3d54b}
+.chat-list .search-box,.saved-self-toolbar input,.saved-self-compose textarea,
+.chat-list input:not([type=checkbox]),.chat-compose input,.chat-compose textarea{
+  background:linear-gradient(145deg,rgba(77,83,89,.30),rgba(48,53,58,.34))!important;
+  border:1px solid rgba(190,198,204,.22)!important;color:#e5e8e9!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.045),0 5px 15px rgba(0,0,0,.14)!important;
+}
+.chat-list .search-box input{background:transparent!important;box-shadow:none!important;border:0!important}
+.chat-list input::placeholder,.saved-self-toolbar input::placeholder,
+.saved-self-compose textarea::placeholder{color:rgba(220,225,228,.48)!important}
+.mobile-nav{
+  position:fixed!important;z-index:60!important;left:0!important;right:0!important;
+  bottom:0!important;width:100vw!important;max-width:100vw!important;
+  box-sizing:border-box!important;margin:0!important;
+  display:flex!important;justify-content:space-around!important;
+  align-items:center!important;
+  padding-left:max(10px,env(safe-area-inset-left))!important;
+  padding-right:max(10px,env(safe-area-inset-right))!important;
+  background:rgba(15,17,19,.94)!important;
+  border-top:1px solid rgba(205,211,216,.18)!important;
+  backdrop-filter:blur(22px) saturate(140%)!important;
+  -webkit-backdrop-filter:blur(22px) saturate(140%)!important;
+}
+.mobile-nav button{flex:1 1 0!important;min-width:0!important;max-width:none!important}
+@media(max-width:700px){
+ .chat-kind-shortcuts.chat-folders button{min-width:98px;min-height:50px;padding:12px 17px!important;font-size:12px!important}
+ .chat-kind-shortcuts.chat-folders{gap:8px!important;margin:10px 0 15px!important}
+}
