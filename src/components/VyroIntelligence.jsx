@@ -128,7 +128,8 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
 
   useEffect(() => {
     if (!activeId || !userId || !supabaseReady) {
-      setMessages([]);
+      const descriptor = SERVICE_LIST.find(item => item.id === initialService) || SERVICE_LIST[0];
+      setMessages([{ role: 'assistant', text: descriptor.intro }]);
       return;
     }
     let live = true;
