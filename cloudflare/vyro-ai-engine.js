@@ -13,7 +13,8 @@ export default {
   const cors = {
    "Access-Control-Allow-Origin": corsOrigin,
    "Access-Control-Allow-Methods": "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-   "Access-Control-Allow-Headers": "Authorization, Content-Type, apikey",
+   "Access-Control-Allow-Headers": "Authorization, Content-Type, apikey, x-client-info, x-supabase-api-version, Prefer, Range",
+   "Access-Control-Expose-Headers": "Content-Range, Range, X-Total-Count",
    "Vary": "Origin"
   };
   const json = (data, status) => new Response(JSON.stringify(data), {
@@ -70,7 +71,7 @@ export default {
     const verifyResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
     if (!verifyResponse.ok) return json({ success: false, error: "verification_unavailable" }, 502);
     const result = await verifyResponse.json();
-    const valid = result?.success === true && result?.action === "signup" && ["zahraghaderi8992-max.github.io", "vyro-web-b9p.pages.dev", "localhost"].includes(result?.hostname);
+    const valid = result?.success === true && result?.action === "signup" && ["zahraghaderi8992-max.github.io", "vyro-web-b9p.pages.dev", "vyro-ai-engine.vyro-social.workers.dev", "localhost"].includes(result?.hostname);
     return json({ success: valid, error: valid ? undefined : "verification_failed" }, valid ? 200 : 403);
    } catch (error) {
     console.error("Turnstile verification failed", error);
