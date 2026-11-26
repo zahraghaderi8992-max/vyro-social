@@ -41,6 +41,17 @@ export default {
     return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
    }
   }
+  // Vite's GitHub Pages build emits absolute /vyro-social/ asset paths.
+  // Route those assets through this Worker too, so /app/ works as a complete mirror.
+  if ((request.method === "GET" || request.method === "HEAD") && requestUrl.pathname.startsWith("/vyro-social/")) {
+   const suffix = requestUrl.pathname.slice("/vyro-social".length);
+   const upstreamUrl = new URL("https://zahraghaderi8992-max.github.io/vyro-social" + suffix);
+   upstreamUrl.search = requestUrl.search;
+   const upstream = await fetch(new Request(upstreamUrl.toString(), request));
+   const headers = new Headers(upstream.headers);
+   headers.set("X-Vyro-Delivery", "cloudflare-worker-fallback");
+   return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
+  }
   // Proxy Supabase HTTP and WebSocket traffic through the same host used by the app.
   if (requestUrl.pathname === "/supabase" || requestUrl.pathname.startsWith("/supabase/")) {
    const suffix = requestUrl.pathname.slice("/supabase".length) || "/";
