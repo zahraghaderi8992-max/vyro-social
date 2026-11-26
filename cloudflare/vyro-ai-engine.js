@@ -48,10 +48,11 @@ export default {
    upstreamUrl.search = requestUrl.search;
    const upstreamRequest = new Request(upstreamUrl.toString(), request);
    const upstream = await fetch(upstreamRequest);
+   if (upstream.webSocket) return upstream;
    const headers = new Headers(upstream.headers);
    headers.set("Access-Control-Allow-Origin", corsOrigin);
    headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS");
-   headers.set("Access-Control-Allow-Headers", "Authorization, Content-Type, apikey, x-client-info, x-supabase-api-version, Prefer, Range");
+   headers.set("Access-Control-Allow-Headers", "Authorization, Content-Type, apikey, x-client-info, x-supabase-api-version, Prefer, Range, x-upsert, cache-control, content-range, x-storage-class");
    headers.set("Access-Control-Expose-Headers", "Content-Range, Range, X-Total-Count");
    headers.set("Vary", "Origin");
    return new Response(upstream.body, { status: upstream.status, statusText: upstream.statusText, headers });
