@@ -1567,3 +1567,5 @@ input[type=file]{
 .chat-layout:has(.saved-self-chat) .chat-window{display:none!important}
 .chat-layout:has(.saved-self-chat) .chat-list{width:100%!important;max-width:100%!important;flex:1 1 100%!important}
 .chat-layout:has(.saved-self-chat){grid-template-columns:minmax(0,1fr)!important}
+
+.verified-badge.verified-admin{background:#9b7cf2;color:#160d2b}

@@ -207,7 +207,7 @@ export default function App(){
  const verifiedBadge=(username,email='')=>{
   if(!isVerifiedAccount(username,email))return null;
   const id=String(username||'').replace(/^@/,'').toLowerCase();
-  const rank=id==='mohammad0900'?'owner':'official';
+  const rank=id==='mohammad0900'?'owner':'admin';
   return <span className={'verified-badge verified-'+rank} title="حساب رسمی تأییدشدهٔ وایرو" aria-label="حساب رسمی تأییدشدهٔ وایرو"><ShieldCheck size={12}/></span>;
  };
 
