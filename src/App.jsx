@@ -731,7 +731,7 @@ export default function App(){
   let uploadedPath='';
   try{
    const safeName=(file.name||'saved-file').replace(/[^a-zA-Z0-9._-]/g,'_');
-   uploadedPath=`${session.user.id}/saved/${Date.now()}-${safeName}`;
+   uploadedPath=`${session.user.id}/00000000-0000-0000-0000-000000000000/saved/${Date.now()}-${safeName}`;
    const {error:uploadError}=await supabase.storage.from('chat-files').upload(uploadedPath,file,{upsert:false,contentType:file.type||undefined});
    if(uploadError)throw uploadError;
    const type=file.type.startsWith('image/')?'image':file.type.startsWith('video/')?'video':file.type.startsWith('audio/')?'audio':'file';
@@ -759,6 +759,8 @@ export default function App(){
  async function deleteSavedMessageItem(item){
   const {error}=await supabase.from('saved_message_items').delete().eq('id',item.id).eq('user_id',session.user.id);
   if(error){setNotice('حذف پیام ذخیره‌شده ناموفق بود: '+error.message);return}
+  const path=item.file_path||item.file_url||'';
+  if(path&&!/^https?:\\/\\//i.test(path))await supabase.storage.from('chat-files').remove([path]);
   setSavedMessageItems(v=>v.filter(x=>x.id!==item.id));
  }
  async function saveSavedMessageNote(){
