@@ -7,6 +7,7 @@ import VyroIntelligence from './components/VyroIntelligence';
 
 // UI scaffold stays hidden until explicitly enabled in the deployment environment.
 const OTP_AUTH_UI_ENABLED = import.meta.env.VITE_VYRO_OTP_AUTH_UI_ENABLED === 'true';
+const TURNSTILE_SITEKEY = '0x4AAAAAAGUmMk4AMNfb8FYc';
 
 const seedConversations = [];
 const serviceChatAccounts = [
@@ -180,6 +181,7 @@ export default function App(){
  const [musicIsPlaying,setMusicIsPlaying]=useState(false);
  const [chatPreviewOpen,setChatPreviewOpen]=useState(false);
  const [notRobot,setNotRobot]=useState(false);
+ const [turnstileToken,setTurnstileToken]=useState('');
  const [termsAccepted,setTermsAccepted]=useState(false);
  const [showRules,setShowRules]=useState(false);
  const [aiLoading,setAiLoading]=useState(false);
@@ -219,6 +221,18 @@ export default function App(){
  };
 
  useEffect(()=>{if(!notice||!settings.toast)return;const t=setTimeout(()=>setNotice(''),6500);return()=>clearTimeout(t)},[notice,settings.toast]);
+ useEffect(()=>{
+  if(authMode!=='signup')return;
+  let disposed=false,widgetId=null;
+  const renderWidget=()=>{
+   const node=document.getElementById('vyro-turnstile-widget');
+   if(disposed||!node||!window.turnstile||widgetId!==null)return;
+   widgetId=window.turnstile.render(node,{sitekey:TURNSTILE_SITEKEY,theme:'dark',size:'flexible',action:'signup',callback:token=>{setTurnstileToken(token);setNotRobot(true)},'expired-callback':()=>{setTurnstileToken('');setNotRobot(false)},'error-callback':()=>{setTurnstileToken('');setNotRobot(false);setNotice('تأیید امنیتی Cloudflare بارگذاری نشد؛ دوباره تلاش کن.')}});
+  };
+  let script=document.querySelector('script[data-vyro-turnstile]');
+  if(!script){script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.dataset.vyroTurnstile='true';script.onload=renderWidget;document.head.appendChild(script)}else{script.addEventListener('load',renderWidget);renderWidget()}
+  return()=>{disposed=true;if(widgetId!==null&&window.turnstile)window.turnstile.remove(widgetId);script?.removeEventListener('load',renderWidget)};
+ },[authMode]);
  useEffect(()=>{try{localStorage.removeItem('vyro-spotify-token');localStorage.removeItem('vyro-spotify-client-id');localStorage.removeItem('vyro-spotify-pkce-verifier');localStorage.removeItem('vyro-spotify-oauth-state')}catch{}},[]);
  useEffect(()=>{const key='vyro-music-favorites-'+(session?.user?.id||'guest');const remote=session?.user?.user_metadata?.music_favorites;if(Array.isArray(remote)){setMusicFavorites(remote);try{localStorage.setItem(key,JSON.stringify(remote))}catch{};return}try{setMusicFavorites(JSON.parse(localStorage.getItem(key)||'[]'))}catch{setMusicFavorites([])}},[session?.user?.id,session?.user?.user_metadata?.music_favorites]);
  useEffect(()=>{const key='vyro-music-albums-'+(session?.user?.id||'guest');const remote=session?.user?.user_metadata?.music_albums;if(Array.isArray(remote)){setMusicAlbums(remote);try{localStorage.setItem(key,JSON.stringify(remote))}catch{};return}try{setMusicAlbums(JSON.parse(localStorage.getItem(key)||'[]'))}catch{setMusicAlbums([])}},[session?.user?.id,session?.user?.user_metadata?.music_albums]);
@@ -577,7 +591,11 @@ export default function App(){
   if(!supabaseReady){setNotice('اتصال آنلاین آماده نیست. مدیر پروژه باید Secrets مربوط به Supabase را در GitHub تنظیم کند.');setBusy(false);return}
   try{
    if(authMode==='signup'){
-    if(!notRobot){setNotice('لطفاً تأیید کن که ربات نیستی.');setBusy(false);return}
+    if(!turnstileToken){setNotice('لطفاً تأیید امنیتی Cloudflare را کامل کن.');setBusy(false);return}
+    const turnstileCheck=await fetch('https://vyro-ai-engine.vyro-social.workers.dev/verify-turnstile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:turnstileToken})});
+    const turnstileResult=await turnstileCheck.json().catch(()=>({success:false}));
+    if(!turnstileCheck.ok||turnstileResult.success!==true){setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();throw new Error('تأیید Cloudflare معتبر نبود؛ لطفاً دوباره تأیید کن.')}
+    setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();
     if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
     const normalizedReferralCode=referralCode.trim().toUpperCase();if(!normalizedReferralCode){setNotice('وارد کردن کد دعوت برای ثبت‌نام الزامی است.');setBusy(false);return}
     const username=email.trim().replace(/^@/,'').toLowerCase();
@@ -1187,7 +1205,7 @@ export default function App(){
   <p className="welcome-desc">{authMode==='welcome'?'به وایرو خوش اومدی؛ جایی برای آدم‌ها، ایده‌ها و ارتباط‌های تازه.':authMode==='signup'?'برای ساخت حساب، نام کاربری، رمز عبور و کد دعوت معتبر لازم است.':'با حساب وایرو ادامه بده.'}</p>
   {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام رایگان <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button></div>:<form className="auth-form" onSubmit={authenticate}>
    <button type="button" className="auth-back" onClick={()=>setAuthMode('welcome')}><ChevronLeft size={17}/> بازگشت</button>
-   {authMode==='signup'&&<><label>کد دعوت <small className="optional-field-note">وارد کردن کد دعوت معتبر الزامی است.</small><input required value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد دعوت یکی از کاربران وایرو" autoCapitalize="characters"/></label><div className="signup-checks"><label className="check-row"><input type="checkbox" checked={notRobot} onChange={e=>setNotRobot(e.target.checked)}/><span><b>من ربات نیستم</b><small>تأیید ساده؛ برای محافظت واقعی باید CAPTCHA سمت سرور فعال شود.</small></span></label><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
+   {authMode==='signup'&&<><label>کد دعوت <small className="optional-field-note">وارد کردن کد دعوت معتبر الزامی است.</small><input required value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد دعوت یکی از کاربران وایرو" autoCapitalize="characters"/></label><div className="signup-checks"><div className="vyro-turnstile-wrap"><div id="vyro-turnstile-widget"/><small>تأیید امنیتی ثبت‌نام با Cloudflare</small></div><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
    <label>نام کاربری<input type="text" value={email} onChange={e=>setEmail(e.target.value)} placeholder="مثلاً mohammad0900" autoCapitalize="none" autoComplete="username" minLength={3} maxLength={24} required/></label>
    {OTP_AUTH_UI_ENABLED&&<AuthContactMethod value={authContactMethod} onChange={setAuthContactMethod} contact={authContact} onContactChange={setAuthContact} code={authOtpCode} onCodeChange={setAuthOtpCode}/>}
    <label>رمز عبور<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="حداقل ۶ کاراکتر" autoComplete={authMode==='signup'?'new-password':'current-password'} minLength={6} required/></label>
