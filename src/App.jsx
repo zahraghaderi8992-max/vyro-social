@@ -592,12 +592,14 @@ export default function App(){
   try{
    if(authMode==='signup'){
     if(!turnstileToken){setNotice('لطفاً تأیید امنیتی Cloudflare را کامل کن.');setBusy(false);return}
-    const signupCaptchaToken=turnstileToken;
+    const captchaResponse=await fetch('https://vyro-ai-engine.vyro-social.workers.dev/verify-turnstile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:turnstileToken})});
+    const captchaResult=await captchaResponse.json().catch(()=>({success:false}));
+    if(!captchaResponse.ok||captchaResult.success!==true)throw new Error('تأیید امنیتی Cloudflare معتبر نبود؛ دوباره ربات‌سنجی را انجام بده.');
     if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
     const normalizedReferralCode=referralCode.trim().toUpperCase();if(!normalizedReferralCode){setNotice('وارد کردن کد دعوت برای ثبت‌نام الزامی است.');setBusy(false);return}
     const username=email.trim().replace(/^@/,'').toLowerCase();
     if(!/^[a-z0-9_.]{3,24}$/.test(username))throw new Error('نام کاربری باید ۳ تا ۲۴ حرف انگلیسی، عدد، نقطه یا زیرخط باشد.');
-    const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{captchaToken:signupCaptchaToken,data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
+    const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
     setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();
     if(error)throw error;
     setNotice(data.session?'ثبت‌نام انجام شد.':'حساب ساخته شد و آمادهٔ ورود است؛ حالا با نام کاربری و رمزت وارد شو.');
