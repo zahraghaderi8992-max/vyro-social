@@ -1636,3 +1636,14 @@ input[type=file]{
  .chat-kind-shortcuts.chat-folders button{min-width:98px;min-height:50px;padding:12px 17px!important;font-size:12px!important}
  .chat-kind-shortcuts.chat-folders{gap:8px!important;margin:10px 0 15px!important}
 }
+
+/* Dedicated service accounts embedded in the Chat tab */
+.service-account-chat{min-width:0;overflow:hidden}
+.service-account-chat>.chat-top{flex-shrink:0}
+.vyro-intel-embedded{flex:1;min-height:0;height:100%;margin:0;border:0;border-radius:0;background:transparent;box-shadow:none;display:flex;flex-direction:column;overflow:hidden}
+.vyro-intel-embedded .vyro-intel-head{display:none}
+.vyro-intel-embedded .vyro-intel-services{display:none}
+.vyro-intel-embedded .vyro-intel-messages{flex:1;min-height:0;overflow-y:auto}
+.vyro-intel-embedded .vyro-intel-compose{flex-shrink:0}
+.toast-progress{animation:vyro-toast-life 6.5s linear forwards}
+@keyframes vyro-toast-life{from{transform:scaleX(1)}to{transform:scaleX(0)}}
