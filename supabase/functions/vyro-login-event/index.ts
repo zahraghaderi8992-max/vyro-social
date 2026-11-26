@@ -66,10 +66,12 @@ Deno.serve(async (req: Request) => {
 
   const timestamp = new Date(event.created_at).toLocaleString("fa-IR", { dateStyle: "full", timeStyle: "short", timeZone: "Asia/Tehran" });
   const ipLabel = event.ip_address || "به دلایل حریم خصوصی یا محدودیت شبکه در دسترس نبود";
+  const accountAgeMs = Date.now() - new Date(authData.user.created_at).getTime();
+  const isSignup = String(body.event || "") === "SIGNED_UP" || (Number.isFinite(accountAgeMs) && accountAgeMs >= 0 && accountAgeMs < 180000);
   const content = [
-    "🔐 هشدار امنیتی حساب وایرو",
+    isSignup ? "🎉 به وایرو خوش آمدی!" : "🔐 هشدار امنیتی حساب وایرو",
     "",
-    "یک ورود جدید به حساب تو ثبت شد.",
+    isSignup ? "حساب وایرو برای تو ساخته شد و اولین نشستت ثبت شد." : "یک ورود جدید به حساب تو ثبت شد.",
     "• تاریخ و ساعت: " + timestamp,
     "• روش ورود: " + loginMethod,
     "• پلتفرم: " + details.platform,
@@ -87,7 +89,7 @@ Deno.serve(async (req: Request) => {
   const { data: conversation, error: conversationError } = await admin.from("vyro_ai_conversations").insert({
     user_id: authData.user.id,
     service: "support",
-    title: "هشدار امنیتی ورود · " + details.platform,
+    title: (isSignup ? "خوش‌آمدگویی و امنیت حساب" : "هشدار امنیتی ورود") + " · " + details.platform,
     archived: false
   }).select("id").single();
 
