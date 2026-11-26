@@ -1647,3 +1647,7 @@ input[type=file]{
 .vyro-intel-embedded .vyro-intel-compose{flex-shrink:0}
 .toast-progress{animation:vyro-toast-life 6.5s linear forwards}
 @keyframes vyro-toast-life{from{transform:scaleX(1)}to{transform:scaleX(0)}}
+
+.vyro-turnstile-wrap{display:grid;justify-items:center;gap:7px;padding:12px;border:1px solid #ffffff20;border-radius:14px;background:rgba(110,115,125,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
+.vyro-turnstile-wrap>div{max-width:100%;min-height:65px}
+.vyro-turnstile-wrap small{color:#b7bac4;font-size:11px;text-align:center}
