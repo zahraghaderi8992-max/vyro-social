@@ -750,7 +750,7 @@ export default function App(){
   const selected=savedMessageItems.filter(item=>selectedSavedMessageIds.includes(item.id));
   const {error}=await supabase.from('saved_message_items').delete().eq('user_id',session.user.id).in('id',selectedSavedMessageIds);
   if(error){setNotice('حذف پیام‌های انتخاب‌شده ناموفق بود: '+error.message);return}
-  const paths=selected.map(item=>item.file_path||item.file_url).filter(path=>path&&!/^https?:\/\//i.test(path));
+  const paths=selected.filter(item=>item.metadata?.owned_file||item.metadata?.origin==='self-chat').map(item=>item.file_path||item.file_url).filter(path=>path&&!/^https?:\/\//i.test(path));
   if(paths.length)await supabase.storage.from('chat-files').remove(paths);
   setSavedMessageItems(v=>v.filter(item=>!selectedSavedMessageIds.includes(item.id)));
   setSelectedSavedMessageIds([]);setNotice('پیام‌های انتخاب‌شده حذف شدند.');
@@ -760,7 +760,7 @@ export default function App(){
   const {error}=await supabase.from('saved_message_items').delete().eq('id',item.id).eq('user_id',session.user.id);
   if(error){setNotice('حذف پیام ذخیره‌شده ناموفق بود: '+error.message);return}
   const path=item.file_path||item.file_url||'';
-  if(path&&!/^https?:\/\//i.test(path))await supabase.storage.from('chat-files').remove([path]);
+  if((item.metadata?.owned_file||item.metadata?.origin==='self-chat')&&path&&!/^https?:\/\//i.test(path))await supabase.storage.from('chat-files').remove([path]);
   setSavedMessageItems(v=>v.filter(x=>x.id!==item.id));
  }
  async function saveSavedMessageNote(){
@@ -793,14 +793,25 @@ export default function App(){
     setNotice('پیام از Saved Messages برداشته شد.');return;
    }
    const rawFile=message.file_path||message.file_url||'';
+   let savedFilePath=rawFile||null;
+   let ownsSavedFile=false;
+   if(rawFile&&!/^https?:\/\//i.test(rawFile)){
+    const {data:sourceBlob,error:downloadError}=await supabase.storage.from('chat-files').download(rawFile);
+    if(downloadError||!sourceBlob){setNotice('فایل اصلی در دسترس نیست و در Saved Messages کپی نشد.');return}
+    const safeName=rawFile.split('/').pop().replace(/[^a-zA-Z0-9._-]/g,'_');
+    savedFilePath=session.user.id+'/00000000-0000-0000-0000-000000000000/saved/'+Date.now()+'-'+safeName;
+    const {error:copyError}=await supabase.storage.from('chat-files').upload(savedFilePath,sourceBlob,{upsert:false,contentType:sourceBlob.type||undefined});
+    if(copyError){setNotice('کپی فایل به Saved Messages انجام نشد: '+copyError.message);return}
+    ownsSavedFile=true;
+   }
    const {data,error}=await supabase.from('saved_message_items').insert({
-    user_id:session.user.id,content:message.text||'',file_url:rawFile||null,
+    user_id:session.user.id,content:message.text||'',file_url:savedFilePath,
     message_type:message.message_type||'text',source_conversation_id:String(chatId||'').startsWith('local-')?null:chatId,
     source_message_id:sourceId.startsWith('local-')?null:(sourceId||null),source_title:conversations.find(c=>c.id===chatId)?.name||'گفت‌وگو',
-    metadata:{sender:message.from||'unknown',saved_from:'chat'}
+    metadata:{sender:message.from||'unknown',saved_from:'chat',origin:ownsSavedFile?'saved-forward':'chat-reference',owned_file:ownsSavedFile,original_file_path:rawFile||null}
    }).select('id,content,file_url,message_type,source_conversation_id,source_message_id,source_title,metadata,created_at').single();
-   if(error){setNotice('ذخیرهٔ پیام انجام نشد: '+error.message);return}
-   setSavedMessageItems(v=>[data,...v]);setNotice('پیام در Saved Messages ذخیره شد و بین دستگاه‌ها همگام می‌شود.');return
+   if(error){if(ownsSavedFile&&savedFilePath)await supabase.storage.from('chat-files').remove([savedFilePath]);setNotice('ذخیرهٔ پیام انجام نشد: '+error.message);return}
+   setSavedMessageItems(v=>[{...data,file_path:savedFilePath},...v]);setNotice('پیام و پیوست آن در Saved Messages کپی شد.');return
   }
 
   if(action==='reply'){setReplyTarget(message);setEditingMessage(null);chatInputRef.current?.focus();return}
