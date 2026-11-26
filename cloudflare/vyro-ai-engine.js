@@ -100,13 +100,65 @@ export default {
    const tone = ["friendly", "professional", "creative", "concise"].includes(preferences.tone) ? preferences.tone : "friendly";
    const language = ["fa", "en", "auto"].includes(preferences.language) ? preferences.language : "auto";
    const snapshot = body && body.projectSnapshot && typeof body.projectSnapshot === "object" ? body.projectSnapshot : {};
+   let githubLive = { available: false, reason: "وضعیت GitHub از داخل Worker قابل دریافت نشد." };
+   if (service === "status") {
+    try {
+     const ghHeaders = {
+      "Accept": "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+      "User-Agent": "Vyro-Independent-AI"
+     };
+     const ghResults = await Promise.all([
+      fetch("https://api.github.com/repos/zahraghaderi8992-max/vyro-social/commits/main", { headers: ghHeaders }),
+      fetch("https://api.github.com/repos/zahraghaderi8992-max/vyro-social/actions/runs?branch=main&per_page=8", { headers: ghHeaders })
+     ]);
+     const commitInfo = ghResults[0].ok ? await ghResults[0].json() : null;
+     const actionInfo = ghResults[1].ok ? await ghResults[1].json() : null;
+     if (commitInfo || actionInfo) {
+      githubLive = {
+       available: true,
+       source: "GitHub REST API",
+       checked_at: new Date().toISOString(),
+       branch: "main",
+       latest_commit: commitInfo ? {
+        sha: commitInfo.sha,
+        message: commitInfo.commit && commitInfo.commit.message,
+        committed_at: commitInfo.commit && commitInfo.commit.author && commitInfo.commit.author.date,
+        url: commitInfo.html_url
+       } : null,
+       latest_workflows: actionInfo && Array.isArray(actionInfo.workflow_runs) ? actionInfo.workflow_runs.slice(0, 8).map(run => ({
+        name: run.name,
+        status: run.status,
+        conclusion: run.conclusion,
+        created_at: run.created_at,
+        head_sha: run.head_sha,
+        url: run.html_url
+       })) : [],
+       note: "اگر مخزن خصوصی یا API محدود باشد، اطلاعات ناقص است."
+      };
+     }
+    } catch (githubError) {
+     githubLive = { available: false, reason: "GitHub API در دسترس نبود: " + String(githubError && githubError.message || githubError).slice(0, 160) };
+    }
+   }
+   const liveSnapshot = {
+    ...snapshot,
+    githubLive,
+    aiEngine: {
+     provider: "Cloudflare Workers AI",
+     status: "این درخواست به Worker رسیده و مدل برای پاسخ فراخوانی می‌شود.",
+     tier: tier,
+     model: tier === "proplus" ? "@cf/meta/llama-3.3-70b-instruct-fp8-fast" : tier === "plus" ? "@cf/meta/llama-3.1-8b-instruct-fast" : "@cf/meta/llama-3.2-3b-instruct",
+     openai_api_key_required: false
+    }
+   };
 
    const base = "تو یکی از سرویس‌های هوشمند مستقل وایرو هستی. پاسخ را به زبان کاربر بده؛ فارسی زبان پیش‌فرض است. دقیق، صادق، امن و کاربردی باش. هرگز ادعا نکن کاری را اجرا، ذخیره، بررسی یا deploy کرده‌ای مگر واقعاً در همین درخواست انجام شده باشد.";
    const prompts = {
     assistant: base + " نقش تو Vyro AI است؛ دستیار عمومی و چندمنظوره وایرو. برای آموزش، تحلیل، برنامه‌ریزی، نوشتن، حل مسئله و پرسش‌های عمومی کمک کن. اگر چیزی را نمی‌دانی شفاف بگو. لحن انتخاب‌شده: " + tone + ". زبان ترجیحی: " + language + ".",
     support: base + " نقش تو Vyro Support، پشتیبان اختصاصی محصول وایرو است؛ نه دستیار عمومی. راهنمایی‌ها را بر اساس این دانش‌نامه بده: وایرو یک شبکه اجتماعی با تب‌های اکسپلور، چت، هوش مصنوعی، موزیو و پروفایل است؛ ادمین‌ها پنل مدیریت جدا دارند. ثبت‌نام ممکن است به کد دعوت نیاز داشته باشد. چت از گفت‌وگوی خصوصی، گروه و کانال پشتیبانی می‌کند. پیام‌های ذخیره‌شده برای هر کاربر شخصی‌اند. اکسپلور شامل استوری و پست است. موزیو کتابخانه، علاقه‌مندی و آلبوم شخصی دارد. اگر مشکل حساب، پرداخت، امنیت، حذف حساب یا دسترسی پیش آمد، رمز عبور، کد یک‌بارمصرف یا توکن درخواست نکن؛ متن خطا، زمان تقریبی و نام بخش را بپرس. هرگز سیاست یا قابلیت تأییدنشده را قطعی معرفی نکن. برای حل‌نشدنی‌ها پیشنهاد بده از مسیر پشتیبانی انسانی/پیام به ادمین داخل وایرو پیگیری شود. پاسخ‌ها مرحله‌به‌مرحله و کوتاه باشند.",
     code: base + " نقش تو Vyro Code AI است؛ مهندس نرم‌افزار ارشد برای پروژه Vyro با React، Vite، Capacitor، Supabase و Cloudflare Workers AI. کدهای قابل اجرا، امن و منطبق با ساختار موجود پیشنهاد بده. پیش از تغییر، علت و فایل‌های درگیر را مشخص کن. اگر کد می‌نویسی زبان و مسیر فایل را ذکر کن و کد کامل بده. خطاها را با علت احتمالی، روش بازتولید و راه‌حل تفکیک کن. هرگز ادعا نکن فایل‌های مخزن را مستقیماً تغییر داده یا اجرا کرده‌ای. اجرای کد در sandbox در این چت فعال نیست؛ بنابراین خروجی را به‌عنوان اجراشده گزارش نکن. اولویت با حفظ معماری فعلی و branch main است.",
-    status: base + " تو چت اختصاصی «گزارش وضعیت کد زنده» در Vyro هستی. فقط گزارش وضعیت واقعی و قابل استناد پروژه و موتور هوش مصنوعی را ارائه کن. اطلاعات snapshot زیر از برنامه ارسال شده است: " + JSON.stringify(snapshot).slice(0, 6500) + ". branch ثبت‌شده پروژه main است. اگر commit یا وضعیت GitHub Actions در snapshot موجود نیست، صریح بگو از داخل برنامه قابل تأیید نیست؛ حدس نزن. وضعیت Worker و مدل فعال را از داده‌های snapshot تفکیک کن. گزارش را در چهار بخش بده: وضعیت فعلی، موارد سالم، موارد نیازمند بررسی، کار بعدی پیشنهادی. اگر کاربر گزارش تازه خواست، محدودیت اطلاعات زنده را روشن کن."
+    status: base + " تو چت اختصاصی «گزارش وضعیت کد زنده» در Vyro هستی. فقط گزارش وضعیت واقعی و قابل استناد پروژه و موتور هوش مصنوعی را ارائه کن. اطلاعات snapshot زیر از برنامه ارسال شده است: " + JSON.stringify(liveSnapshot).slice(0, 9000) + ". branch ثبت‌شده پروژه main است. اگر commit یا وضعیت GitHub Actions در snapshot موجود نیست، صریح بگو از داخل برنامه قابل تأیید نیست؛ حدس نزن. وضعیت Worker و مدل فعال را از داده‌های snapshot تفکیک کن. گزارش را در چهار بخش بده: وضعیت فعلی، موارد سالم، موارد نیازمند بررسی، کار بعدی پیشنهادی. اگر کاربر گزارش تازه خواست، محدودیت اطلاعات زنده را روشن کن."
    };
    let system = prompts[service];
    if (customInstructions && service === "assistant") system += " دستورهای شخصی‌سازی کاربر: " + customInstructions;
