@@ -90,6 +90,21 @@ export default function VyroIntelligence({ session, onNotice }) {
   }, [userId, notify]);
 
   useEffect(() => {
+    if (!userId || !supabaseReady) return;
+    const reloadSupportHistory = async () => {
+      const { data, error } = await supabase.from('vyro_ai_conversations')
+        .select('id,user_id,service,title,archived,created_at,updated_at')
+        .eq('user_id', userId).eq('service', 'support').order('updated_at', { ascending: false }).limit(120);
+      if (!error && data) setConversations(previous => {
+        const other = previous.filter(item => item.service !== 'support');
+        return [...other, ...data].sort((a,b) => new Date(b.updated_at||b.created_at)-new Date(a.updated_at||a.created_at));
+      });
+    };
+    window.addEventListener('vyro-security-event', reloadSupportHistory);
+    return () => window.removeEventListener('vyro-security-event', reloadSupportHistory);
+  }, [userId]);
+
+  useEffect(() => {
     if (!activeId || !userId || !supabaseReady) {
       setMessages([]);
       return;
