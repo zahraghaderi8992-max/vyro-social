@@ -31,11 +31,11 @@ function normalizeMessage(row) {
   return { id: row.id, role: row.role, text: row.content, created_at: row.created_at, attachments: row.attachments || [] };
 }
 
-export default function VyroIntelligence({ session, onNotice }) {
+export default function VyroIntelligence({ session, onNotice, initialService = 'assistant', lockedService = false, embedded = false }) {
   const userId = session?.user?.id;
   const verifiedTier = String(session?.user?.app_metadata?.vyro_tier || 'free').toLowerCase();
   const tier = verifiedTier === 'pro' ? 'plus' : (verifiedTier === 'plus' || verifiedTier === 'proplus' ? verifiedTier : 'free');
-  const [service, setService] = useState('assistant');
+  const [service, setService] = useState(initialService);
   const [conversations, setConversations] = useState([]);
   const [activeId, setActiveId] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -64,6 +64,8 @@ export default function VyroIntelligence({ session, onNotice }) {
     onNotice?.(message);
     window.setTimeout(() => setLocalNotice(''), 4200);
   }, [onNotice]);
+
+  useEffect(() => { if (initialService) setService(initialService); }, [initialService]);
 
   useEffect(() => {
     if (!userId || !supabaseReady) {
@@ -103,6 +105,13 @@ export default function VyroIntelligence({ session, onNotice }) {
     window.addEventListener('vyro-security-event', reloadSupportHistory);
     return () => window.removeEventListener('vyro-security-event', reloadSupportHistory);
   }, [userId]);
+
+  useEffect(() => {
+    if (lockedService && initialService && conversations.length) {
+      const latest = conversations.find(item => item.service === initialService && !item.archived);
+      if (latest && activeId !== latest.id) setActiveId(latest.id);
+    }
+  }, [lockedService, initialService, conversations]);
 
   useEffect(() => {
     const openSupport = () => {
@@ -300,9 +309,9 @@ export default function VyroIntelligence({ session, onNotice }) {
   const historyItems = filteredHistory.filter(item => historyOpen ? true : !item.archived);
   const planName = tier === 'proplus' ? 'Pro Plus' : tier === 'plus' ? 'Plus' : 'Free';
 
-  return <section className="vyro-intel card">
+  return <section className={'vyro-intel card '+(embedded?'vyro-intel-embedded':'')}>
     <div className="vyro-intel-head">
-      <div className="vyro-intel-brand"><span className="feature-icon"><Sparkles size={22}/></span><div><h2>هوش مصنوعی وایرو</h2><small>موتور مستقل · بدون OpenAI API</small></div></div>
+      <div className="vyro-intel-brand"><span className="feature-icon">{React.createElement(activeService.icon,{size:22})}</span><div><h2>{lockedService?activeService.title:'هوش مصنوعی وایرو'}</h2><small>{lockedService?activeService.subtitle:'موتور مستقل · بدون OpenAI API'}</small></div></div>
       <div className="vyro-intel-tools">
         <span className="vyro-tier-pill">{planName}</span>
         <button type="button" className="vyro-icon-btn" onClick={() => { setHistoryOpen(v => !v); setSettingsOpen(false); }} title="تاریخچه"><History size={18}/></button>
@@ -311,14 +320,14 @@ export default function VyroIntelligence({ session, onNotice }) {
       </div>
     </div>
 
-    <div className="vyro-intel-services">
+    {!lockedService&&<div className="vyro-intel-services">
       {SERVICE_LIST.map(item => {
         const Icon = item.icon;
         return <button type="button" key={item.id} className={service === item.id ? 'selected' : ''} onClick={() => selectService(item.id)}>
           <Icon size={17}/><span>{item.title}</span>
         </button>;
       })}
-    </div>
+    </div>}
 
     {settingsOpen && <div className="vyro-intel-settings">
       <div className="vyro-intel-subhead"><div><b>تنظیمات هوش مصنوعی</b><small>شخصی‌سازی پاسخ‌های Vyro AI</small></div><button type="button" onClick={() => setSettingsOpen(false)}><X size={17}/></button></div>
