@@ -592,15 +592,13 @@ export default function App(){
   try{
    if(authMode==='signup'){
     if(!turnstileToken){setNotice('لطفاً تأیید امنیتی Cloudflare را کامل کن.');setBusy(false);return}
-    const turnstileCheck=await fetch('https://vyro-ai-engine.vyro-social.workers.dev/verify-turnstile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:turnstileToken})});
-    const turnstileResult=await turnstileCheck.json().catch(()=>({success:false}));
-    if(!turnstileCheck.ok||turnstileResult.success!==true){setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();throw new Error('تأیید Cloudflare معتبر نبود؛ لطفاً دوباره تأیید کن.')}
-    setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();
+    const signupCaptchaToken=turnstileToken;
     if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
     const normalizedReferralCode=referralCode.trim().toUpperCase();if(!normalizedReferralCode){setNotice('وارد کردن کد دعوت برای ثبت‌نام الزامی است.');setBusy(false);return}
     const username=email.trim().replace(/^@/,'').toLowerCase();
     if(!/^[a-z0-9_.]{3,24}$/.test(username))throw new Error('نام کاربری باید ۳ تا ۲۴ حرف انگلیسی، عدد، نقطه یا زیرخط باشد.');
-    const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
+    const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{captchaToken:signupCaptchaToken,data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
+    setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();
     if(error)throw error;
     setNotice(data.session?'ثبت‌نام انجام شد.':'حساب ساخته شد و آمادهٔ ورود است؛ حالا با نام کاربری و رمزت وارد شو.');
    }else{
@@ -610,7 +608,7 @@ export default function App(){
     const loginEmail=isEmail?loginId:loginId==='mohammad0900'?'hadi.geym1234@gmail.com':loginId==='najehyouz'?'najeh9808@gmail.com':`${loginId}@vyro.local`;
     const {error}=await supabase.auth.signInWithPassword({email:loginEmail,password});if(error)throw error;setNotice('ورود موفق بود.');
    }
-  }catch(err){const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد دعوت واردشده معتبر نیست؛ کد معتبر یکی از کاربران وایرو را وارد کن.');}else if(/وارد کردن کد دعوت برای ثبت‌نام الزامی است|referral code is required/i.test(message)){setNotice('برای ثبت‌نام وارد کردن کد دعوت الزامی است.');}else if(/email not confirmed/i.test(message)){setNotice('حساب قبلی هنوز تأیید نشده بود. حالا تأیید حساب‌های وایرو اصلاح شده؛ صفحه را تازه کن و دوباره وارد شو.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
+  }catch(err){if(authMode==='signup'){setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset()}const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد دعوت واردشده معتبر نیست؛ کد معتبر یکی از کاربران وایرو را وارد کن.');}else if(/وارد کردن کد دعوت برای ثبت‌نام الزامی است|referral code is required/i.test(message)){setNotice('برای ثبت‌نام وارد کردن کد دعوت الزامی است.');}else if(/email not confirmed/i.test(message)){setNotice('حساب قبلی هنوز تأیید نشده بود. حالا تأیید حساب‌های وایرو اصلاح شده؛ صفحه را تازه کن و دوباره وارد شو.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
   setBusy(false);
  }
  async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
