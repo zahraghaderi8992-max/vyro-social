@@ -20,6 +20,29 @@ export default {
    headers: { ...cors, "Content-Type": "application/json; charset=utf-8", "Cache-Control": "no-store" }
   });
   if (request.method === "OPTIONS") return new Response(null, { headers: cors });
+  const requestUrl = new URL(request.url);
+  if (request.method === "POST" && requestUrl.pathname.endsWith("/verify-turnstile")) {
+   try {
+    if (!env.TURNSTILE_SECRET) return json({ success: false, error: "verification_not_configured" }, 503);
+    const payload = await request.json();
+    const token = typeof payload?.token === "string" ? payload.token : "";
+    if (!token || token.length > 2048) return json({ success: false, error: "invalid_token" }, 400);
+    const form = new FormData();
+    form.set("secret", env.TURNSTILE_SECRET);
+    form.set("response", token);
+    const remoteIp = request.headers.get("CF-Connecting-IP");
+    if (remoteIp) form.set("remoteip", remoteIp);
+    form.set("idempotency_key", crypto.randomUUID());
+    const verifyResponse = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", { method: "POST", body: form });
+    if (!verifyResponse.ok) return json({ success: false, error: "verification_unavailable" }, 502);
+    const result = await verifyResponse.json();
+    const valid = result?.success === true && result?.action === "signup" && ["zahraghaderi8992-max.github.io", "vyro-web-b9p.pages.dev", "localhost"].includes(result?.hostname);
+    return json({ success: valid, error: valid ? undefined : "verification_failed" }, valid ? 200 : 403);
+   } catch (error) {
+    console.error("Turnstile verification failed", error);
+    return json({ success: false, error: "verification_error" }, 502);
+   }
+  }
   if (request.method === "GET") return json({
    service: "Vyro Independent AI Engine",
    status: "online",
