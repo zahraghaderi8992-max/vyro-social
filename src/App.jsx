@@ -416,7 +416,9 @@ export default function App(){
    const ua=typeof navigator!=='undefined'?navigator.userAgent:'';
    const platform=/Android/i.test(ua)?'Android':/iPhone|iPad|iPod/i.test(ua)?'iOS':/Windows/i.test(ua)?'Windows':/Macintosh|Mac OS/i.test(ua)?'macOS':/Linux/i.test(ua)?'Linux':'دستگاه ناشناس';
    const androidModel=ua.match(/Android\s[\d.]+;\s*([^;)]+)/i);
-   const deviceModel=androidModel?.[1]?.replace(/Build\/.*/,'').trim()||(/iPhone/i.test(ua)?'iPhone':/iPad/i.test(ua)?'iPad':platform==='Windows'?'Windows PC':platform);
+   const androidName=androidModel?.[1]?.replace(/Build\/.*/,'').trim()||'';
+   const usableAndroidName=androidName&&!/^(K|wv|x86|arm|Android)$/i.test(androidName);
+   const deviceModel=platform==='Android'?(usableAndroidName?androidName:'اندروید (مدل توسط مرورگر مخفی شده)'):(/iPhone/i.test(ua)?'iPhone':/iPad/i.test(ua)?'iPad':platform==='Windows'?'Windows PC':platform);
    const browser=/Edg\//i.test(ua)?'Microsoft Edge':/Firefox\//i.test(ua)?'Firefox':/Chrome\//i.test(ua)?'Chrome':/Safari\//i.test(ua)?'Safari':'مرورگر ناشناس';
    const provider=nextSession.user?.app_metadata?.provider||nextSession.user?.identities?.[0]?.provider||'email';
    const loginMethod=provider==='google'?'Google':provider==='email'?'ایمیل و رمز عبور':provider;

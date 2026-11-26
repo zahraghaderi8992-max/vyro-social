@@ -14,7 +14,9 @@ function deviceDetails(ua: string) {
   let model = platform;
   const android = ua.match(/Android\s[\d.]+;\s*([^;)]+)/i);
   const apple = ua.match(/(iPhone|iPad|iPod)/i);
-  if (android?.[1]) model = android[1].replace(/Build\/.*/, "").trim();
+  const androidName = android?.[1]?.replace(/Build\/.*/, "").trim() || "";
+  if (androidName && !/^(K|wv|x86|arm|Android)$/i.test(androidName)) model = androidName;
+  else if (platform === "Android") model = "اندروید (مدل توسط مرورگر مخفی شده)";
   else if (apple?.[1]) model = apple[1];
   else if (platform === "Windows") model = /Windows NT 10/i.test(ua) ? "Windows 10/11 PC" : "Windows PC";
   const browser = /Edg\//i.test(ua) ? "Microsoft Edge" : /Firefox\//i.test(ua) ? "Firefox" : /Chrome\//i.test(ua) ? "Chrome" : /Safari\//i.test(ua) ? "Safari" : "مرورگر ناشناس";
