@@ -750,7 +750,7 @@ export default function App(){
   const selected=savedMessageItems.filter(item=>selectedSavedMessageIds.includes(item.id));
   const {error}=await supabase.from('saved_message_items').delete().eq('user_id',session.user.id).in('id',selectedSavedMessageIds);
   if(error){setNotice('حذف پیام‌های انتخاب‌شده ناموفق بود: '+error.message);return}
-  const paths=selected.map(item=>item.file_path||item.file_url).filter(path=>path&&!/^https?:\\/\\//i.test(path));
+  const paths=selected.map(item=>item.file_path||item.file_url).filter(path=>path&&!/^https?:\/\//i.test(path));
   if(paths.length)await supabase.storage.from('chat-files').remove(paths);
   setSavedMessageItems(v=>v.filter(item=>!selectedSavedMessageIds.includes(item.id)));
   setSelectedSavedMessageIds([]);setNotice('پیام‌های انتخاب‌شده حذف شدند.');
@@ -760,7 +760,7 @@ export default function App(){
   const {error}=await supabase.from('saved_message_items').delete().eq('id',item.id).eq('user_id',session.user.id);
   if(error){setNotice('حذف پیام ذخیره‌شده ناموفق بود: '+error.message);return}
   const path=item.file_path||item.file_url||'';
-  if(path&&!/^https?:\\/\\//i.test(path))await supabase.storage.from('chat-files').remove([path]);
+  if(path&&!/^https?:\/\//i.test(path))await supabase.storage.from('chat-files').remove([path]);
   setSavedMessageItems(v=>v.filter(x=>x.id!==item.id));
  }
  async function saveSavedMessageNote(){
