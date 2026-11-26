@@ -5,7 +5,7 @@ import { supabase, supabaseReady } from '../lib/supabase';
 const SERVICE_LIST = [
   { id: 'assistant', title: 'Vyro AI', subtitle: 'دستیار هوشمند عمومی وایرو', icon: Bot, intro: 'سلام! من دستیار وایرو هستم. چطور میتونم کمکتون کنم؟' },
   { id: 'support', title: 'Vyro Support', subtitle: 'پشتیبانی هوشمند و راهنمای امکانات وایرو', icon: ShieldCheck, intro: 'سلام! من پشتیبان هوشمند وایرو هستم. مشکلت در کدام بخشه؟' },
-  { id: 'code', title: 'Vyro Code AI', subtitle: 'همراه برنامه‌نویسی و تحلیل کد', icon: Code2, intro: 'سلام! من دستیار برنامه‌نویسی وایرو هستم. کد یا خطایت را بفرست.' },
+  { id: 'code', title: 'Vyro Code Live', subtitle: 'حساب مستقل موتور کدنویسی زنده و تحلیل کد', icon: Code2, intro: 'سلام! من دستیار برنامه‌نویسی وایرو هستم. کد یا خطایت را بفرست.' },
   { id: 'status', title: 'گزارش وضعیت کد زنده', subtitle: 'گفت‌وگوی اختصاصی برای گزارش وضعیت موتور و پروژه', icon: Activity, intro: 'این گفت‌وگوی اختصاصی برای گزارش وضعیت کد زنده است. می‌توانی وضعیت موتور، سرویس‌ها، خطاها و کارهای باقی‌مانده را بپرسی.' }
 ];
 
