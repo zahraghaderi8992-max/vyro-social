@@ -1486,3 +1486,47 @@ input[type=file]{
  .mobile-nav{box-sizing:border-box!important;height:64px!important;min-height:64px!important;max-height:64px!important;bottom:calc(8px + env(safe-area-inset-bottom))!important;padding:5px 7px!important;width:min(94vw,540px)!important;max-width:calc(100vw - 20px)!important;overflow:hidden!important}
  .mobile-nav button{box-sizing:border-box!important;max-width:none!important;min-width:0!important;min-height:48px!important;height:48px!important;flex:1 1 0!important}
 }
+
+
+.vyro-intel{display:flex;flex-direction:column;gap:12px;min-width:0;min-height:520px;padding:16px}
+.vyro-intel-head,.vyro-intel-brand,.vyro-intel-tools,.vyro-intel-service-title,.vyro-intel-subhead,.vyro-intel-message-meta{display:flex;align-items:center}
+.vyro-intel-head{justify-content:space-between;gap:10px;flex-wrap:wrap}
+.vyro-intel-brand{gap:10px;min-width:0}.vyro-intel-brand h2{margin:0;font-size:17px}
+.vyro-intel-brand small,.vyro-intel-service-title small,.vyro-intel-subhead small{display:block;color:var(--muted,#aaa);font-size:11px;margin-top:3px}
+.vyro-intel-tools{gap:7px}.vyro-tier-pill,.vyro-engine-status{border:1px solid var(--vyro-glass-border,rgba(212,177,63,.25));border-radius:999px;padding:6px 10px;color:var(--lime,#d4b13f);font-size:10px}
+.vyro-icon-btn,.vyro-intel-subhead>button,.vyro-history-row>button{display:grid;place-items:center;width:34px;height:34px;border:1px solid var(--line);border-radius:10px;background:var(--panel);color:inherit}
+.vyro-intel-services{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.vyro-intel-services button{display:flex;align-items:center;justify-content:center;gap:7px;min-width:0;padding:10px 6px;border:1px solid var(--line);border-radius:12px;background:rgba(10,11,17,.55);color:var(--muted);font:inherit;font-size:11px}
+.vyro-intel-services button.selected{border-color:var(--lime);background:color-mix(in srgb,var(--lime) 12%,var(--panel));color:var(--lime)}
+.vyro-intel-service-title{justify-content:space-between;gap:10px;padding:10px 2px 0}.vyro-intel-service-title b{font-size:14px}
+.vyro-engine-status{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}.vyro-engine-status i{width:7px;height:7px;border-radius:50%;background:#6bc58a;box-shadow:0 0 8px #6bc58a66}
+.vyro-intel-messages{display:flex;flex-direction:column;gap:12px;min-height:230px;max-height:48dvh;overflow:auto;padding:12px;border:1px solid var(--line);border-radius:14px;background:rgba(5,6,10,.3)}
+.vyro-intel-welcome,.vyro-intel-empty{display:grid;justify-items:center;gap:9px;text-align:center;padding:28px 12px;color:var(--muted);font-size:12px;line-height:1.9}
+.vyro-intel-welcome b{color:inherit;font-size:14px}
+.vyro-intel-message{max-width:92%;padding:11px 13px;border:1px solid var(--line);border-radius:14px;background:rgba(30,31,42,.82);align-self:flex-start;overflow-wrap:anywhere}
+.vyro-intel-message.user{align-self:flex-end;background:color-mix(in srgb,var(--lime) 10%,var(--panel));border-color:color-mix(in srgb,var(--lime) 38%,var(--line))}
+.vyro-intel-message-meta{justify-content:space-between;gap:14px;font-size:10px;color:var(--lime)}.vyro-intel-message-meta small{color:var(--muted);font-size:9px}
+.vyro-intel-message p{margin:8px 0 0;font-size:12px;line-height:1.95;white-space:pre-wrap;overflow-wrap:anywhere}
+.vyro-intel-generated-image{display:block;max-width:100%;max-height:460px;object-fit:contain;margin-top:10px;border-radius:10px}
+.vyro-copy-answer{display:inline-flex;align-items:center;gap:5px;margin-top:9px;padding:5px 8px;border:1px solid var(--line);border-radius:8px;background:transparent;color:var(--muted);font-size:10px}
+.vyro-intel-thinking{display:flex;align-items:center;gap:8px;color:var(--lime);font-size:12px}.vyro-intel-thinking svg{animation:vyroIntelSpin 1s linear infinite}
+@keyframes vyroIntelSpin{to{transform:rotate(360deg)}}
+.vyro-intel-compose{display:grid;gap:7px;padding:10px;border:1px solid var(--vyro-glass-border,rgba(212,177,63,.22));border-radius:14px;background:rgba(7,8,12,.65)}
+.vyro-compose-row{display:flex;align-items:flex-end;gap:7px;min-width:0}
+.vyro-compose-row textarea{flex:1;min-width:0;max-height:150px;resize:vertical;padding:11px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:inherit;font:inherit;font-size:12px;line-height:1.8}
+.vyro-compose-tool,.vyro-intel-send{display:grid;place-items:center;flex:0 0 38px;width:38px;height:38px;border:1px solid var(--line);border-radius:11px;background:var(--panel);color:var(--muted)}
+.vyro-compose-tool.active{color:var(--lime);border-color:var(--lime)}.vyro-intel-send{background:var(--lime);border-color:var(--lime);color:#171717}.vyro-intel-send:disabled{opacity:.45}
+.vyro-intel-compose>small{font-size:10px;color:var(--muted);line-height:1.8}
+.vyro-file-chip,.vyro-intel-attachment{display:inline-flex;align-items:center;gap:6px;color:var(--lime);font-size:10px}
+.vyro-file-chip{justify-self:start;padding:5px 8px;border:1px solid var(--line);border-radius:8px}.vyro-file-chip button{display:grid;place-items:center;border:0;background:transparent;color:inherit}
+.vyro-intel-settings,.vyro-intel-history{display:grid;gap:10px;padding:13px;border:1px solid var(--line);border-radius:13px;background:rgba(8,9,13,.5)}
+.vyro-intel-subhead{justify-content:space-between;gap:10px}.vyro-intel-settings label{display:grid;gap:6px;font-size:11px;color:var(--muted)}
+.vyro-intel-settings input:not([type=checkbox]),.vyro-intel-settings select,.vyro-intel-settings textarea,.vyro-intel-history>input{width:100%;min-width:0;box-sizing:border-box;padding:10px;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:inherit;font:inherit;font-size:12px}
+.vyro-memory-toggle{display:flex!important;align-items:center;gap:8px}.vyro-memory-toggle input{accent-color:var(--lime)}
+.vyro-intel-primary{justify-self:start;padding:9px 15px;border:0;border-radius:9px;background:var(--lime);color:#111;font:inherit;font-size:11px;font-weight:700}
+.vyro-history-row{display:flex;align-items:center;gap:6px;padding:7px;border-bottom:1px solid var(--line)}
+.vyro-history-open{display:flex;align-items:center;gap:9px;flex:1;min-width:0;border:0;background:transparent;color:inherit;text-align:right}
+.vyro-history-open span{display:grid;gap:3px;min-width:0}.vyro-history-open b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.vyro-history-open small{font-size:9px;color:var(--muted)}.vyro-history-row>button{width:30px;height:30px;flex:0 0 30px}
+.vyro-quota-note,.vyro-model-note{font-size:10px;color:var(--muted);text-align:left}.vyro-intel-notice{font-size:11px;color:var(--lime);line-height:1.8}
+@media(max-width:700px){.vyro-intel{padding:11px;gap:10px}.vyro-intel-services{grid-template-columns:repeat(2,minmax(0,1fr))}.vyro-intel-services button{justify-content:flex-start;padding:10px}.vyro-intel-messages{max-height:43dvh;min-height:190px;padding:9px}.vyro-intel-message{max-width:96%}.vyro-intel-compose{padding:8px}.vyro-compose-row{gap:5px}.vyro-compose-tool,.vyro-intel-send{flex-basis:34px;width:34px;height:36px}.vyro-compose-row textarea{padding:9px}}
