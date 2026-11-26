@@ -114,19 +114,6 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
   }, [lockedService, initialService, conversations]);
 
   useEffect(() => {
-    const openSupport = () => {
-      const latest = conversations.find(item => item.service === 'support' && !item.archived);
-      setService('support');
-      setActiveId(latest?.id || null);
-      setMessages(latest ? [] : [{ role: 'assistant', text: SERVICE_LIST[1].intro }]);
-      setSettingsOpen(false);
-      setHistoryOpen(false);
-    };
-    window.addEventListener('vyro-open-support', openSupport);
-    return () => window.removeEventListener('vyro-open-support', openSupport);
-  }, [conversations]);
-
-  useEffect(() => {
     if (!activeId || !userId || !supabaseReady) {
       const descriptor = SERVICE_LIST.find(item => item.id === initialService) || SERVICE_LIST[0];
       setMessages([{ role: 'assistant', text: descriptor.intro }]);
@@ -320,15 +307,6 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
         <button type="button" className="vyro-icon-btn" onClick={startNew} title="گفت‌وگوی جدید"><Plus size={18}/></button>
       </div>
     </div>
-
-    {!lockedService&&<div className="vyro-intel-services">
-      {SERVICE_LIST.map(item => {
-        const Icon = item.icon;
-        return <button type="button" key={item.id} className={service === item.id ? 'selected' : ''} onClick={() => selectService(item.id)}>
-          <Icon size={17}/><span>{item.title}</span>
-        </button>;
-      })}
-    </div>}
 
     {settingsOpen && <div className="vyro-intel-settings">
       <div className="vyro-intel-subhead"><div><b>تنظیمات هوش مصنوعی</b><small>شخصی‌سازی پاسخ‌های Vyro AI</small></div><button type="button" onClick={() => setSettingsOpen(false)}><X size={17}/></button></div>
