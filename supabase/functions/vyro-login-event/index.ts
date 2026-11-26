@@ -44,8 +44,6 @@ Deno.serve(async (req: Request) => {
 
   const admin = createClient(url, serviceKey, { auth: { persistSession: false, autoRefreshToken: false } });
   const { data: existing } = await admin.from("security_login_events").select("*").eq("user_id", authData.user.id).eq("session_id", sessionId).maybeSingle();
-  if (existing?.support_conversation_id) return reply({ ok: true, duplicate: true, event: existing });
-
   const ua = req.headers.get("user-agent") || String(body.user_agent || "");
   const details = deviceDetails(ua);
   const ip = req.headers.get("cf-connecting-ip") || req.headers.get("x-real-ip") || req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || null;
