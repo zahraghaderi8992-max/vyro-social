@@ -615,11 +615,23 @@ export default function App(){
   const loadChats=async()=>{
    if(!session?.user?.id)return;
    const userId=session.user.id;
-   const {data:memberRows,error:memberError}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',userId);
+   const [{data:memberRows,error:memberError},{data:ownedRows,error:ownedError}]=await Promise.all([
+    supabase.from('conversation_members').select('conversation_id').eq('user_id',userId),
+    supabase.from('conversations').select('id,type,title,created_at,created_by').eq('created_by',userId).order('created_at',{ascending:false})
+   ]);
    if(!active)return;
    if(memberError){setNotice('فهرست عضویت چت‌ها بارگذاری نشد: '+memberError.message);return;}
-   const ids=[...new Set((memberRows||[]).map(m=>m.conversation_id).filter(Boolean))];
-   if(!ids.length){setConversations(v=>v.filter(x=>String(x.id).startsWith('local-')));return;}
+   if(ownedError){setNotice('گفت‌وگوهای ساخته‌شده توسط حساب تو بارگذاری نشدند: '+ownedError.message);return;}
+   const memberIds=[...new Set((memberRows||[]).map(m=>m.conversation_id).filter(Boolean))];
+   const owned=(ownedRows||[]);
+   const known=new Set(memberIds);
+   const missingOwn=owned.filter(c=>!known.has(c.id));
+   if(missingOwn.length){
+    const {error:restoreError}=await supabase.from('conversation_members').insert(missingOwn.map(c=>({conversation_id:c.id,user_id:userId})));
+    if(restoreError){setNotice('بازیابی عضویت گفتگوهای ساخته‌شده کامل نشد: '+restoreError.message);}
+   }
+   const ids=[...new Set([...memberIds,...owned.map(c=>c.id)])];
+   if(!ids.length){setConversations(current=>[...serviceChatAccounts,...current.filter(x=>String(x.id).startsWith('local-'))]);return;}
    const [{data:convRows,error:convError},{data:messageRows,error:messageError},{data:participantRows,error:participantError}]=await Promise.all([
     supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),
     supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(500),
@@ -627,7 +639,7 @@ export default function App(){
    ]);
    if(!active)return;
    if(convError){setNotice('گفت‌وگوهای قبلی دریافت نشدند: '+convError.message);return;}
-   if(messageError){setNotice('فهرست پیام‌های چت دریافت نشد: '+messageError.message);}
+   if(messageError){setNotice('پیام‌های گفتگو دریافت نشدند: '+messageError.message);}
    if(participantError){setNotice('اطلاعات اعضای گفتگو دریافت نشد: '+participantError.message);}
    const rows=messageRows||[];
    const mediaPaths=[...new Set(rows.map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
@@ -644,11 +656,12 @@ export default function App(){
     const last=ms[ms.length-1];
     const other=participants.find(p=>p.conversation_id===v.id&&p.user_id!==userId)?.profiles;
     const titleParts=(v.title||'').split('|');
-    const fallbackName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase())||titleParts[0]):(v.title||'گفت‌وگو');
+    const currentName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
+    const fallbackName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x.toLowerCase()!==currentName)||titleParts[0]):(v.title||'گفت‌وگو');
     const displayName=v.type==='private'?(other?.username||other?.display_name||fallbackName):(v.title||'گفت‌وگو');
     return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar_url:other?.avatar_url||'',avatar:(displayName||'V').slice(0,1).toUpperCase(),role:other?.role||'user',last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
    }));
-   if(active)setConversations(current=>[...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
+   if(active)setConversations(current=>[...serviceChatAccounts,...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
   };
   if(tab==='explore')loadExplore();
   if(tab==='messages')loadChats();
