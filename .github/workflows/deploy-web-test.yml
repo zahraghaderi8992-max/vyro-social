@@ -29,6 +29,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
       - name: Checkout private Chat module (optional)
+        if: ${{ vars.VYRO_MODULES_SYNC_ENABLED == 'true' }}
         uses: actions/checkout@v4
         continue-on-error: true
         with:
