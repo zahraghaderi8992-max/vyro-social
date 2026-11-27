@@ -740,17 +740,7 @@ export default function App(){
    setNotice('پیام ارسال نشد: '+(error.message||'دسترسی گفتگو یا فایل را بررسی کن.'));
    return false;
   }finally{setBusy(false)}
- }){
-  if(!session||!supabaseReady||!conversationId||String(conversationId).startsWith('local-')){setNotice('برای ارسال پیام واقعی، وارد حساب آنلاین شو و یک گفت‌وگوی آنلاین باز کن.');return false}
-  setBusy(true);
-  const {data,error}=await supabase.from('messages').insert({conversation_id:conversationId,sender_id:session.user.id,content:content||null,file_url:fileUrl,message_type:messageType}).select('id,created_at').single();
-  if(error){setNotice('پیام ارسال نشد: '+(error.message||'دسترسی گفتگو یا فایل را بررسی کن.'));setBusy(false);return false}
-  const time=new Date(data.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
-  const text=displayText||content||'فایل';
-  playDefaultSound();
-  setConversations(v=>v.map(c=>c.id===conversationId?{...c,last:text,time,messages:[...c.messages,{id:data.id,sender_id:session.user.id,from:'me',text:content||'',file_url:displayUrl||fileUrl||'',file_path:fileUrl||'',message_type:messageType,time}]}:c));
-  setBusy(false);return true;
- }
+
  function insertChatLineBreak(){const input=chatInputRef.current;if(!input){setChatDraft(v=>v+'\n');return}const start=input.selectionStart??chatDraft.length;const end=input.selectionEnd??start;const next=chatDraft.slice(0,start)+'\n'+chatDraft.slice(end);setChatDraft(next);if(chatId){try{localStorage.setItem('vyro-chat-draft-'+chatId,next)}catch{}}requestAnimationFrame(()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';input.focus();input.setSelectionRange(start+1,start+1)})}
  async function sendChat(e){
   e?.preventDefault();const value=chatDraft.trim();if(!value||!chatId||busy)return;
