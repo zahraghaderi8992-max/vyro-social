@@ -183,6 +183,8 @@ export default function App(){
  const [chatPreviewOpen,setChatPreviewOpen]=useState(false);
  const [notRobot,setNotRobot]=useState(false);
  const [turnstileToken,setTurnstileToken]=useState('');
+ const turnstileWidgetRef=useRef(null);
+ const turnstilePendingRef=useRef(null);
  const [termsAccepted,setTermsAccepted]=useState(false);
  const [showRules,setShowRules]=useState(false);
  const [aiLoading,setAiLoading]=useState(false);
@@ -228,11 +230,18 @@ export default function App(){
   const renderWidget=()=>{
    const node=document.getElementById('vyro-turnstile-widget');
    if(disposed||!node||!window.turnstile||widgetId!==null)return;
-   widgetId=window.turnstile.render(node,{sitekey:TURNSTILE_SITEKEY,theme:'dark',size:'flexible',action:'signup',callback:token=>{setTurnstileToken(token);setNotRobot(true)},'expired-callback':()=>{setTurnstileToken('');setNotRobot(false)},'error-callback':()=>{setTurnstileToken('');setNotRobot(false);setNotice('تأیید امنیتی Cloudflare بارگذاری نشد؛ دوباره تلاش کن.')}});
+   widgetId=window.turnstile.render(node,{
+    sitekey:TURNSTILE_SITEKEY,theme:'dark',size:'invisible',action:'signup',
+    execution:'execute',appearance:'interaction-only',
+    callback:token=>{setTurnstileToken(token);setNotRobot(true);turnstilePendingRef.current?.resolve(token);turnstilePendingRef.current=null},
+    'expired-callback':()=>{setTurnstileToken('');setNotRobot(false);turnstilePendingRef.current?.reject(new Error('اعتبار بررسی امنیتی تمام شد؛ دوباره تلاش کن.'));turnstilePendingRef.current=null},
+    'error-callback':()=>{setTurnstileToken('');setNotRobot(false);turnstilePendingRef.current?.reject(new Error('بررسی امنیتی در پس‌زمینه انجام نشد؛ اتصال را بررسی و دوباره تلاش کن.'));turnstilePendingRef.current=null}
+   });
+   turnstileWidgetRef.current=widgetId;
   };
   let script=document.querySelector('script[data-vyro-turnstile]');
   if(!script){script=document.createElement('script');script.src='https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';script.async=true;script.defer=true;script.dataset.vyroTurnstile='true';script.onload=renderWidget;document.head.appendChild(script)}else{script.addEventListener('load',renderWidget);renderWidget()}
-  return()=>{disposed=true;if(widgetId!==null&&window.turnstile)window.turnstile.remove(widgetId);script?.removeEventListener('load',renderWidget)};
+  return()=>{disposed=true;turnstilePendingRef.current?.reject(new Error('فرم ثبت‌نام بسته شد.'));turnstilePendingRef.current=null;if(widgetId!==null&&window.turnstile)window.turnstile.remove(widgetId);turnstileWidgetRef.current=null;script?.removeEventListener('load',renderWidget)};
  },[authMode]);
  useEffect(()=>{try{localStorage.removeItem('vyro-spotify-token');localStorage.removeItem('vyro-spotify-client-id');localStorage.removeItem('vyro-spotify-pkce-verifier');localStorage.removeItem('vyro-spotify-oauth-state')}catch{}},[]);
  useEffect(()=>{const key='vyro-music-favorites-'+(session?.user?.id||'guest');const remote=session?.user?.user_metadata?.music_favorites;if(Array.isArray(remote)){setMusicFavorites(remote);try{localStorage.setItem(key,JSON.stringify(remote))}catch{};return}try{setMusicFavorites(JSON.parse(localStorage.getItem(key)||'[]'))}catch{setMusicFavorites([])}},[session?.user?.id,session?.user?.user_metadata?.music_favorites]);
@@ -633,16 +642,21 @@ export default function App(){
   if(!supabaseReady){setNotice('اتصال آنلاین آماده نیست. مدیر پروژه باید Secrets مربوط به Supabase را در GitHub تنظیم کند.');setBusy(false);return}
   try{
    if(authMode==='signup'){
-    if(!turnstileToken){setNotice('لطفاً تأیید امنیتی Cloudflare را کامل کن.');setBusy(false);return}
-    const captchaResponse=await fetch('https://vyro-ai-engine.vyro-social.workers.dev/verify-turnstile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:turnstileToken})});
-    const captchaResult=await captchaResponse.json().catch(()=>({success:false}));
-    if(!captchaResponse.ok||captchaResult.success!==true)throw new Error('تأیید امنیتی Cloudflare معتبر نبود؛ دوباره ربات‌سنجی را انجام بده.');
-    if(!termsAccepted){setNotice('برای ساخت حساب باید قوانین وایرو را بپذیری.');setBusy(false);return}
-    const normalizedReferralCode=referralCode.trim().toUpperCase();if(!normalizedReferralCode){setNotice('وارد کردن کد دعوت برای ثبت‌نام الزامی است.');setBusy(false);return}
+    if(!termsAccepted)throw new Error('برای ساخت حساب باید قوانین وایرو را بپذیری.');
+    const normalizedReferralCode=referralCode.trim().toUpperCase();if(!normalizedReferralCode)throw new Error('وارد کردن کد دعوت برای ثبت‌نام الزامی است.');
     const username=email.trim().replace(/^@/,'').toLowerCase();
     if(!/^[a-z0-9_.]{3,24}$/.test(username))throw new Error('نام کاربری باید ۳ تا ۲۴ حرف انگلیسی، عدد، نقطه یا زیرخط باشد.');
+    if(!window.turnstile||turnstileWidgetRef.current===null)throw new Error('سرویس بررسی امنیتی هنوز آماده نیست؛ چند لحظه دیگر دوباره تلاش کن.');
+    const token=await new Promise((resolve,reject)=>{
+     const timeout=window.setTimeout(()=>{turnstilePendingRef.current=null;reject(new Error('پاسخ بررسی امنیتی دریافت نشد؛ دوباره تلاش کن.'))},18000);
+     turnstilePendingRef.current={resolve:value=>{window.clearTimeout(timeout);resolve(value)},reject:error=>{window.clearTimeout(timeout);reject(error)}};
+     try{window.turnstile.execute(turnstileWidgetRef.current)}catch(error){window.clearTimeout(timeout);turnstilePendingRef.current=null;reject(error)}
+    });
+    const captchaResponse=await fetch('https://vyro-ai-engine.vyro-social.workers.dev/verify-turnstile',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({token})});
+    const captchaResult=await captchaResponse.json().catch(()=>({success:false}));
+    if(!captchaResponse.ok||captchaResult.success!==true)throw new Error('بررسی امنیتی ناموفق بود؛ دوباره تلاش کن.');
     const signupEmail=username==='mohammad0900'?'hadi.geym1234@gmail.com':username==='najehyouz'?'najeh9808@gmail.com':`${username}@vyro.local`;const {data,error}=await supabase.auth.signUp({email:signupEmail,password,options:{data:{username,display_name:username,referral_code:normalizedReferralCode||null}}});
-    setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset();
+    setTurnstileToken('');setNotRobot(false);if(window.turnstile&&turnstileWidgetRef.current!==null)window.turnstile.reset(turnstileWidgetRef.current);
     if(error)throw error;
     setNotice(data.session?'ثبت‌نام انجام شد.':'حساب ساخته شد و آمادهٔ ورود است؛ حالا با نام کاربری و رمزت وارد شو.');
    }else{
@@ -652,7 +666,7 @@ export default function App(){
     const loginEmail=isEmail?loginId:loginId==='mohammad0900'?'hadi.geym1234@gmail.com':loginId==='najehyouz'?'najeh9808@gmail.com':`${loginId}@vyro.local`;
     const {error}=await supabase.auth.signInWithPassword({email:loginEmail,password});if(error)throw error;setNotice('ورود موفق بود.');
    }
-  }catch(err){if(authMode==='signup'){setTurnstileToken('');setNotRobot(false);if(window.turnstile)window.turnstile.reset()}const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد دعوت واردشده معتبر نیست؛ کد معتبر یکی از کاربران وایرو را وارد کن.');}else if(/وارد کردن کد دعوت برای ثبت‌نام الزامی است|referral code is required/i.test(message)){setNotice('برای ثبت‌نام وارد کردن کد دعوت الزامی است.');}else if(/email not confirmed/i.test(message)){setNotice('حساب قبلی هنوز تأیید نشده بود. حالا تأیید حساب‌های وایرو اصلاح شده؛ صفحه را تازه کن و دوباره وارد شو.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
+  }catch(err){if(authMode==='signup'){setTurnstileToken('');setNotRobot(false);turnstilePendingRef.current?.reject(err);turnstilePendingRef.current=null;if(window.turnstile&&turnstileWidgetRef.current!==null)window.turnstile.reset(turnstileWidgetRef.current)}const message=String(err?.message||err?.error_description||err?.details||err?.hint||(typeof err==='string'?err:''));if(/failed to fetch|networkerror|fetch failed|load failed/i.test(message)){setNotice('اتصال به سرور ورود برقرار نشد. اینترنت یا VPN را عوض کن و دوباره تلاش کن؛ این خطا به‌تنهایی به معنی اشتباه بودن رمز نیست.');}else if(/کد معرف واردشده معتبر نیست|invalid referral code/i.test(message)){setNotice('کد دعوت واردشده معتبر نیست؛ کد معتبر یکی از کاربران وایرو را وارد کن.');}else if(/وارد کردن کد دعوت برای ثبت‌نام الزامی است|referral code is required/i.test(message)){setNotice('برای ثبت‌نام وارد کردن کد دعوت الزامی است.');}else if(/email not confirmed/i.test(message)){setNotice('حساب قبلی هنوز تأیید نشده بود. حالا تأیید حساب‌های وایرو اصلاح شده؛ صفحه را تازه کن و دوباره وارد شو.');}else if(/invalid login credentials/i.test(message)){setNotice('نام کاربری یا رمز عبور درست نیست. نام کاربری ادمین را دقیق وارد کن و رمز همان حساب را بررسی کن.');}else if(/user already registered/i.test(message)){setNotice('این نام کاربری قبلاً ثبت شده است؛ از بخش ورود استفاده کن.');}else{setNotice(message||'خطا در اتصال به حساب آنلاین؛ لطفاً دوباره تلاش کن.')}}
   setBusy(false);
  }
  async function logout(){try{if(supabaseReady){const {error}=await supabase.auth.signOut({scope:'local'});if(error)throw error;}setSession(null);setAuthMode('welcome');setTab('explore');setChatId(null);setNotice('از حساب خارج شدی.');}catch(err){setNotice('خروج انجام نشد: '+(err.message||'خطای اتصال'));}}
@@ -1247,7 +1261,7 @@ export default function App(){
   <p className="welcome-desc">{authMode==='welcome'?'به وایرو خوش اومدی؛ جایی برای آدم‌ها، ایده‌ها و ارتباط‌های تازه.':authMode==='signup'?'برای ساخت حساب، نام کاربری، رمز عبور و کد دعوت معتبر لازم است.':'با حساب وایرو ادامه بده.'}</p>
   {authMode==='welcome'?<div className="welcome-actions"><button className="primary-btn" onClick={()=>setAuthMode('signup')}>ثبت‌نام رایگان <ArrowRight size={17}/></button><button className="secondary-btn" onClick={()=>setAuthMode('login')}>از قبل حساب دارم؛ ورود</button></div>:<form className="auth-form" onSubmit={authenticate}>
    <button type="button" className="auth-back" onClick={()=>setAuthMode('welcome')}><ChevronLeft size={17}/> بازگشت</button>
-   {authMode==='signup'&&<><label>کد دعوت <small className="optional-field-note">وارد کردن کد دعوت معتبر الزامی است.</small><input required value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد دعوت یکی از کاربران وایرو" autoCapitalize="characters"/></label><div className="signup-checks"><div className="vyro-turnstile-wrap"><div id="vyro-turnstile-widget"/><small>تأیید امنیتی ثبت‌نام با Cloudflare</small></div><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
+   {authMode==='signup'&&<><label>کد دعوت <small className="optional-field-note">وارد کردن کد دعوت معتبر الزامی است.</small><input required value={referralCode} onChange={e=>setReferralCode(e.target.value)} placeholder="کد دعوت یکی از کاربران وایرو" autoCapitalize="characters"/></label><div className="signup-checks"><div className="vyro-turnstile-hidden" aria-hidden="true"><div id="vyro-turnstile-widget"/></div><label className="check-row"><input type="checkbox" checked={termsAccepted} onChange={e=>setTermsAccepted(e.target.checked)}/><span><b>قوانین و مقررات وایرو را خوانده‌ام و می‌پذیرم</b><small>{RULES_TEXT[0]}</small></span></label><button type="button" className="text-link" onClick={()=>setShowRules(true)}>خواندن کامل قوانین و مقررات</button></div></>}
    <label>نام کاربری<input type="text" value={email} onChange={e=>setEmail(e.target.value)} placeholder="مثلاً mohammad0900" autoCapitalize="none" autoComplete="username" minLength={3} maxLength={24} required/></label>
    {OTP_AUTH_UI_ENABLED&&<AuthContactMethod value={authContactMethod} onChange={setAuthContactMethod} contact={authContact} onContactChange={setAuthContact} code={authOtpCode} onCodeChange={setAuthOtpCode}/>}
    <label>رمز عبور<input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="حداقل ۶ کاراکتر" autoComplete={authMode==='signup'?'new-password':'current-password'} minLength={6} required/></label>

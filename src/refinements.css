@@ -1671,3 +1671,22 @@ input[type=file]{
  .chat-layout.service-chat-open>.chat-window:not(.vyro-service-chat-window){display:none!important}
  .chat-layout.service-chat-open>.vyro-service-chat-window{display:flex!important;width:100%!important}
 }
+
+/* VYRO mobile scrolling and rendering performance repair */
+@media(max-width:700px){
+ html,body,#root{width:100%;min-width:320px;max-width:100%;height:auto!important;min-height:100%;overflow-x:hidden!important;overflow-y:visible!important;overscroll-behavior-y:auto!important}
+ body{padding-bottom:0!important;touch-action:pan-y}
+ #root{display:block;min-height:100dvh}
+ .app-shell{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:100dvh!important;overflow:visible!important;padding:0 12px calc(100px + env(safe-area-inset-bottom))!important;zoom:1!important}
+ .feed{display:block!important;width:100%!important;max-width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;overflow-y:visible!important;overflow-x:clip!important;overscroll-behavior: auto!important;touch-action:pan-y;padding:16px 0 20px!important}
+ .mobile-nav{position:fixed!important;z-index:900!important}
+ .app-shell::before{animation:none!important;transform:none!important;will-change:auto!important}
+ .card,.settings-card,.profile-card,.profile-page,.music-hub,.simple-panel,.right-panel,.admin-panel,.chat-list,.chat-window,.chat-top,.chat-body,.chat-compose,.conversation,.message-bubble,.story-strip,.feed-post,.story-modal,.composer-modal,.modal-card,.create-chat-modal,.public-profile-card,.profile-stats,.profile-shortcuts,.admin-user-row,.referral-card,.chat-folders,.chat-kind-shortcuts,.chat-create-types,.settings-menu-item,.chat-user-search-card,.story-add-card,.post-add-card{backdrop-filter:none!important;-webkit-backdrop-filter:none!important}
+ .card,.feed-post,.chat-layout,.referral-card,.message-bubble,.post-comments{animation:none!important}
+ .message-bubble,.feed-post,.conversation{will-change:auto!important}
+ .feed,.explore-page{scroll-behavior:auto!important}
+}
+@media(prefers-reduced-motion:reduce){
+ .app-shell::before,.card,.feed-post,.chat-layout,.message-bubble,.post-comments{animation:none!important;transition:none!important}
+}
+.vyro-turnstile-hidden{position:fixed!important;left:-10000px!important;top:0!important;width:1px!important;height:1px!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important;z-index:-1!important}
