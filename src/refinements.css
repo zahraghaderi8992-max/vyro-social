@@ -1663,3 +1663,11 @@ input[type=file]{
  .vyro-service-chat-content{padding:7px}
  .vyro-service-chat-content>.vyro-intel{min-height:100%;height:auto}
 }
+
+/* Keep the ordinary chat pane out of view when a dedicated Vyro service account is open */
+.chat-layout.service-chat-open>.chat-window:not(.vyro-service-chat-window){display:none!important}
+.chat-layout.service-chat-open>.vyro-service-chat-window{display:flex!important}
+@media(max-width:700px){
+ .chat-layout.service-chat-open>.chat-window:not(.vyro-service-chat-window){display:none!important}
+ .chat-layout.service-chat-open>.vyro-service-chat-window{display:flex!important;width:100%!important}
+}
