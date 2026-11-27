@@ -250,6 +250,26 @@ export default function App(){
  useEffect(()=>{if(musicUrl)setMusicIsPlaying(true)},[musicUrl]);
  useEffect(()=>{try{localStorage.setItem('vyro-conversations',JSON.stringify(conversations))}catch{}},[conversations]);
    useEffect(()=>{if(!chatId){setChatDraft('');return}try{setChatDraft(localStorage.getItem('vyro-chat-draft-'+chatId)||'')}catch{setChatDraft('')}},[chatId]);
+ useEffect(()=>{
+  if(!chatId||String(chatId).startsWith('vyro-service-')||String(chatId).startsWith('local-')||!session?.user?.id||!supabaseReady)return;
+  let active=true;
+  const loadThread=async()=>{
+   const {data,error}=await supabase.from('messages').select('id,sender_id,content,file_url,message_type,created_at').eq('conversation_id',chatId).order('created_at',{ascending:false}).limit(100);
+   if(!active)return;
+   if(error){setNotice('پیام‌های این گفتگو بارگذاری نشدند: '+error.message);return;}
+   const rows=(data||[]).reverse();
+   const paths=[...new Set(rows.map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
+   const {data:signedRows}=paths.length?await supabase.storage.from('chat-files').createSignedUrls(paths,3600):{data:[]};
+   if(!active)return;
+   const signedByPath=new Map((signedRows||[]).map(x=>[x.path,x.signedUrl]));
+   const mapped=rows.map(m=>{const raw=m.file_url||'';const fileUrl=raw&&!raw.startsWith('http')?(signedByPath.get(raw)||''):raw;return{id:m.id,sender_id:m.sender_id,created_at:m.created_at,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,file_path:raw,message_type:m.message_type||'text',time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}});
+   setConversations(current=>current.map(c=>c.id===chatId?{...c,messages:mapped,last:mapped[mapped.length-1]?.text||c.last,time:mapped[mapped.length-1]?.time||c.time}:c));
+   setChatHistoryHasMore(current=>({...current,[chatId]:(data||[]).length===100}));
+  };
+  loadThread();
+  const channel=supabase.channel('vyro-thread-'+chatId).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'conversation_id=eq.'+chatId},loadThread).subscribe();
+  return()=>{active=false;supabase.removeChannel(channel)};
+ },[chatId,session?.user?.id,supabaseReady]);
  useEffect(()=>{const input=chatInputRef.current;if(!input)return;input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px'},[chatDraft,chatId]);
  useEffect(()=>{try{localStorage.setItem('vyro-pinned-messages',JSON.stringify(pinnedMessageIds))}catch{}},[pinnedMessageIds]);
  useEffect(()=>{try{localStorage.setItem('vyro-message-reactions',JSON.stringify(localMessageReactions))}catch{}},[localMessageReactions]);
@@ -594,30 +614,39 @@ export default function App(){
   };
   const loadChats=async()=>{
    if(!session?.user?.id)return;
-   const {data:memberRows}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);
+   const userId=session.user.id;
+   const {data:memberRows,error:memberError}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',userId);
    if(!active)return;
-   const ids=(memberRows||[]).map(m=>m.conversation_id);
+   if(memberError){setNotice('فهرست عضویت چت‌ها بارگذاری نشد: '+memberError.message);return;}
+   const ids=[...new Set((memberRows||[]).map(m=>m.conversation_id).filter(Boolean))];
    if(!ids.length){setConversations(v=>v.filter(x=>String(x.id).startsWith('local-')));return;}
-   const [{data:convRows},{data:messageRows}]=await Promise.all([
+   const [{data:convRows,error:convError},{data:messageRows,error:messageError},{data:participantRows,error:participantError}]=await Promise.all([
     supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),
-    supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(120)
+    supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(500),
+    supabase.from('conversation_members').select('conversation_id,user_id,profiles(username,display_name,avatar_url,role)').in('conversation_id',ids)
    ]);
-   if(!active||!convRows)return;
-   const mediaPaths=[...new Set((messageRows||[]).map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
+   if(!active)return;
+   if(convError){setNotice('گفت‌وگوهای قبلی دریافت نشدند: '+convError.message);return;}
+   if(messageError){setNotice('فهرست پیام‌های چت دریافت نشد: '+messageError.message);}
+   if(participantError){setNotice('اطلاعات اعضای گفتگو دریافت نشد: '+participantError.message);}
+   const rows=messageRows||[];
+   const mediaPaths=[...new Set(rows.map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
    const {data:signedRows}=mediaPaths.length?await supabase.storage.from('chat-files').createSignedUrls(mediaPaths,3600):{data:[]};
    if(!active)return;
    const signedByPath=new Map((signedRows||[]).map(x=>[x.path,x.signedUrl]));
-   const mapped=await Promise.all(convRows.map(async v=>{
-    const ms=(messageRows||[]).filter(m=>m.conversation_id===v.id).reverse().map(m=>{
+   const participants=participantRows||[];
+   const mapped=await Promise.all((convRows||[]).map(async v=>{
+    const ms=rows.filter(m=>m.conversation_id===v.id).reverse().map(m=>{
      const rawUrl=m.file_url||'';
      const fileUrl=rawUrl&&!rawUrl.startsWith('http')?(signedByPath.get(rawUrl)||''):rawUrl;
-     return{id:m.id,sender_id:m.sender_id,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,file_path:m.file_url||'',message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
+     return{id:m.id,sender_id:m.sender_id,from:m.sender_id===userId?'me':'them',text:m.content||'',file_url:fileUrl,file_path:m.file_url||'',message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
     });
     const last=ms[ms.length-1];
-    const meName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
+    const other=participants.find(p=>p.conversation_id===v.id&&p.user_id!==userId)?.profiles;
     const titleParts=(v.title||'').split('|');
-    const displayName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==meName)||titleParts[0]):(v.title||'گفت‌وگو');
-    return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar:(displayName||'V').slice(0,1).toUpperCase(),last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
+    const fallbackName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x!==(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase())||titleParts[0]):(v.title||'گفت‌وگو');
+    const displayName=v.type==='private'?(other?.username||other?.display_name||fallbackName):(v.title||'گفت‌وگو');
+    return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar_url:other?.avatar_url||'',avatar:(displayName||'V').slice(0,1).toUpperCase(),role:other?.role||'user',last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
    }));
    if(active)setConversations(current=>[...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
   };
@@ -793,7 +822,9 @@ export default function App(){
 
  async function sendSavedMessage(){
   const content=savedMessageDraft.trim();
-  if(!content||savedMessageLoading||!session?.user?.id||!supabaseReady)return;
+  if(savedMessageLoading)return;
+  if(!session?.user?.id||!supabaseReady){setNotice('برای استفاده از Saved Messages باید وارد حساب آنلاین شوی.');return;}
+  if(!content)return;
   setSavedMessageLoading(true);
   try{
    const {data,error}=await supabase.from('saved_message_items').insert({user_id:session.user.id,content,message_type:'text',metadata:{origin:'self-chat'}}).select('id,content,file_url,message_type,source_conversation_id,source_message_id,source_title,metadata,created_at').single();
@@ -1213,13 +1244,21 @@ export default function App(){
    const title=[target.username,meName].sort().join('|');
    const {data:members,error:membersError}=await supabase.from('conversation_members').select('conversation_id').eq('user_id',session.user.id);
    if(membersError)throw membersError;
-   const ids=(members||[]).map(x=>x.conversation_id);
+   const ids=[...new Set((members||[]).map(x=>x.conversation_id))];
    if(ids.length){
-    const {data:matches,error}=await supabase.from('conversations').select('id,title,type').in('id',ids).eq('type','private');
-    if(error)throw error;
-    const existing=(matches||[]).find(x=>x.title===title);
-    if(existing){
-     setChatId(existing.id);setTab('messages');setChatFolder('all');setChatSearch('');setNotice('گفت‌وگوی قبلی باز شد.');return;
+    const {data:privateRows,error:privateError}=await supabase.from('conversations').select('id').in('id',ids).eq('type','private');
+    if(privateError)throw privateError;
+    const privateIds=(privateRows||[]).map(x=>x.id);
+    if(privateIds.length){
+     const {data:participantRows,error:participantError}=await supabase.from('conversation_members').select('conversation_id,user_id').in('conversation_id',privateIds);
+     if(participantError)throw participantError;
+     const existing=(participantRows||[]).filter(x=>x.user_id===session.user.id||x.user_id===target.id);
+     const byConversation=new Map();
+     existing.forEach(x=>{const set=byConversation.get(x.conversation_id)||new Set();set.add(x.user_id);byConversation.set(x.conversation_id,set)});
+     const existingId=[...byConversation.entries()].find(([,users])=>users.has(session.user.id)&&users.has(target.id))?.[0];
+     if(existingId){
+      setChatId(existingId);setTab('messages');setChatFolder('all');setChatSearch('');setNotice('گفت‌وگوی قبلی باز شد.');return;
+     }
     }
    }
    const {data:created,error:createError}=await supabase.from('conversations').insert({type:'private',title,created_by:session.user.id}).select('id,type,title,created_at').single();

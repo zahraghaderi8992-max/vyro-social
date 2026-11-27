@@ -114,6 +114,7 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
   }, [lockedService, initialService, conversations]);
 
   useEffect(() => {
+    if (loading) return;
     if (!activeId || !userId || !supabaseReady) {
       const descriptor = SERVICE_LIST.find(item => item.id === initialService) || SERVICE_LIST[0];
       setMessages([{ role: 'assistant', text: descriptor.intro }]);
@@ -128,7 +129,7 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
     };
     loadMessages();
     return () => { live = false; };
-  }, [activeId, userId, notify]);
+  }, [activeId, userId, notify, loading]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
@@ -203,6 +204,7 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
 
     let conversation = conversations.find(item => item.id === activeId);
     try {
+      setLoading(true);
       if (!conversation) conversation = await createConversation(service);
       const userText = imageMode ? value : (value || 'لطفاً فایل پیوست را بررسی کن.');
       const visibleText = attachment ? userText + ' · فایل: ' + attachment.name : userText;
@@ -210,7 +212,6 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
       const nextVisible = [...messages.filter(item => item.role !== 'assistant' || item.text !== activeService.intro), userRow];
       setMessages(nextVisible);
       setDraft('');
-      setLoading(true);
 
       const { data: insertedUser, error: insertError } = await supabase.from('vyro_ai_messages').insert({
         conversation_id: conversation.id, user_id: userId, role: 'user', content: visibleText,
@@ -220,7 +221,8 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
       userRow.id = insertedUser.id;
       userRow.created_at = insertedUser.created_at;
 
-      const history = (preferences.memory_enabled ? messages.slice(-16) : messages.slice(-2))
+      const priorMessages = conversation.id === activeId ? messages : [];
+      const history = (preferences.memory_enabled ? priorMessages.slice(-16) : priorMessages.slice(-2))
         .filter(item => item.role === 'user' || item.role === 'assistant')
         .map(item => ({ role: item.role, content: item.text }));
       const payloadMessages = [...history, { role: 'user', content: imageMode ? value : (value || 'لطفاً فایل پیوست را بررسی کن.') }];
@@ -244,6 +246,7 @@ export default function VyroIntelligence({ session, onNotice, initialService = '
         try { const context = await error.context?.clone?.().json(); if (context?.error) message = context.error; if (context?.quota) setQuota(context.quota); } catch {}
         throw new Error(message);
       }
+      if (data?.error) throw new Error(data.error);
       if (data?.quota) setQuota(data.quota);
       if (data?.model) setModel(data.model);
       const answer = data?.answer || (data?.imageUrl ? 'تصویر ساخته شد.' : '');
