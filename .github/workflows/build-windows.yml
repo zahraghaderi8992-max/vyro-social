@@ -1,16 +1,6 @@
 name: Build VYRO Windows Installer
 
 on:
-  push:
-    branches: [main, work/vyro-structure-polish-2026-11-08]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'electron/**'
-      - 'package.json'
-      - 'index.html'
-      - 'vite.config.js'
-      - '.github/workflows/build-windows.yml'
   workflow_dispatch:
 
 permissions:

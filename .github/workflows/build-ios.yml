@@ -1,17 +1,6 @@
 name: Build VYRO iOS Simulator App
 
 on:
-  push:
-    branches: [main, work/vyro-structure-polish-2026-11-08]
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'index.html'
-      - 'vite.config.js'
-      - 'capacitor.config.json'
-      - '.github/workflows/build-ios.yml'
   workflow_dispatch:
 
 permissions:
