@@ -740,7 +740,7 @@ export default function App(){
    setNotice('پیام ارسال نشد: '+(error.message||'دسترسی گفتگو یا فایل را بررسی کن.'));
    return false;
   }finally{setBusy(false)}
-
+ }
  function insertChatLineBreak(){const input=chatInputRef.current;if(!input){setChatDraft(v=>v+'\n');return}const start=input.selectionStart??chatDraft.length;const end=input.selectionEnd??start;const next=chatDraft.slice(0,start)+'\n'+chatDraft.slice(end);setChatDraft(next);if(chatId){try{localStorage.setItem('vyro-chat-draft-'+chatId,next)}catch{}}requestAnimationFrame(()=>{input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px';input.focus();input.setSelectionRange(start+1,start+1)})}
  async function sendChat(e){
   e?.preventDefault();const value=chatDraft.trim();if(!value||!chatId||busy)return;
