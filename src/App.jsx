@@ -252,26 +252,7 @@ export default function App(){
  useEffect(()=>{if(musicUrl)setMusicIsPlaying(true)},[musicUrl]);
  useEffect(()=>{try{localStorage.setItem('vyro-conversations',JSON.stringify(conversations))}catch{}},[conversations]);
    useEffect(()=>{if(!chatId){setChatDraft('');return}try{setChatDraft(localStorage.getItem('vyro-chat-draft-'+chatId)||'')}catch{setChatDraft('')}},[chatId]);
- useEffect(()=>{
-  if(!chatId||String(chatId).startsWith('vyro-service-')||String(chatId).startsWith('local-')||!session?.user?.id||!supabaseReady)return;
-  let active=true;
-  const loadThread=async()=>{
-   const {data,error}=await supabase.from('messages').select('id,sender_id,content,file_url,message_type,created_at').eq('conversation_id',chatId).order('created_at',{ascending:false}).limit(100);
-   if(!active)return;
-   if(error){setNotice('پیام‌های این گفتگو بارگذاری نشدند: '+error.message);return;}
-   const rows=(data||[]).reverse();
-   const paths=[...new Set(rows.map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
-   const {data:signedRows}=paths.length?await supabase.storage.from('chat-files').createSignedUrls(paths,3600):{data:[]};
-   if(!active)return;
-   const signedByPath=new Map((signedRows||[]).map(x=>[x.path,x.signedUrl]));
-   const mapped=rows.map(m=>{const raw=m.file_url||'';const fileUrl=raw&&!raw.startsWith('http')?(signedByPath.get(raw)||''):raw;return{id:m.id,sender_id:m.sender_id,created_at:m.created_at,from:m.sender_id===session.user.id?'me':'them',text:m.content||'',file_url:fileUrl,file_path:raw,message_type:m.message_type||'text',time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})}});
-   setConversations(current=>current.map(c=>c.id===chatId?{...c,messages:mapped,last:mapped[mapped.length-1]?.text||c.last,time:mapped[mapped.length-1]?.time||c.time}:c));
-   setChatHistoryHasMore(current=>({...current,[chatId]:(data||[]).length===100}));
-  };
-  loadThread();
-  const channel=supabase.channel('vyro-thread-'+chatId).on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:'conversation_id=eq.'+chatId},loadThread).subscribe();
-  return()=>{active=false;supabase.removeChannel(channel)};
- },[chatId,session?.user?.id,supabaseReady]);
+ 
  useEffect(()=>{const input=chatInputRef.current;if(!input)return;input.style.height='auto';input.style.height=Math.min(input.scrollHeight,140)+'px'},[chatDraft,chatId]);
  useEffect(()=>{try{localStorage.setItem('vyro-pinned-messages',JSON.stringify(pinnedMessageIds))}catch{}},[pinnedMessageIds]);
  useEffect(()=>{try{localStorage.setItem('vyro-message-reactions',JSON.stringify(localMessageReactions))}catch{}},[localMessageReactions]);
@@ -285,7 +266,7 @@ export default function App(){
  useEffect(()=>{if(!settingsLoaded)return;try{localStorage.setItem('vyro-settings',JSON.stringify({settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier}))}catch{}},[settingsLoaded,settings,themeChoice,customBg,customAccent,appLanguage,privacyChoices,notificationChoices,aiTier]);
  useEffect(()=>{const root=document.documentElement;const color=themeChoice==='custom'?{bg:customBg,lime:customAccent,panel:customBg,line:customAccent+'55'}:(themePalettes[themeChoice]||themePalettes.gold);root.style.setProperty('--bg',color.bg);root.style.setProperty('--lime',color.lime);root.style.setProperty('--panel',color.panel);root.style.setProperty('--line',color.line);},[themeChoice,customBg,customAccent]);
  useEffect(()=>{if(!profileViewer?.id||!supabaseReady){setProfileViewerPosts(profileViewer?posts.filter(p=>p.username===profileViewer.username):[]);return}let active=true;const loadProfilePosts=async()=>{const {data,error}=await supabase.from('posts').select('id,content,media_url,media_type,created_at,user_id,profiles(username,display_name,avatar_url,banner_url,bio,role)').eq('user_id',profileViewer.id).order('created_at',{ascending:false}).limit(50);if(!active)return;if(error){setProfileViewerPosts(posts.filter(p=>p.username===profileViewer.username));return}setProfileViewerPosts((data||[]).map(p=>({id:p.id,username:p.profiles?.username||profileViewer.username,display_name:p.profiles?.display_name||profileViewer.display_name||'عضو وایرو',avatar_url:p.profiles?.avatar_url||profileViewer.avatar_url||'',banner_url:p.profiles?.banner_url||profileViewer.banner_url||'',bio:p.profiles?.bio||profileViewer.bio||'',user_id:p.user_id,time:new Date(p.created_at).toLocaleString('fa-IR'),content:p.content||'',media_url:p.media_url||'',media_type:p.media_type||''}))) };loadProfilePosts();return()=>{active=false}},[profileViewer?.id,session]);
- useEffect(()=>{if(!session||!supabaseReady||!chatId||String(chatId).startsWith('local-'))return;let active=true;
+ useEffect(()=>{if(!session||!supabaseReady||!chatId||String(chatId).startsWith('local-')||String(chatId).startsWith('vyro-service-'))return;let active=true;
   const refresh=async()=>{
    const {data,error}=await supabase.from('messages').select('id,sender_id,content,file_url,message_type,created_at').eq('conversation_id',chatId).order('created_at',{ascending:false}).limit(200);
    if(error||!data||!active)return;
