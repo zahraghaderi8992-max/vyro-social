@@ -359,15 +359,12 @@ export default function App(){
   if(!session?.user?.id||!supabaseReady){setSavedMessageItems([]);return}
   let active=true;
   const load=async()=>{
-   const {data,error}=await supabase.from('saved_message_items').select('id,content,file_url,message_type,source_conversation_id,source_message_id,source_title,metadata,created_at').eq('user_id',session.user.id).order('created_at',{ascending:false}).limit(300);
-   if(!active)return;
-   if(error){setNotice('Saved Messages بارگذاری نشد: '+error.message);return}
-   const mapped=await Promise.all((data||[]).map(async item=>{
-    let fileUrl=item.file_url||'';
-    if(fileUrl&&!/^https?:\/\//i.test(fileUrl)){const {data:signed}=await supabase.storage.from('chat-files').createSignedUrl(fileUrl,3600);fileUrl=signed?.signedUrl||''}
-    return {...item,file_path:item.file_url,file_url:fileUrl};
-   }));
-   if(active)setSavedMessageItems(mapped);
+   try{
+    const mapped=await chatRepository.listSavedItems(session.user.id,300);
+    if(active)setSavedMessageItems(mapped);
+   }catch(error){
+    if(active)setNotice('Saved Messages بارگذاری نشد: '+(error.message||'خطای نامشخص'));
+   }
   };
   load();
   const channel=supabase.channel('vyro-saved-items-'+session.user.id).on('postgres_changes',{event:'*',schema:'public',table:'saved_message_items',filter:'user_id=eq.'+session.user.id},load).subscribe();
