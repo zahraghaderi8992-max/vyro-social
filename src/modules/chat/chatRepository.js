@@ -20,8 +20,9 @@ export function createChatRepository(client) {
   async function signFileUrls(rows, field = 'file_url') {
     const paths = [...new Set((rows || []).map(row => row[field] || '').filter(path => path && !/^https?:\/\//i.test(path)))];
     if (!paths.length) return new Map();
-    const { data, error } = await client.storage.from('chat-files').createSignedUrls(paths, 3600);
-    if (error) throw error;
+    const { data } = await client.storage.from('chat-files').createSignedUrls(paths, 3600);
+    // A signing failure must not hide the text/history of an otherwise readable conversation.
+    if (!data) return new Map();
     return new Map((data || []).map(item => [item.path, item.signedUrl]));
   }
 
