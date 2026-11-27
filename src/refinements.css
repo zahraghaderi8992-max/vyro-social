@@ -1651,3 +1651,15 @@ input[type=file]{
 .vyro-turnstile-wrap{display:grid;justify-items:center;gap:7px;padding:12px;border:1px solid #ffffff20;border-radius:14px;background:rgba(110,115,125,.12);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)}
 .vyro-turnstile-wrap>div{max-width:100%;min-height:65px}
 .vyro-turnstile-wrap small{color:#b7bac4;font-size:11px;text-align:center}
+
+/* Dedicated service accounts inside the main chat inbox */
+.vyro-service-chat-window{min-height:530px!important;overflow:hidden}
+.vyro-service-chat-content{flex:1;min-height:0;overflow:auto;padding:10px}
+.vyro-service-chat-content>.vyro-intel{min-height:100%;height:100%;margin:0;display:flex;flex-direction:column}
+.vyro-service-chat-content .vyro-intel-messages{flex:1;min-height:220px;max-height:none}
+.vyro-service-chat-content .vyro-intel-head{position:sticky;top:0;z-index:2;background:rgba(15,16,17,.96);backdrop-filter:blur(14px)}
+@media(max-width:700px){
+ .vyro-service-chat-window{min-height:calc(100dvh - 155px)!important;height:calc(100dvh - 155px)}
+ .vyro-service-chat-content{padding:7px}
+ .vyro-service-chat-content>.vyro-intel{min-height:100%;height:auto}
+}
