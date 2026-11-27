@@ -620,7 +620,7 @@ export default function App(){
     const currentName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
     const mapped=await chatRepository.listConversations(session.user.id,currentName);
     if(!active)return;
-    setConversations(current=>[...serviceChatAccounts,...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
+    setConversations(current=>[...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
    }catch(error){
     if(active)setNotice(error.message||'بارگذاری فهرست گفتگوها انجام نشد.');
    }
