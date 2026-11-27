@@ -28,6 +28,24 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Checkout private Chat module (optional)
+        uses: actions/checkout@v4
+        continue-on-error: true
+        with:
+          repository: zahraghaderi8992-max/My-makhzan
+          ref: main
+          token: ${{ secrets.VYRO_MODULES_TOKEN }}
+          path: .private-modules/chat
+          persist-credentials: false
+      - name: Sync Chat module source when private repository is available
+        shell: bash
+        run: |
+          if [ -f .private-modules/chat/src/chatRepository.js ]; then
+            cp .private-modules/chat/src/chatRepository.js src/modules/chat/chatRepository.js
+            echo "Using private Chat module source."
+          else
+            echo "Using checked-in Chat module fallback."
+          fi
       - name: Setup Node
         uses: actions/setup-node@v4
         with:

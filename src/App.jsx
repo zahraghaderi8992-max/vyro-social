@@ -4,6 +4,7 @@ import { Bell, Compass, Bookmark, Heart, ThumbsUp, ThumbsDown, ImagePlus, LogIn,
 import { supabase, supabaseReady } from './lib/supabase';
 import AuthContactMethod from './components/AuthContactMethod';
 import VyroIntelligence from './components/VyroIntelligence';
+import { createChatRepository } from './modules/chat/chatRepository';
 
 // UI scaffold stays hidden until explicitly enabled in the deployment environment.
 const OTP_AUTH_UI_ENABLED = import.meta.env.VITE_VYRO_OTP_AUTH_UI_ENABLED === 'true';
@@ -15,6 +16,7 @@ const serviceChatAccounts = [
  {id:'vyro-service-code',type:'direct',name:'Vyro Code Live',handle:'@vyro_code_live',avatar:'code',last:'همراه برنامه‌نویسی و موتور کد زنده',time:'',unread:0,messages:[],isService:true,service:'code'}
 ];
 const demoPosts = [];
+const chatRepository = createChatRepository(supabase);
 const animatedEmojiFiles = {
  '😀':'U+1F600_1','😃':'U+1F603_1','😄':'U+1F604_1','😁':'U+1F601_1','😂':'U+1F602_1','🤣':'U+1F923_1',
  '😍':'U+1F60D_1','🥰':'U+1F970_1','😘':'U+1F618_1','😎':'U+1F60E_1','🥳':'U+1F973_1','😭':'U+1F62D_1',
@@ -614,54 +616,14 @@ export default function App(){
   };
   const loadChats=async()=>{
    if(!session?.user?.id)return;
-   const userId=session.user.id;
-   const [{data:memberRows,error:memberError},{data:ownedRows,error:ownedError}]=await Promise.all([
-    supabase.from('conversation_members').select('conversation_id').eq('user_id',userId),
-    supabase.from('conversations').select('id,type,title,created_at,created_by').eq('created_by',userId).order('created_at',{ascending:false})
-   ]);
-   if(!active)return;
-   if(memberError){setNotice('فهرست عضویت چت‌ها بارگذاری نشد: '+memberError.message);return;}
-   if(ownedError){setNotice('گفت‌وگوهای ساخته‌شده توسط حساب تو بارگذاری نشدند: '+ownedError.message);return;}
-   const memberIds=[...new Set((memberRows||[]).map(m=>m.conversation_id).filter(Boolean))];
-   const owned=(ownedRows||[]);
-   const known=new Set(memberIds);
-   const missingOwn=owned.filter(c=>!known.has(c.id));
-   if(missingOwn.length){
-    const {error:restoreError}=await supabase.from('conversation_members').insert(missingOwn.map(c=>({conversation_id:c.id,user_id:userId})));
-    if(restoreError){setNotice('بازیابی عضویت گفتگوهای ساخته‌شده کامل نشد: '+restoreError.message);}
-   }
-   const ids=[...new Set([...memberIds,...owned.map(c=>c.id)])];
-   if(!ids.length){setConversations(current=>[...serviceChatAccounts,...current.filter(x=>String(x.id).startsWith('local-'))]);return;}
-   const [{data:convRows,error:convError},{data:messageRows,error:messageError},{data:participantRows,error:participantError}]=await Promise.all([
-    supabase.from('conversations').select('id,type,title,created_at,created_by').in('id',ids).order('created_at',{ascending:false}),
-    supabase.from('messages').select('id,conversation_id,sender_id,content,file_url,message_type,created_at').in('conversation_id',ids).order('created_at',{ascending:false}).limit(500),
-    supabase.from('conversation_members').select('conversation_id,user_id,profiles(username,display_name,avatar_url,role)').in('conversation_id',ids)
-   ]);
-   if(!active)return;
-   if(convError){setNotice('گفت‌وگوهای قبلی دریافت نشدند: '+convError.message);return;}
-   if(messageError){setNotice('پیام‌های گفتگو دریافت نشدند: '+messageError.message);}
-   if(participantError){setNotice('اطلاعات اعضای گفتگو دریافت نشد: '+participantError.message);}
-   const rows=messageRows||[];
-   const mediaPaths=[...new Set(rows.map(m=>m.file_url||'').filter(p=>p&&!p.startsWith('http')))];
-   const {data:signedRows}=mediaPaths.length?await supabase.storage.from('chat-files').createSignedUrls(mediaPaths,3600):{data:[]};
-   if(!active)return;
-   const signedByPath=new Map((signedRows||[]).map(x=>[x.path,x.signedUrl]));
-   const participants=participantRows||[];
-   const mapped=await Promise.all((convRows||[]).map(async v=>{
-    const ms=rows.filter(m=>m.conversation_id===v.id).reverse().map(m=>{
-     const rawUrl=m.file_url||'';
-     const fileUrl=rawUrl&&!rawUrl.startsWith('http')?(signedByPath.get(rawUrl)||''):rawUrl;
-     return{id:m.id,sender_id:m.sender_id,from:m.sender_id===userId?'me':'them',text:m.content||'',file_url:fileUrl,file_path:m.file_url||'',message_type:m.message_type||'text',created_at:m.created_at,time:new Date(m.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'})};
-    });
-    const last=ms[ms.length-1];
-    const other=participants.find(p=>p.conversation_id===v.id&&p.user_id!==userId)?.profiles;
-    const titleParts=(v.title||'').split('|');
+   try{
     const currentName=(session.user?.user_metadata?.username||session.user?.email?.split('@')[0]||'').toLowerCase();
-    const fallbackName=v.type==='private'&&titleParts.length>1?(titleParts.find(x=>x.toLowerCase()!==currentName)||titleParts[0]):(v.title||'گفت‌وگو');
-    const displayName=v.type==='private'?(other?.username||other?.display_name||fallbackName):(v.title||'گفت‌وگو');
-    return{id:v.id,type:v.type==='private'?'direct':v.type,createdBy:v.created_by,name:displayName,handle:v.type==='private'?'@'+displayName:'',avatar_url:other?.avatar_url||'',avatar:(displayName||'V').slice(0,1).toUpperCase(),role:other?.role||'user',last:last?.text||'گفت‌وگوی تازه',time:last?.time||'',unread:0,messages:ms};
-   }));
-   if(active)setConversations(current=>[...serviceChatAccounts,...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
+    const mapped=await chatRepository.listConversations(session.user.id,currentName);
+    if(!active)return;
+    setConversations(current=>[...serviceChatAccounts,...mapped,...current.filter(x=>String(x.id).startsWith('local-'))]);
+   }catch(error){
+    if(active)setNotice(error.message||'بارگذاری فهرست گفتگوها انجام نشد.');
+   }
   };
   if(tab==='explore')loadExplore();
   if(tab==='messages')loadChats();
@@ -767,6 +729,20 @@ export default function App(){
  async function insertChatMessage({content='',fileUrl=null,displayUrl=null,messageType='text',displayText=null,conversationId=chatId}){
   if(!session||!supabaseReady||!conversationId||String(conversationId).startsWith('local-')){setNotice('برای ارسال پیام واقعی، وارد حساب آنلاین شو و یک گفت‌وگوی آنلاین باز کن.');return false}
   setBusy(true);
+  try{
+   const data=await chatRepository.sendMessage({conversationId,senderId:session.user.id,content,fileUrl,messageType});
+   const time=new Date(data.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
+   const text=displayText||content||'فایل';
+   playDefaultSound();
+   setConversations(v=>v.map(c=>c.id===conversationId?{...c,last:text,time,messages:[...c.messages,{id:data.id,sender_id:session.user.id,from:'me',text:content||'',file_url:displayUrl||fileUrl||'',file_path:fileUrl||'',message_type:messageType,time}]}:c));
+   return true;
+  }catch(error){
+   setNotice('پیام ارسال نشد: '+(error.message||'دسترسی گفتگو یا فایل را بررسی کن.'));
+   return false;
+  }finally{setBusy(false)}
+ }){
+  if(!session||!supabaseReady||!conversationId||String(conversationId).startsWith('local-')){setNotice('برای ارسال پیام واقعی، وارد حساب آنلاین شو و یک گفت‌وگوی آنلاین باز کن.');return false}
+  setBusy(true);
   const {data,error}=await supabase.from('messages').insert({conversation_id:conversationId,sender_id:session.user.id,content:content||null,file_url:fileUrl,message_type:messageType}).select('id,created_at').single();
   if(error){setNotice('پیام ارسال نشد: '+(error.message||'دسترسی گفتگو یا فایل را بررسی کن.'));setBusy(false);return false}
   const time=new Date(data.created_at).toLocaleTimeString('fa-IR',{hour:'2-digit',minute:'2-digit'});
@@ -840,8 +816,7 @@ export default function App(){
   if(!content)return;
   setSavedMessageLoading(true);
   try{
-   const {data,error}=await supabase.from('saved_message_items').insert({user_id:session.user.id,content,message_type:'text',metadata:{origin:'self-chat'}}).select('id,content,file_url,message_type,source_conversation_id,source_message_id,source_title,metadata,created_at').single();
-   if(error)throw error;
+   const data=await chatRepository.saveSelfMessage({userId:session.user.id,content});
    setSavedMessageItems(v=>[data,...v]);setSavedMessageDraft('');
   }catch(error){setNotice('ارسال پیام به Saved Messages ناموفق بود: '+(error.message||'خطای نامشخص'))}
   finally{setSavedMessageLoading(false)}
